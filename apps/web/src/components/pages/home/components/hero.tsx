@@ -13,7 +13,7 @@ const Hero = () => {
       {/* small gradient primarry yellow background */}
       <div className="from-primary-yellow absolute bottom-0 -z-10 h-1/4 w-full rounded-b-3xl bg-gradient-to-t to-transparent opacity-50" />
       {/* Hero Typograph */}
-      <div className="container mx-auto my-6 mt-16 flex max-w-2xl flex-col items-center justify-center gap-4 px-6 text-center md:mt-0 md:mt-20 md:gap-6">
+      <div className="container mx-auto my-6 mt-20 flex max-w-2xl flex-col items-center justify-center gap-4 px-6 text-center md:mt-0 md:mt-24 md:gap-6">
         <h1 className="text-3xl font-semibold md:text-4xl md:leading-14 lg:text-5xl">
           Track the ROI of
           <br />

@@ -33,7 +33,7 @@ const footerLinks = {
 
 const MarketingFooter = () => {
   return (
-    <footer className="bg-secondary-accent/50 relative mt-10 w-full overflow-hidden rounded-t-3xl md:mt-20">
+    <footer className="bg-secondary-accent/50 relative mt-10 h-screen w-full overflow-hidden rounded-t-3xl md:mt-20">
       <div className="container mx-auto px-6 py-12 md:py-16">
         {/* Top Section */}
         <div className="flex flex-col gap-12 lg:flex-row lg:justify-between">
