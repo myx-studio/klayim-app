@@ -4,8 +4,9 @@
   "private": true,
   "main": "lib/index.js",
   "scripts": {
-    "build": "pnpm run build:shared && tsc && tsc-alias",
+    "build": "pnpm run build:shared && tsc && tsc-alias && pnpm run build:revert",
     "build:shared": "node scripts/copy-shared.mjs",
+    "build:revert": "node scripts/revert-shared.mjs",
     "dev": "tsc-watch --onSuccess \"tsc-alias\"",
     "lint": "eslint src"
   },
