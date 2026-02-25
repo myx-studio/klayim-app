@@ -1,0 +1,12 @@
+# Build output
+lib/
+
+# Firebase emulator data
+.emulator-data/
+
+# Firebase debug logs
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+pubsub-debug.log

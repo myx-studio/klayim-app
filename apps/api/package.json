@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "serve": "firebase emulators:start --only functions --import=./.emulator-data --export-on-exit",
+    "emulators": "firebase emulators:start --import=./.emulator-data --export-on-exit",
+    "emulators:fresh": "firebase emulators:start",
+    "emulators:export": "firebase emulators:export ./.emulator-data",
+    "deploy": "pnpm build && firebase deploy --only functions",
+    "lint": "eslint src"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.17.0",
+    "typescript": "^5.6.0",
+    "eslint": "^9.0.0"
+  }
+}

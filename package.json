@@ -1,0 +1,25 @@
+{
+  "name": "klayim",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:web": "pnpm --filter web run dev",
+    "dev:api": "pnpm --filter api run dev",
+    "lint": "turbo lint",
+    "clean": "turbo clean",
+    "emulators": "pnpm --filter api run emulators",
+    "emulators:fresh": "pnpm --filter api run emulators:fresh",
+    "emulators:export": "pnpm --filter api run emulators:export",
+    "emulators:functions": "pnpm --filter api run serve",
+    "api:build": "pnpm --filter api run build",
+    "api:deploy": "pnpm --filter api run deploy"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
