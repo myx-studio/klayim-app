@@ -2,11 +2,15 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { onRequest, HttpsFunction, HttpsOptions } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import type { Request, Response } from "express";
 
-import { healthRoute, userRoute, authRoutes, organizationRoutes } from "@/routes/index.js";
+import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute } from "@/routes/index.js";
 import { authMiddleware } from "@/middleware/index.js";
 import type { ApiResponse } from "@/types/index.js";
+
+// Define secrets for Firebase Functions
+const recaptchaSecretKey = defineSecret("RECAPTCHA_SECRET_KEY");
 
 const app = new Hono();
 
@@ -15,7 +19,12 @@ app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      "http://localhost:3000",
+      "https://www.klayim.com",
+      "https://klayim.com",
+      "https://klayim-app--klayim-app.us-east4.hosted.app",
+    ],
     credentials: true,
   })
 );
@@ -23,6 +32,7 @@ app.use(
 // Public routes
 app.route("/health", healthRoute);
 app.route("/auth", authRoutes);
+app.route("/newsletter", newsletterRoute);
 
 // Protected routes
 app.use("/users/*", authMiddleware);
@@ -109,8 +119,9 @@ async function handleRequest(req: Request, res: Response): Promise<void> {
 
 // Firebase Functions options
 const options: HttpsOptions = {
-  region: "asia-southeast1",
+  region: "us-central1",
   cors: true,
+  secrets: [recaptchaSecretKey],
 };
 
 // Export for Firebase Functions

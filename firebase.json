@@ -4,7 +4,7 @@
       "source": "apps/api",
       "codebase": "api",
       "runtime": "nodejs20",
-      "predeploy": ["pnpm --filter api run build"]
+      "predeploy": ["pnpm --filter @klayim/shared build", "pnpm --filter api run build"]
     }
   ],
   "firestore": {

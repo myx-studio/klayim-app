@@ -26,6 +26,8 @@ export {
   // Subscription schemas
   subscriptionCheckoutSchema,
   planChangeSchema,
+  // Newsletter schemas
+  newsletterSubscribeSchema,
 } from "./schemas/index.js";
 
 // Config

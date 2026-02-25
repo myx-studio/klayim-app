@@ -26,7 +26,7 @@ export const pricingPlans: PricingPlan[] = [
       "Task management",
     ],
     cta: "Get Started",
-    ctaLink: "/checkout/individual",
+    ctaLink: "/coming-soon",
   },
   {
     id: "team",
@@ -43,7 +43,7 @@ export const pricingPlans: PricingPlan[] = [
       "Lifetime updates",
     ],
     cta: "Get Started",
-    ctaLink: "/checkout/team",
+    ctaLink: "/coming-soon",
   },
   {
     id: "enterprise",
@@ -61,6 +61,6 @@ export const pricingPlans: PricingPlan[] = [
       "Quarterly reviews",
     ],
     cta: "Contact Sales",
-    ctaLink: "/contact",
+    ctaLink: "/coming-soon",
   },
 ];

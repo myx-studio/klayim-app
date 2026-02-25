@@ -1,5 +1,6 @@
 # Build output
 lib/
+shared/
 
 # Firebase emulator data
 .emulator-data/

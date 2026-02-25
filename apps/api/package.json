@@ -4,7 +4,8 @@
   "private": true,
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "pnpm run build:shared && tsc && tsc-alias",
+    "build:shared": "node scripts/copy-shared.mjs",
     "dev": "tsc-watch --onSuccess \"tsc-alias\"",
     "lint": "eslint src"
   },
@@ -13,7 +14,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
-    "@klayim/shared": "workspace:*",
+    "@klayim/shared": "file:./shared",
     "bcryptjs": "^3.0.3",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.1.0",

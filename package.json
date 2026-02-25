@@ -29,5 +29,8 @@
   "packageManager": "pnpm@10.23.0",
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "framer-motion": "^12.34.3"
   }
 }
