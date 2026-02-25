@@ -11,7 +11,19 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true
+    "declaration": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"],
+      "@/types/*": ["./types/*"],
+      "@/models/*": ["./models/*"],
+      "@/repositories/*": ["./repositories/*"],
+      "@/services/*": ["./services/*"],
+      "@/usecases/*": ["./usecases/*"],
+      "@/routes/*": ["./routes/*"],
+      "@/middleware/*": ["./middleware/*"],
+      "@/lib/*": ["./lib/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "lib"]

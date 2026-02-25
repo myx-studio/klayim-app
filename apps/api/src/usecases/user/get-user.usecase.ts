@@ -1,5 +1,5 @@
-import { userRepository } from "../../repositories/index.js";
-import type { User } from "../../types/index.js";
+import { userRepository } from "@/repositories/index.js";
+import type { User } from "@/types/index.js";
 
 export class GetUserUseCase {
   async execute(id: string): Promise<User | null> {

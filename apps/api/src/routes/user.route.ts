@@ -5,8 +5,8 @@ import {
   createUserUseCase,
   updateUserUseCase,
   deleteUserUseCase,
-} from "../usecases/index.js";
-import type { ApiResponse, User, PaginatedResult } from "../types/index.js";
+} from "@/usecases/index.js";
+import type { ApiResponse, User, PaginatedResult } from "@/types/index.js";
 
 const userRoute = new Hono();
 

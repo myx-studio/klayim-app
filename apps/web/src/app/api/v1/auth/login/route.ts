@@ -1,27 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { api, ApiError } from "@/lib/api";
+import type { ApiResponse, UserProfile } from "@klayim/shared/types";
 
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-interface LoginResponse {
-  success: boolean;
-  data?: {
-    id: string;
-    email: string;
-    name: string;
-    avatar?: string;
-  };
-  error?: string;
+interface LoginResponseData {
+  user: UserProfile;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body: LoginRequest = await request.json();
+    const body = await request.json();
 
-    const data = await api<LoginResponse>("/auth/login", {
+    const data = await api<ApiResponse<LoginResponseData>>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
     });

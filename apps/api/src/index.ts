@@ -4,8 +4,9 @@ import { logger } from "hono/logger";
 import { onRequest, HttpsFunction, HttpsOptions } from "firebase-functions/v2/https";
 import type { Request, Response } from "express";
 
-import { healthRoute, userRoute } from "./routes/index.js";
-import type { ApiResponse } from "./types/index.js";
+import { healthRoute, userRoute, authRoutes, organizationRoutes } from "@/routes/index.js";
+import { authMiddleware } from "@/middleware/index.js";
+import type { ApiResponse } from "@/types/index.js";
 
 const app = new Hono();
 
@@ -19,9 +20,15 @@ app.use(
   })
 );
 
-// Routes
+// Public routes
 app.route("/health", healthRoute);
+app.route("/auth", authRoutes);
+
+// Protected routes
+app.use("/users/*", authMiddleware);
+app.use("/organizations/*", authMiddleware);
 app.route("/users", userRoute);
+app.route("/organizations", organizationRoutes);
 
 // Root route
 app.get("/", (c) => {

@@ -1,5 +1,5 @@
-import { userRepository } from "../../repositories/index.js";
-import type { UpdateUserDTO, User } from "../../types/index.js";
+import { userRepository } from "@/repositories/index.js";
+import type { UpdateUserInput, User } from "@/types/index.js";
 
 export interface UpdateUserResult {
   success: boolean;
@@ -8,8 +8,8 @@ export interface UpdateUserResult {
 }
 
 export class UpdateUserUseCase {
-  async execute(id: string, dto: UpdateUserDTO): Promise<UpdateUserResult> {
-    const user = await userRepository.update(id, dto);
+  async execute(id: string, input: UpdateUserInput): Promise<UpdateUserResult> {
+    const user = await userRepository.update(id, input);
 
     if (!user) {
       return {

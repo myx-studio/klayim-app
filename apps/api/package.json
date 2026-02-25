@@ -4,27 +4,29 @@
   "private": true,
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "serve": "firebase emulators:start --only functions --import=./.emulator-data --export-on-exit",
-    "emulators": "firebase emulators:start --import=./.emulator-data --export-on-exit",
-    "emulators:fresh": "firebase emulators:start",
-    "emulators:export": "firebase emulators:export ./.emulator-data",
-    "deploy": "pnpm build && firebase deploy --only functions",
+    "build": "tsc && tsc-alias",
+    "dev": "tsc-watch --onSuccess \"tsc-alias\"",
     "lint": "eslint src"
   },
   "engines": {
     "node": "20"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.7.6",
+    "@klayim/shared": "workspace:*",
+    "bcryptjs": "^3.0.3",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.1.0",
-    "hono": "^4.6.0"
+    "hono": "^4.6.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.17.0",
-    "typescript": "^5.6.0",
-    "eslint": "^9.0.0"
+    "eslint": "^9.0.0",
+    "tsc-alias": "^1.8.16",
+    "tsc-watch": "^7.2.0",
+    "typescript": "^5.6.0"
   }
 }

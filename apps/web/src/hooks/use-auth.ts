@@ -3,27 +3,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { signIn, signOut } from "next-auth/react";
 import { fetcher, FetchError } from "@/lib/fetcher";
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  name: string;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
+import type {
+  ApiResponse,
+  User,
+  LoginInput,
+  RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "@klayim/shared/types";
 
 export function useLogin() {
   return useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
+    mutationFn: async (credentials: LoginInput) => {
       const result = await signIn("credentials", {
         ...credentials,
         redirect: false,
@@ -48,8 +39,8 @@ export function useLogout() {
 
 export function useRegister() {
   return useMutation({
-    mutationFn: async (data: RegisterData) => {
-      const response = await fetcher<ApiResponse<{ id: string }>>("/auth/register", {
+    mutationFn: async (data: RegisterInput) => {
+      const response = await fetcher<ApiResponse<{ user: User }>>("/auth/register", {
         method: "POST",
         body: JSON.stringify(data),
       });
@@ -65,10 +56,10 @@ export function useRegister() {
 
 export function useForgotPassword() {
   return useMutation({
-    mutationFn: async (email: string) => {
+    mutationFn: async (data: ForgotPasswordInput) => {
       const response = await fetcher<ApiResponse<null>>("/auth/forgot-password", {
         method: "POST",
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(data),
       });
 
       if (!response.success) {
@@ -82,7 +73,7 @@ export function useForgotPassword() {
 
 export function useResetPassword() {
   return useMutation({
-    mutationFn: async (data: { token: string; password: string }) => {
+    mutationFn: async (data: ResetPasswordInput) => {
       const response = await fetcher<ApiResponse<null>>("/auth/reset-password", {
         method: "POST",
         body: JSON.stringify(data),
@@ -90,6 +81,23 @@ export function useResetPassword() {
 
       if (!response.success) {
         throw new FetchError(400, response.error || "Failed to reset password");
+      }
+
+      return response;
+    },
+  });
+}
+
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const response = await fetcher<ApiResponse<null>>("/auth/verify-email", {
+        method: "POST",
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Failed to verify email");
       }
 
       return response;

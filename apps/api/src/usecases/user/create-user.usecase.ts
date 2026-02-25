@@ -1,5 +1,8 @@
-import { userRepository } from "../../repositories/index.js";
-import type { CreateUserDTO, User } from "../../types/index.js";
+import { userRepository } from "@/repositories/index.js";
+import type { CreateUserInput, User } from "@/types/index.js";
+import bcrypt from "bcryptjs";
+
+const SALT_ROUNDS = 12;
 
 export interface CreateUserResult {
   success: boolean;
@@ -8,9 +11,9 @@ export interface CreateUserResult {
 }
 
 export class CreateUserUseCase {
-  async execute(dto: CreateUserDTO): Promise<CreateUserResult> {
+  async execute(input: CreateUserInput): Promise<CreateUserResult> {
     // Check if email already exists
-    const existing = await userRepository.findByEmail(dto.email);
+    const existing = await userRepository.findByEmail(input.email);
     if (existing) {
       return {
         success: false,
@@ -18,7 +21,13 @@ export class CreateUserUseCase {
       };
     }
 
-    const user = await userRepository.create(dto);
+    // Hash password
+    const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
+
+    const user = await userRepository.create({
+      ...input,
+      passwordHash,
+    });
 
     return {
       success: true,

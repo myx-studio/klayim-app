@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { ApiResponse } from "../types/index.js";
+import type { ApiResponse } from "@/types/index.js";
 
 const healthRoute = new Hono();
 

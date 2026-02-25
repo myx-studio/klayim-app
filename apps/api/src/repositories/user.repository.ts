@@ -1,19 +1,17 @@
-import { firestore } from "../lib/index.js";
-import { UserEntity } from "../models/index.js";
+import { firestore } from "@/lib/index.js";
+import { UserEntity } from "@/models/index.js";
 import type {
   User,
-  CreateUserDTO,
-  UpdateUserDTO,
+  CreateUserInput,
+  UpdateUserInput,
   PaginationParams,
   PaginatedResult,
-} from "../types/index.js";
-import type { IRepository } from "./base.repository.js";
+  UserWithPassword,
+} from "@/types/index.js";
 
 const COLLECTION = "users";
 
-export class UserRepository
-  implements IRepository<User, CreateUserDTO, UpdateUserDTO>
-{
+export class UserRepository {
   private collection = firestore.collection(COLLECTION);
 
   async findById(id: string): Promise<User | null> {
@@ -23,12 +21,22 @@ export class UserRepository
       return null;
     }
 
-    return this.mapToEntity(doc.id, doc.data()!);
+    return this.mapToUser(doc.id, doc.data()!);
+  }
+
+  async findByIdWithPassword(id: string): Promise<UserWithPassword | null> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    return this.mapToUserWithPassword(doc.id, doc.data()!);
   }
 
   async findByEmail(email: string): Promise<User | null> {
     const snapshot = await this.collection
-      .where("email", "==", email)
+      .where("email", "==", email.toLowerCase())
       .limit(1)
       .get();
 
@@ -37,7 +45,21 @@ export class UserRepository
     }
 
     const doc = snapshot.docs[0];
-    return this.mapToEntity(doc.id, doc.data());
+    return this.mapToUser(doc.id, doc.data());
+  }
+
+  async findByEmailWithPassword(email: string): Promise<UserWithPassword | null> {
+    const snapshot = await this.collection
+      .where("email", "==", email.toLowerCase())
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const doc = snapshot.docs[0];
+    return this.mapToUserWithPassword(doc.id, doc.data());
   }
 
   async findAll(params?: PaginationParams): Promise<PaginatedResult<User>> {
@@ -54,7 +76,7 @@ export class UserRepository
     const snapshot = await query.get();
     const docs = snapshot.docs;
     const hasMore = docs.length > limit;
-    const data = docs.slice(0, limit).map((doc) => this.mapToEntity(doc.id, doc.data()));
+    const data = docs.slice(0, limit).map((doc) => this.mapToUser(doc.id, doc.data()));
 
     return {
       data,
@@ -63,28 +85,73 @@ export class UserRepository
     };
   }
 
-  async create(dto: CreateUserDTO): Promise<User> {
+  async create(input: CreateUserInput & { passwordHash: string }): Promise<User> {
     const docRef = this.collection.doc();
-    const entity = UserEntity.create(docRef.id, dto);
+    const entity = UserEntity.create(docRef.id, {
+      ...input,
+      email: input.email.toLowerCase(),
+    });
 
     await docRef.set(this.mapToFirestore(entity));
 
     return entity.toJSON();
   }
 
-  async update(id: string, dto: UpdateUserDTO): Promise<User | null> {
+  async update(id: string, input: UpdateUserInput): Promise<User | null> {
     const doc = await this.collection.doc(id).get();
 
     if (!doc.exists) {
       return null;
     }
 
-    const existing = this.mapToEntity(doc.id, doc.data()!);
-    const updated = new UserEntity(existing).update(dto);
+    const existing = this.mapToUserWithPassword(doc.id, doc.data()!);
+    const entity = new UserEntity(existing);
+    const updated = entity.update(input);
 
-    await this.collection.doc(id).update(this.mapToFirestore(updated));
+    await this.collection.doc(id).update({
+      ...input,
+      updatedAt: new Date().toISOString(),
+    });
 
     return updated.toJSON();
+  }
+
+  async updatePassword(id: string, passwordHash: string): Promise<boolean> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return false;
+    }
+
+    await this.collection.doc(id).update({
+      passwordHash,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return true;
+  }
+
+  async updateLastLogin(id: string): Promise<void> {
+    await this.collection.doc(id).update({
+      lastLoginAt: new Date().toISOString(),
+    });
+  }
+
+  async verifyEmail(id: string): Promise<User | null> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    await this.collection.doc(id).update({
+      emailVerified: true,
+      status: "active",
+      updatedAt: new Date().toISOString(),
+    });
+
+    const updated = await this.findById(id);
+    return updated;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -98,27 +165,39 @@ export class UserRepository
     return true;
   }
 
-  private mapToEntity(
-    id: string,
-    data: FirebaseFirestore.DocumentData
-  ): User {
+  private mapToUser(id: string, data: FirebaseFirestore.DocumentData): User {
     return {
       id,
       email: data.email,
-      displayName: data.displayName,
-      photoURL: data.photoURL,
-      disabled: data.disabled,
+      name: data.name,
+      avatar: data.avatar,
+      type: data.type,
+      status: data.status,
+      emailVerified: data.emailVerified,
+      lastLoginAt: data.lastLoginAt,
+      defaultOrganizationId: data.defaultOrganizationId,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
   }
 
-  private mapToFirestore(
-    entity: UserEntity
-  ): Record<string, unknown> {
+  private mapToUserWithPassword(
+    id: string,
+    data: FirebaseFirestore.DocumentData
+  ): UserWithPassword {
+    return {
+      ...this.mapToUser(id, data),
+      passwordHash: data.passwordHash,
+    };
+  }
+
+  private mapToFirestore(entity: UserEntity): Record<string, unknown> {
     const data = entity.toJSON();
     const { id, ...rest } = data;
-    return rest;
+    return {
+      ...rest,
+      passwordHash: entity.passwordHash,
+    };
   }
 }
 

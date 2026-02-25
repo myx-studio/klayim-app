@@ -1,20 +1,48 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { AnalyticsProvider } from "@/components/providers/analytics-provider";
-import { QueryProvider } from "@/components/providers/query-provider";
-import { SessionProvider } from "@/components/providers/session-provider";
+import localFont from "next/font/local";
+
+import AppProvider from "../components/providers/app-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const nhaasGrotesk = localFont({
+  src: [
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-45Lt.otf",
+      weight: "200",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-45Lt.otf",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-55Rg.otf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-55Rg.otf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-55Rg.otf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-65Md.otf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NHaasGrotesk/NHaasGroteskDSStd-65Md.otf",
+      weight: "800",
+      style: "normal",
+    },
+  ],
+  variable: "--font-nhaas-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -29,19 +57,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SessionProvider>
-          <QueryProvider>
-            <AnalyticsProvider>
-              <TooltipProvider>
-                {children}
-                <Toaster />
-              </TooltipProvider>
-            </AnalyticsProvider>
-          </QueryProvider>
-        </SessionProvider>
+      <body className={`${nhaasGrotesk.variable} antialiased`}>
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );

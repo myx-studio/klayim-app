@@ -1,39 +1,74 @@
-import type { User, CreateUserDTO, UpdateUserDTO } from "../types/index.js";
+import type { User, CreateUserInput, UpdateUserInput } from "@klayim/shared/types";
 
 export class UserEntity implements User {
   id: string;
   email: string;
-  displayName: string;
-  photoURL?: string;
-  disabled?: boolean;
+  name: string;
+  avatar?: string;
+  type: User["type"];
+  status: User["status"];
+  emailVerified?: boolean;
+  lastLoginAt?: string;
+  defaultOrganizationId?: string;
   createdAt: string;
   updatedAt?: string;
+  passwordHash?: string;
 
-  constructor(data: User) {
+  constructor(data: User & { passwordHash?: string }) {
     this.id = data.id;
     this.email = data.email;
-    this.displayName = data.displayName;
-    this.photoURL = data.photoURL;
-    this.disabled = data.disabled;
+    this.name = data.name;
+    this.avatar = data.avatar;
+    this.type = data.type;
+    this.status = data.status;
+    this.emailVerified = data.emailVerified;
+    this.lastLoginAt = data.lastLoginAt;
+    this.defaultOrganizationId = data.defaultOrganizationId;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
+    this.passwordHash = data.passwordHash;
   }
 
-  static create(id: string, dto: CreateUserDTO): UserEntity {
+  static create(
+    id: string,
+    input: CreateUserInput & { passwordHash: string }
+  ): UserEntity {
     return new UserEntity({
       id,
-      email: dto.email,
-      displayName: dto.displayName,
-      photoURL: dto.photoURL,
+      email: input.email,
+      name: input.name,
+      type: input.type ?? "customer",
+      status: "pending",
+      emailVerified: false,
       createdAt: new Date().toISOString(),
+      passwordHash: input.passwordHash,
     });
   }
 
-  update(dto: UpdateUserDTO): UserEntity {
+  update(input: UpdateUserInput): UserEntity {
     return new UserEntity({
-      ...this,
-      ...dto,
+      ...this.toJSON(),
+      ...input,
       updatedAt: new Date().toISOString(),
+      passwordHash: this.passwordHash,
+    });
+  }
+
+  setLastLogin(): UserEntity {
+    return new UserEntity({
+      ...this.toJSON(),
+      lastLoginAt: new Date().toISOString(),
+      passwordHash: this.passwordHash,
+    });
+  }
+
+  setEmailVerified(): UserEntity {
+    return new UserEntity({
+      ...this.toJSON(),
+      emailVerified: true,
+      status: "active",
+      updatedAt: new Date().toISOString(),
+      passwordHash: this.passwordHash,
     });
   }
 
@@ -41,11 +76,25 @@ export class UserEntity implements User {
     return {
       id: this.id,
       email: this.email,
-      displayName: this.displayName,
-      photoURL: this.photoURL,
-      disabled: this.disabled,
+      name: this.name,
+      avatar: this.avatar,
+      type: this.type,
+      status: this.status,
+      emailVerified: this.emailVerified,
+      lastLoginAt: this.lastLoginAt,
+      defaultOrganizationId: this.defaultOrganizationId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+    };
+  }
+
+  toProfile(): { id: string; email: string; name: string; avatar?: string; type: User["type"] } {
+    return {
+      id: this.id,
+      email: this.email,
+      name: this.name,
+      avatar: this.avatar,
+      type: this.type,
     };
   }
 }

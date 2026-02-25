@@ -20,3 +20,10 @@ export interface ApiResponse<T = unknown> {
   error?: string;
   message?: string;
 }
+
+export interface ApiErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+  details?: Record<string, string[]>;
+}

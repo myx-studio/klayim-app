@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+lib
+.next
+out
+
+# Turbo
+.turbo
+
+# Lockfiles
+pnpm-lock.yaml
+
+# Firebase
+.firebase
+.emulator-data
+
+# Generated
+*.generated.*

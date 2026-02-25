@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@klayim/shared": "workspace:*",
     "@base-ui/react": "^1.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-form": "^1.28.3",

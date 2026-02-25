@@ -1,4 +1,4 @@
-import { userRepository } from "../../repositories/index.js";
+import { userRepository } from "@/repositories/index.js";
 
 export interface DeleteUserResult {
   success: boolean;

@@ -1,49 +1,176 @@
-import { auth } from "../lib/index.js";
-import type { DecodedIdToken } from "firebase-admin/auth";
+import bcrypt from "bcryptjs";
+import { userRepository, tokenRepository } from "@/repositories/index.js";
+import type {
+  User,
+  UserProfile,
+  LoginInput,
+  RegisterInput,
+} from "@klayim/shared/types";
 
-export interface AuthUser {
-  uid: string;
-  email?: string;
-}
+const SALT_ROUNDS = 12;
 
 export class AuthService {
-  async verifyToken(token: string): Promise<AuthUser | null> {
-    try {
-      const decodedToken: DecodedIdToken = await auth.verifyIdToken(token);
-      return {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-      };
-    } catch {
+  async login(input: LoginInput): Promise<{ user: UserProfile } | null> {
+    const userWithPassword = await userRepository.findByEmailWithPassword(input.email);
+
+    if (!userWithPassword) {
       return null;
     }
-  }
 
-  async getUser(uid: string) {
-    try {
-      return await auth.getUser(uid);
-    } catch {
+    const isValidPassword = await bcrypt.compare(
+      input.password,
+      userWithPassword.passwordHash
+    );
+
+    if (!isValidPassword) {
       return null;
     }
+
+    // Check if user is active
+    if (userWithPassword.status !== "active") {
+      // Allow pending users to login but maybe show a warning
+      if (userWithPassword.status === "inactive") {
+        return null;
+      }
+    }
+
+    // Update last login
+    await userRepository.updateLastLogin(userWithPassword.id);
+
+    return {
+      user: {
+        id: userWithPassword.id,
+        email: userWithPassword.email,
+        name: userWithPassword.name,
+        avatar: userWithPassword.avatar,
+        type: userWithPassword.type,
+      },
+    };
   }
 
-  async createUser(email: string, password: string, displayName?: string) {
-    return auth.createUser({
-      email,
-      password,
-      displayName,
+  async register(input: RegisterInput): Promise<{ user: User } | { error: string }> {
+    // Check if email already exists
+    const existingUser = await userRepository.findByEmail(input.email);
+
+    if (existingUser) {
+      return { error: "Email already registered" };
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
+
+    // Create user
+    const user = await userRepository.create({
+      email: input.email,
+      password: input.password,
+      name: input.name,
+      passwordHash,
     });
+
+    // Create email verification token
+    await tokenRepository.createEmailVerificationToken(user.id);
+
+    // TODO: Send verification email
+
+    return { user };
   }
 
-  async updateUser(
-    uid: string,
-    data: { displayName?: string; photoURL?: string; disabled?: boolean }
-  ) {
-    return auth.updateUser(uid, data);
+  async forgotPassword(email: string): Promise<{ success: boolean }> {
+    const user = await userRepository.findByEmail(email);
+
+    if (!user) {
+      // Return success even if user doesn't exist (security)
+      return { success: true };
+    }
+
+    // Create password reset token
+    const token = await tokenRepository.createPasswordResetToken(user.id);
+
+    // TODO: Send password reset email with token
+    console.log("Password reset token:", token.token);
+
+    return { success: true };
   }
 
-  async deleteUser(uid: string) {
-    return auth.deleteUser(uid);
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+    const resetToken = await tokenRepository.findPasswordResetToken(token);
+
+    if (!resetToken) {
+      return { success: false, error: "Invalid or expired token" };
+    }
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    // Update password
+    const updated = await userRepository.updatePassword(resetToken.userId, passwordHash);
+
+    if (!updated) {
+      return { success: false, error: "Failed to update password" };
+    }
+
+    // Mark token as used
+    await tokenRepository.markPasswordResetTokenUsed(resetToken.id);
+
+    return { success: true };
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; error?: string }> {
+    const verificationToken = await tokenRepository.findEmailVerificationToken(token);
+
+    if (!verificationToken) {
+      return { success: false, error: "Invalid or expired token" };
+    }
+
+    // Verify user email
+    const user = await userRepository.verifyEmail(verificationToken.userId);
+
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Mark token as used
+    await tokenRepository.markEmailVerificationTokenUsed(verificationToken.id);
+
+    return { success: true };
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const userWithPassword = await userRepository.findByIdWithPassword(userId);
+
+    if (!userWithPassword) {
+      return { success: false, error: "User not found" };
+    }
+
+    const isValidPassword = await bcrypt.compare(
+      currentPassword,
+      userWithPassword.passwordHash
+    );
+
+    if (!isValidPassword) {
+      return { success: false, error: "Current password is incorrect" };
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const updated = await userRepository.updatePassword(userId, passwordHash);
+
+    if (!updated) {
+      return { success: false, error: "Failed to update password" };
+    }
+
+    return { success: true };
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    return userRepository.findById(id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    return userRepository.findByEmail(email);
   }
 }
 
