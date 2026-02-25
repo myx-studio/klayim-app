@@ -30,7 +30,13 @@ Object.keys(pkg.exports).forEach((key) => {
   if (exp.default) exp.default = exp.default.replace("./dist/", "./");
 });
 
-// Write modified package.json
+// Write modified package.json for shared
 writeFileSync(join(sharedDir, "package.json"), JSON.stringify(pkg, null, 2));
 
-console.log("Shared package copied successfully!");
+// Update API's package.json to use local shared folder
+const apiPkgPath = join(apiDir, "package.json");
+const apiPkg = JSON.parse(readFileSync(apiPkgPath, "utf-8"));
+apiPkg.dependencies["@klayim/shared"] = "file:./shared";
+writeFileSync(apiPkgPath, JSON.stringify(apiPkg, null, 2));
+
+console.log("Shared package copied and API package.json updated!");
