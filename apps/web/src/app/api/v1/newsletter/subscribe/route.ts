@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { api, ApiError } from "@/lib/api";
 import type { ApiResponse } from "@klayim/shared/types";
+import { NextRequest, NextResponse } from "next/server";
 
 interface SubscribeResponseData {
   alreadySubscribed: boolean;
