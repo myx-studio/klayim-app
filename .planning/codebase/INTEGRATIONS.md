@@ -4,168 +4,184 @@
 
 ## APIs & External Services
 
-**Firebase Services:**
-- Firebase (Google Cloud) - Core infrastructure platform
-  - SDK: `firebase` (client), `firebase-admin` (server)
-  - Auth: Environment variables with `NEXT_PUBLIC_FIREBASE_*` prefix
-  - Region: asia-southeast1
-  - Multiple Firebase services integrated (see Data Storage section)
+**Email Services:**
+- Email verification and password reset - Planned integration (TODO comments in `apps/api/src/services/auth.service.ts` lines 73, 89)
+  - Not yet implemented
+  - Needs: Email provider SDK (SendGrid, Resend, Mailgun, etc.)
+
+**Stripe (Subscription Management):**
+- Integration planned for subscription and payment handling
+- Data models prepared: `packages/shared/src/types/subscription.ts` defines PaymentRecord with `stripePaymentIntentId`, `stripeInvoiceId`
+- Organization model includes `stripeCustomerId` and `stripeSubscriptionId` fields
+- Endpoints needed for: checkout session creation, subscription management, payment history
+- Status: Schema defined, implementation not yet started
 
 ## Data Storage
 
 **Databases:**
-- Firestore (Firebase Cloud Firestore)
-  - Connection: Initialized via `firebase-admin/firestore`
-  - Client: `firebase-admin` SDK at `apps/api/src/lib/firebase.ts`
-  - Usage: User data stored in "users" collection
-  - Repository pattern: `apps/api/src/repositories/user.repository.ts`
-  - Features:
-    - CRUD operations (Create, Read, Update, Delete)
-    - Query by ID and email
-    - Pagination with cursor-based navigation
-    - Timestamp tracking (createdAt, updatedAt)
+- Firestore (Document Database) - Cloud Firestore
+  - Connection: Initialized via Firebase Admin SDK in `apps/api/src/lib/firebase.ts`
+  - Client: firebase-admin/firestore v12.7.0
+  - Exported as: `firestore` constant in firebase.ts
 
-- Firebase Realtime Database (RTDB)
-  - Connection: Initialized via `firebase-admin/database`
-  - Client: `firebase-admin` SDK
+- Realtime Database (RTDB) - Firebase Realtime Database
+  - Connection: Initialized via Firebase Admin SDK
+  - Client: firebase-admin/database v12.7.0
+  - Exported as: `rtdb` constant in firebase.ts
+  - Purpose: Not yet utilized in current codebase (schema prepared for future use)
 
 **File Storage:**
-- Firebase Cloud Storage
-  - Client: `firebase-admin/storage`
-  - Implementation: `apps/api/src/services/storage.service.ts`
-  - Features:
-    - File upload with metadata (content type)
-    - Public URL generation
-    - Signed URL generation (customizable expiration)
-    - File deletion
-    - File existence checking
+- Cloud Storage - Firebase Storage
+  - Connection: Initialized via Firebase Admin SDK
+  - Client: firebase-admin/storage v12.7.0
+  - Exported as: `storage` constant in `apps/api/src/lib/firebase.ts`
+  - Service: `apps/api/src/services/storage.service.ts` provides abstraction
+  - Use cases: User avatars, organization logos, media storage
 
 **Caching:**
-- None detected - TanStack React Query used for client-side data caching
+- TanStack React Query - Client-side query caching for API responses
+- No server-side caching layer (Redis/Memcached) currently configured
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- Firebase Authentication (primary backend)
-  - Implementation: `apps/api/src/services/auth.service.ts`
-  - Client: `firebase-admin/auth`
-  - Features:
-    - User creation with email/password
-    - ID token verification
-    - User metadata management (displayName, photoURL)
-    - User deletion
-    - Credentials-based authentication
-
-- NextAuth (client-side session wrapper)
+- Custom email/password with NextAuth.js
   - Implementation: `apps/web/src/lib/auth/config.ts`
-  - Provider: Credentials (email/password)
-  - Endpoints:
-    - Sign in: `/login`
-    - Session management via JWT tokens
-    - Route: `apps/web/src/app/api/auth/[...nextauth]/route.ts`
-  - Integration:
-    - Calls backend API endpoint `/auth/login` for credential validation
-    - Stores user session with NextAuth
-    - SessionProvider wraps app at `apps/web/src/components/providers/session-provider.tsx`
+  - Provider: Credentials provider (custom email/password)
+  - Session: JWT-based tokens via NextAuth
+  - Callbacks: Custom JWT and session callbacks for user context
+  - Protected routes: Dashboard pages require authentication via middleware
 
-**Login Flow:**
-1. User submits credentials via web form
-2. NextAuth Credentials provider validates via `api/v1/auth/login` endpoint
-3. Backend calls Firebase Authentication to verify credentials
-4. Session stored client-side via NextAuth JWT
-5. Protected routes checked via `authorized()` callback (e.g., `/dashboard` requires login)
+**Password Security:**
+- Password hashing: bcryptjs v3.0.3 with SALT_ROUNDS = 12
+- Location: `apps/api/src/services/auth.service.ts` handles hashing/verification
+- Token-based password reset: Reset tokens stored in database with expiration
+
+**Email Verification:**
+- Token-based verification flow prepared
+- Tokens stored in database with expiration
+- Verification endpoint: POST `/auth/verify-email` (prepared in routes)
+
+**Firebase Auth (Planned):**
+- Firebase Auth client initialized in `apps/web/src/lib/firebase.ts`
+- Purpose: Analytics and Functions emulator connection (not primary auth)
+- Connection: `functions` object connects to asia-southeast1 region
+- Emulator: Connects to localhost:5001 in development
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Not configured - Basic error handling via try/catch
+- Not configured
+- Opportunity for: Sentry, Error Reporting, Cloud Logging
 
 **Logs:**
-- Console logging in development
-- Hono logger middleware: `apps/api/src/index.ts` (logger from "hono/logger")
-- Firebase Cloud Logging (available but not explicitly configured)
+- Client-side: Console logs only (browser dev tools)
+- Server-side: Hono logger middleware in `apps/api/src/index.ts`
+  - Built-in request logging via `hono/logger`
+  - Firebase Cloud Logging receives Cloud Functions stderr/stdout
+
+**Analytics:**
+- Firebase Analytics initialized in `apps/web/src/components/providers/analytics-provider.tsx`
+- Client: firebase/analytics v12.9.0
+- Initialization: `initAnalytics()` called during app load (browser only)
+- Status: Connected but event tracking not yet implemented
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Google Firebase Hosting (for web app)
-- Google Firebase Cloud Functions (for API backend)
-- Region: asia-southeast1
+- Frontend: Firebase App Hosting (Next.js)
+  - Configuration: `apps/web/apphosting.yaml`
+  - Region: asia-southeast1
+  - Resources: 1 CPU, 512MB RAM, 100 concurrent connections, 0-10 instances
+  - Build: `next build` then `next start`
+
+- Backend: Google Cloud Functions (Firebase Functions)
+  - Runtime: Node.js 20
+  - Region: asia-southeast1
+  - Entry point: `api.ts` exports `api` function
+  - Build command: `tsc && tsc-alias` (TypeScript compilation with path alias resolution)
+  - Pre-deploy: `pnpm --filter api run build`
 
 **CI Pipeline:**
-- Not detected in codebase (no GitHub Actions, GitLab CI, etc.)
-- Manual deployment via `firebase deploy` command
-- Build scripts defined in `apps/api/package.json`:
-  - `pnpm run build && firebase deploy --only functions`
-
-**Deploy Commands:**
-- Web: Deployed to Firebase Hosting (automatic via Turbo)
-- API: `pnpm --filter api run deploy` (builds and deploys Cloud Functions)
+- Not detected (No GitHub Actions, GitLab CI, or similar configured)
+- Manual deployment via Firebase CLI:
+  - Deploy API: `pnpm deploy:api`
+  - Deploy Web: `pnpm deploy:web`
+  - Root scripts in `package.json`
 
 ## Environment Configuration
 
-**Required env vars (Web - `apps/web/.env.local.example`):**
-
-Client-side (NEXT_PUBLIC_*):
-- `NEXT_PUBLIC_FIREBASE_API_KEY` - Firebase API key
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` - Firebase auth domain (e.g., project.firebaseapp.com)
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID` - GCP project ID
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` - Cloud Storage bucket (e.g., project.firebasestorage.app)
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` - FCM sender ID
-- `NEXT_PUBLIC_FIREBASE_APP_ID` - Firebase app ID
-- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` - Google Analytics ID
-- `NEXT_PUBLIC_API_URL` - Backend API endpoint (e.g., http://localhost:5001/project-id/asia-southeast1/api)
-
-Server-side (NextAuth):
-- `AUTH_SECRET` - Generated via `openssl rand -base64 32`
-- `AUTH_URL` - Application URL (e.g., http://localhost:3000)
-
-**API Configuration:**
-- Firebase Admin SDK uses Application Default Credentials (ADC) from environment
-- Development: Firebase Emulators Suite (local emulation)
-- Production: GCP service account credentials
+**Required env vars for App Hosting (`apps/web/apphosting.yaml`):**
+```
+Frontend:
+  - NEXT_PUBLIC_FIREBASE_API_KEY
+  - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+  - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+  - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+  - NEXT_PUBLIC_FIREBASE_APP_ID
+  - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  - NEXT_PUBLIC_API_URL (e.g., https://asia-southeast1-PROJECT_ID.cloudfunctions.net/api)
+  - AUTH_SECRET (NextAuth encryption key)
+  - AUTH_URL (e.g., https://yourdomain.com)
+  - API_URL (internal API endpoint for server-side requests)
+```
 
 **Secrets location:**
-- Development: `.env.local` files (NOT committed)
-- Production: Firebase Environment Configuration or GCP Secret Manager
+- Firebase Console → App Hosting → Environmental variables (for production)
+- `.env.local` pattern for local development (not committed)
+- Firebase emulators use default hardcoded credentials in dev mode
+
+**CORS Configuration:**
+- API CORS: Hardcoded to `origin: ["http://localhost:3000"]` in `apps/api/src/index.ts`
+- Needs: Environment-based CORS for production environments
 
 ## Webhooks & Callbacks
 
-**Incoming:**
-- `/auth/login` - Credentials validation endpoint (called by NextAuth)
-  - Location: `apps/api/src/routes/` (auth route not visible in routes, likely in user routes or separate)
-  - Actually: Appears to be registered in main Hono app or user routes
-  - **Note:** Auth login route not explicitly found in visible routes - check usage in auth.service.ts
+**Incoming Webhooks:**
+- Not detected
+- Planned (Stripe webhooks for subscription events):
+  - `POST /webhooks/stripe` - Handle payment.intent.succeeded, customer.subscription.updated, etc.
+  - Endpoint not yet implemented
 
-**Outgoing:**
-- Firebase Cloud Messaging (FCM) available via Firebase SDK but not actively used
-- Firebase Analytics events sent from client
+**Outgoing Webhooks:**
+- Email verification links - Future integration
+- Password reset links - Future integration
+- Stripe webhook callbacks - External service callbacks (not outgoing webhooks)
 
-## Architecture Summary
+## API Communication
 
-**Data Flow:**
-1. **Client (Next.js Web App)**
-   - User authenticates via NextAuth credentials provider
-   - NextAuth calls backend `/auth/login` endpoint
-   - Stores session JWT locally
-   - Sends authenticated requests to API
+**Frontend to Backend:**
+- Base URL: `process.env.NEXT_PUBLIC_API_URL` (defaults to `process.env.API_URL`)
+- Client: Custom `api()` function in `apps/web/src/lib/api.ts`
+- Error handling: `ApiError` class with status, statusText, and response data
+- Serialization: JSON with Content-Type application/json
 
-2. **Backend (Firebase Cloud Functions + Hono)**
-   - Receives HTTP requests via Hono router
-   - Routes requests to handlers (users, health, etc.)
-   - Handlers interact with Firebase services
-   - Firestore for persistent user data
-   - Firebase Auth for authentication verification
-   - Cloud Storage for file uploads
+**Endpoints Implemented:**
+- `GET /` - Health/info endpoint
+- `GET /health` - Health check route
+- `POST /auth/login` - Credentials authentication
+- `POST /auth/register` - User registration
+- `POST /auth/forgot-password` - Password reset request
+- `POST /auth/reset-password` - Password reset completion
+- `POST /auth/verify-email` - Email verification
+- `POST /auth/change-password` - Authenticated password change
+- `GET/POST/PUT/DELETE /users` - User CRUD operations (schema in repositories)
 
-3. **Database (Firestore)**
-   - User collection: User profiles and metadata
-   - Auto-generated timestamps
-   - Email-based queries for login validation
+**Request/Response Format:**
+```typescript
+// Success response
+{
+  success: true,
+  data: T
+}
 
-4. **Storage (Cloud Storage)**
-   - File uploads for user avatars or documents
-   - Public and signed URL generation
+// Error response
+{
+  success: false,
+  error: string
+}
+```
 
 ---
 

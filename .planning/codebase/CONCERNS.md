@@ -4,230 +4,234 @@
 
 ## Tech Debt
 
-**Missing Environment Configuration Documentation:**
-- Issue: No `.env.example` or `.env.local.example` file to guide developers on required environment variables
-- Files: Root directory, `/apps/web`, `/apps/api`
-- Impact: Developers cannot easily bootstrap the project without trial-and-error; CI/CD pipeline setup is unclear
-- Fix approach: Create `.env.example` files documenting all required Firebase variables, Next Auth configuration, and API endpoints
+**Incomplete JWT Authentication Implementation:**
+- Issue: Auth middleware uses simple Base64 encoding of userId instead of proper JWT tokens
+- Files: `apps/api/src/middleware/auth.middleware.ts` (lines 20-26), `apps/api/src/routes/auth.route.ts`
+- Impact: No token expiration, no signature validation, security vulnerability - tokens can be forged by any client. Login response doesn't return tokens as specified in type definitions (`LoginResponse` expects `accessToken` and `refreshToken`)
+- Fix approach: Implement proper JWT library (jsonwebtoken), sign tokens with secret key, verify tokens in middleware, add token expiration, return tokens from login endpoint, implement refresh token mechanism
 
-**Incomplete Next.js Configuration:**
-- Issue: `next.config.ts` in `/apps/web/src` is essentially a stub with no actual configuration
-- Files: `/apps/web/next.config.ts`
-- Impact: Image optimization, rewrites, redirects, and other Next.js features are not configured; cannot control API proxy behavior
-- Fix approach: Add proper Next configuration including image domains, API rewrites, environment handling
+**Missing Email Service Integration:**
+- Issue: Email verification and password reset emails are not being sent despite token generation
+- Files: `apps/api/src/services/auth.service.ts` (lines 73, 89)
+- Impact: Users cannot verify email addresses or reset passwords; password reset tokens only logged to console
+- Fix approach: Integrate email service (SendGrid, AWS SES, etc.), create email templates, implement async email sending, add retry logic for failed sends
 
-**Empty Placeholder Page:**
-- Issue: Home page at `/apps/web/src/app/page.tsx` contains boilerplate Next.js template content, not actual application content
-- Files: `/apps/web/src/app/page.tsx`
-- Impact: Application has no functional landing page; serves as confusing entry point
-- Fix approach: Replace with actual Klayim homepage or redirect to authenticated dashboard
+**Missing Organization Routes:**
+- Issue: Organization module is defined in schemas but no routes, repositories, or services exist
+- Files: Schema defined in `packages/shared/src/schemas/organization.ts`, but no implementation in `apps/api/src/routes/`, `apps/api/src/repositories/`, `apps/api/src/services/`, `apps/api/src/usecases/`
+- Impact: Multi-tenant functionality completely missing; users cannot create or manage organizations
+- Fix approach: Create organization repository with Firestore queries, implement organization service layer, add CRUD routes for organizations and members, implement invitation token system, add authorization checks
 
-**Unimplemented Authentication Flow:**
-- Issue: NextAuth is configured with Credentials provider, but the `/auth/login` API endpoint needs backend integration that isn't visible
-- Files: `/apps/web/src/lib/auth/config.ts`, `/apps/web/src/app/api/v1/auth/login/route.ts`
-- Impact: Login flow may fail in production due to missing password validation, token generation, or backend sync
-- Fix approach: Ensure API backend implements full password hashing, token generation, and session management
+**Missing Stripe Payment Integration:**
+- Issue: Subscription schema defines payment flows but no Stripe integration exists
+- Files: Schema defined in `packages/shared/src/schemas/subscription.ts`, no service or route implementation
+- Impact: Cannot process payments or manage subscription plans; no way to create checkout sessions or handle webhooks
+- Fix approach: Install Stripe SDK, create subscription service, implement checkout endpoint, add webhook handler for payment events, implement plan change logic, add price management
 
 ## Known Bugs
 
-**Silent Error Swallowing in Auth Services:**
-- Symptoms: Authentication failures return `null` instead of providing error details
-- Files: `/apps/api/src/services/auth.service.ts` (lines 17-19, 25-27)
-- Trigger: Invalid token, network failure, or user not found
-- Workaround: Add logging before returning null to understand failures locally
-- Impact: Production debugging becomes difficult; clients receive generic "Unauthorized" messages
+**Password Plaintext Exposed in Create User Endpoint:**
+- Symptoms: Plain password is passed through creation flow alongside hashed password
+- Files: `apps/api/src/usecases/user/create-user.usecase.ts` (line 28), `apps/api/src/repositories/user.repository.ts` (line 92)
+- Trigger: Creating user through POST /users endpoint
+- Issue: `input.password` is spread into user object then discarded; this is inefficient but not a direct leak
+- Workaround: Password is bcrypt hashed before storage but sensitive field should be explicitly omitted
 
-**JSON Body Handling in Hono Adapter:**
-- Symptoms: Request body may not be properly parsed if client sends non-JSON content
-- Files: `/apps/api/src/index.ts` (lines 81-83)
-- Trigger: Sending binary data or form-encoded data to endpoints expecting JSON
-- Workaround: Clients must send `Content-Type: application/json`
-- Impact: Limited API flexibility; no graceful content-type negotiation
+**Login Response Mismatch:**
+- Symptoms: Login endpoint returns user object only, not tokens specified in `LoginResponse` interface
+- Files: `apps/api/src/routes/auth.route.ts` (lines 32-35), `apps/api/src/services/auth.service.ts` (lines 40-48)
+- Trigger: POST /auth/login
+- Impact: Client cannot authenticate subsequent requests; frontend must work around missing tokens
+- Workaround: Currently using Base64 userId as token in middleware
 
-**API CORS Hardcoded to Localhost:**
-- Symptoms: Production API calls will fail with CORS errors
-- Files: `/apps/api/src/index.ts` (line 17)
-- Trigger: Deploy to production without updating allowed origins
-- Workaround: Must update CORS configuration before deployment
-- Impact: Cannot be deployed to staging/production without code change
+**User Route Missing Authentication:**
+- Symptoms: All user endpoints (GET /users, POST /users) are unprotected
+- Files: `apps/api/src/routes/user.route.ts`
+- Trigger: Any client can list all users or create users
+- Impact: No authorization; endpoints allow unauthorized access
+- Workaround: None currently implemented
 
 ## Security Considerations
 
-**Exposed Firebase Client Secrets in Browser:**
-- Risk: Firebase API key and project ID are embedded in public browser code via `NEXT_PUBLIC_*` variables
-- Files: `/apps/web/src/lib/firebase.ts` (lines 5-12)
-- Current mitigation: Firebase security rules should restrict access (assumed but not verified)
-- Recommendations: Verify Firestore security rules deny direct client reads/writes; keep credentials in `.env.local`; consider using server-side SDK only where possible
+**JWT Secret Management:**
+- Risk: No JWT secret key defined or configuration for signing tokens
+- Files: `apps/api/src/middleware/auth.middleware.ts`
+- Current mitigation: None - currently not using JWT at all
+- Recommendations: Store JWT secret in Firebase environment variables or Google Cloud Secret Manager, rotate secrets regularly, never commit secrets to git
 
-**Plaintext Password Handling in Credentials Provider:**
-- Risk: Passwords transmitted over HTTP in dev mode without SSL/TLS verification
-- Files: `/apps/web/src/lib/auth/config.ts` (lines 38-42), `/apps/api/src/services/auth.service.ts`
-- Current mitigation: None visible - Firebase auth may handle this internally
-- Recommendations: Enforce HTTPS in production; use Firebase Security Rules; add rate limiting to login endpoint
+**Password Reset Token Exposed in Logs:**
+- Risk: Password reset token printed to console in production
+- Files: `apps/api/src/services/auth.service.ts` (line 90)
+- Current mitigation: Only in console.log, not stored elsewhere
+- Recommendations: Remove console.log before production deploy, use structured logging, never log sensitive tokens
 
-**Missing CSRF Protection on Login Endpoint:**
-- Risk: POST endpoint at `/api/v1/auth/login` has no CSRF token validation
-- Files: `/apps/web/src/app/api/v1/auth/login/route.ts`
-- Current mitigation: NextAuth middleware may provide some protection (needs verification)
-- Recommendations: Add CSRF token validation; verify SameSite cookie settings
-
-**No Input Validation on User Route Endpoints:**
-- Risk: Routes accept any JSON body without schema validation
-- Files: `/apps/api/src/routes/user.route.ts` (lines 50-52, 73-74)
-- Current mitigation: Database layer checks for duplicate email, but other fields are unchecked
-- Recommendations: Add Zod/validation middleware; enforce max string lengths; validate email format on API side
-
-**Storage Service Makes Files Publicly Readable:**
-- Risk: All uploaded files become public after `makePublic()` call
-- Files: `/apps/api/src/services/storage.service.ts` (line 17)
-- Current mitigation: Signed URLs are available (line 31) but not enforced
-- Recommendations: Make files private by default; use signed URLs exclusively; implement access control checks
-
-**Storage Paths Not Validated:**
-- Risk: No sanitization of file paths - could allow directory traversal
-- Files: `/apps/api/src/services/storage.service.ts` (lines 6-8, 22, 31, 43)
+**CORS Configuration Too Restrictive:**
+- Risk: CORS only allows localhost:3000, will fail in production
+- Files: `apps/api/src/index.ts` (lines 14-20)
 - Current mitigation: None
-- Recommendations: Validate and sanitize file paths; use UUID-based names; prevent `..` sequences
+- Recommendations: Configure CORS based on environment variable, support multiple origins for staging/prod, validate origin header
+
+**SQL Injection / Firestore Query Injection:**
+- Risk: User input in list users cursor parameter not validated
+- Files: `apps/api/src/routes/user.route.ts` (line 16), `apps/api/src/repositories/user.repository.ts` (lines 69-74)
+- Current mitigation: Firestore uses parameter binding (safe), but cursor could be any string
+- Recommendations: Validate cursor format (should be valid Firestore document ID), add cursor validation schema
+
+**Password Requirements Not Enforced:**
+- Risk: No minimum length, complexity, or format validation on password input
+- Files: `packages/shared/src/schemas/auth.ts`, `apps/api/src/services/auth.service.ts`
+- Current mitigation: None
+- Recommendations: Add Zod validation for minimum 8 chars, require uppercase/lowercase/number/special char, validate in both registration and password change
+
+**Missing Rate Limiting:**
+- Risk: No protection against brute force attacks on login/registration/password reset
+- Files: `apps/api/src/routes/auth.route.ts`
+- Current mitigation: None
+- Recommendations: Add rate limiting middleware (e.g., HONO rate limiter), limit login attempts per IP, implement exponential backoff for reset endpoints
+
+**Unverified Email Access:**
+- Risk: Users with unverified emails can still login and access protected endpoints
+- Files: `apps/api/src/services/auth.service.ts` (lines 29-35)
+- Current mitigation: Status checks exist but login still succeeds for pending users
+- Recommendations: Enforce email verification before full access, return 403 for unverified emails, allow read-only access if needed
 
 ## Performance Bottlenecks
 
-**Pagination Without Proper Indexing:**
-- Problem: Cursor-based pagination queries Firestore with `orderBy("createdAt", "desc")` every time
-- Files: `/apps/api/src/repositories/user.repository.ts` (line 45)
-- Cause: Firestore queries without composite indexes can be slow at scale
-- Improvement path: Create Firestore indexes; consider caching paginated results; implement result set caching
+**Firestore Cursor Pagination Inefficient:**
+- Problem: Cursor pagination fetches limit+1 documents on every request to check hasMore
+- Files: `apps/api/src/repositories/user.repository.ts` (lines 65-86)
+- Cause: startAfter() requires document reference, forces extra document fetch
+- Improvement path: Implement keyset pagination or offset-based with total count, cache hot cursor values, consider offset pagination for small result sets
 
-**N+1 Query Risk in User Retrieval:**
-- Problem: Each user lookup fetches full document from Firestore without field selection
-- Files: `/apps/api/src/repositories/user.repository.ts` (lines 20, 30, 48)
-- Cause: No projection to select only needed fields
-- Improvement path: Use Firestore projections; refactor repository to accept field list parameter
+**No Database Indexing Strategy:**
+- Problem: Query by email runs without indexes; will slow down as user base grows
+- Files: `apps/api/src/repositories/user.repository.ts` (lines 37-63)
+- Cause: Firestore queries may auto-index small collections but explicit indexes needed for scale
+- Improvement path: Create Firestore composite index on (email, status), add index for (createdAt, status) pagination, document required indexes in README
 
-**No Request Caching in API:**
-- Problem: Identical requests hit database every time
-- Files: `/apps/api/src/index.ts`
-- Cause: No cache headers or in-memory caching layer
-- Improvement path: Add Redis caching; implement proper Cache-Control headers; use ETags
-
-**Sidebar Component is Large:**
-- Problem: `sidebar.tsx` component is 726 lines - likely contains too much logic
-- Files: `/apps/web/src/components/ui/sidebar.tsx`
-- Cause: Possible responsibility creep or missing component extraction
-- Improvement path: Extract navigation logic; split into smaller presentational components
+**Token Cleanup Not Implemented:**
+- Problem: Expired tokens accumulate in Firestore collections forever
+- Files: `apps/api/src/repositories/token.repository.ts`
+- Cause: Only tokens marked as used are updated, expired tokens remain
+- Improvement path: Implement scheduled cleanup function (Cloud Tasks or Cloud Scheduler), delete tokens older than 24 hours, batch delete operations
 
 ## Fragile Areas
 
-**Authentication Callback Chain:**
-- Files: `/apps/web/src/lib/auth/config.ts` (lines 64-91)
-- Why fragile: Multiple callbacks (jwt, session, authorized) manipulate auth state; changes to token structure break sessions
-- Safe modification: Add comprehensive tests before modifying token structure; validate callback order doesn't change
-- Test coverage: No test files found for auth logic
+**Auth Service Token Generation Logic:**
+- Files: `apps/api/src/services/auth.service.ts` (lines 70-71, 86-87)
+- Why fragile: Creates tokens but relies on caller to send emails; if email sending fails silently, user cannot verify or reset password
+- Safe modification: Add error handling and retry logic in email service layer before marking tokens as committed, implement transaction pattern
+- Test coverage: No tests for token creation; email sending integration untested
 
-**Repository Pattern With Single Instances:**
-- Files: `/apps/api/src/repositories/user.repository.ts` (line 125), `/apps/api/src/services/auth.service.ts` (line 50)
-- Why fragile: Singleton pattern with Firebase connection; no dependency injection makes testing difficult
-- Safe modification: Add unit tests with mocked Firebase; consider factory pattern
-- Test coverage: Repos and services cannot be easily mocked
+**User Creation with Password:**
+- Files: `apps/api/src/usecases/user/create-user.usecase.ts`, `apps/api/src/repositories/user.repository.ts`
+- Why fragile: Plain password passed through create flow before hashing; if error occurs between hash and storage, inconsistent state possible
+- Safe modification: Hash password before repository call, pass only passwordHash, never pass plaintext through layers
+- Test coverage: No tests for password hashing or duplicate email detection
 
-**Hono-to-Express Bridge:**
-- Files: `/apps/api/src/index.ts` (lines 62-101)
-- Why fragile: Custom request/response conversion between Express and Web Request APIs
-- Safe modification: Add integration tests; ensure all Express features are properly converted
-- Test coverage: No test coverage visible; conversion logic untested
+**Base64 Token Parsing:**
+- Files: `apps/api/src/middleware/auth.middleware.ts` (lines 25, 46)
+- Why fragile: Blindly decodes Base64 without validation; any Base64 string is accepted as valid userId
+- Safe modification: Add format validation (UUID, length checks), implement proper JWT with signature verification
+- Test coverage: No tests for invalid token formats or expired tokens
 
-**NextAuth Configuration Callbacks:**
-- Files: `/apps/web/src/lib/auth/config.ts` (lines 64-91)
-- Why fragile: Token and session callbacks must stay in sync; authorized callback logic is simple but critical
-- Safe modification: Centralize token structure; add type safety; test all callback paths
-- Test coverage: No tests found
+**Firestore Document Reference Chain:**
+- Files: `apps/api/src/repositories/user.repository.ts` (lines 100-117), `apps/api/src/repositories/token.repository.ts` (lines 67-81)
+- Why fragile: Batch operations and multi-step updates can fail partially; no transaction wrapper
+- Safe modification: Use Firestore transactions for multi-document updates, wrap in try-catch with rollback
+- Test coverage: No tests for failed batch writes or partial update scenarios
 
 ## Scaling Limits
 
-**Firebase Firestore Read/Write Costs:**
-- Current capacity: One collection with users; pagination queries do full collection scan
-- Limit: Firestore charges per read operation; pagination queries at scale (millions of users) become expensive
-- Scaling path: Implement composite indexes; add caching layer; consider data denormalization
+**Firestore Collection Unbounded Growth:**
+- Current capacity: Token collections will grow indefinitely
+- Limit: Firestore has no hard limits but cleanup will become needed at 10k+ expired tokens per collection
+- Scaling path: Implement TTL-based deletion (Cloud Firestore TTL policy when available), or scheduled cleanup Cloud Function
 
-**API Function Cold Starts:**
-- Current capacity: Single Firebase Function endpoint
-- Limit: Serverless cold starts can cause 1-5 second delays on initial requests
-- Scaling path: Upgrade to always-warm functions; implement API Gateway; use background workers for heavy operations
+**No Session Management:**
+- Current capacity: Each client maintains token independently
+- Limit: Cannot invalidate sessions server-side (e.g., logout doesn't actually invalidate token)
+- Scaling path: Implement Redis/Memorystore for session blacklist, add logout endpoint that invalidates tokens, implement token revocation list
 
-**Static Frontend Bundle Size:**
-- Current capacity: UI components include shadcn library and Recharts (357 lines)
-- Limit: React 19.2.3 + all charting/UI libraries can exceed 500KB uncompressed
-- Scaling path: Implement route-based code splitting; lazy load chart components; consider lighter chart library
+**Single Firebase Instance:**
+- Current capacity: Monolithic Firebase app for entire system
+- Limit: All auth, users, organizations will share single database; no data isolation
+- Scaling path: Multi-tenant data model with organization-scoped queries, consider separate Firestore databases per organization if isolation needed
 
 ## Dependencies at Risk
 
-**Next Auth Beta Version:**
-- Risk: `next-auth@5.0.0-beta.30` is a beta release - breaking changes possible
-- Impact: Production deployment risky; authentication could break on version bumps
-- Migration plan: Wait for stable 5.0.0 release; thoroughly test before upgrading; pin exact version
+**bcryptjs No Longer Actively Maintained:**
+- Risk: bcryptjs is well-tested but uses slower bcrypt algorithm; no security issues known but newer alternatives exist
+- Impact: Password hashing works correctly, no immediate threat
+- Migration plan: Consider crypto.subtle.deriveKey() (native) or argon2 (more secure) in future; bcryptjs is safe to use currently
 
-**Multiple Unverified Auth Providers:**
-- Risk: Credentials provider alone with no OAuth/social providers limits authentication options
-- Impact: Cannot support single sign-on; vendor lock-in to custom auth
-- Migration plan: Add OAuth providers (Google, GitHub); refactor auth flow to support multiple providers
-
-**Firebase Admin SDK Version Mismatch:**
-- Risk: Client uses `firebase@12.9.0` while admin uses `firebase-admin@12.7.0`
-- Impact: Feature discrepancies; potential compatibility issues
-- Migration plan: Keep admin and client SDK versions synchronized; update both regularly
+**Firebase Admin SDK Version Lag:**
+- Risk: firebase-admin@12.7.0 may have security patches in newer versions
+- Impact: Current version is recent (Jan 2025 era), minimal risk
+- Migration plan: Regular dependency updates through pnpm, subscribe to Firebase security advisories
 
 ## Missing Critical Features
 
-**No Password Reset Flow:**
-- Problem: Users cannot reset forgotten passwords
-- Blocks: Password recovery UX; account lockout recovery
+**Email Verification System:**
+- Problem: Tokens are created but never sent; users cannot verify accounts
+- Blocks: Production deployment requires email verification for compliance and deliverability
 
-**No Email Verification:**
-- Problem: Any email can be registered without verification
-- Blocks: Preventing spam registrations; valid user contact information
+**Password Reset Flow:**
+- Problem: Tokens generated but reset emails never sent; users cannot recover accounts
+- Blocks: Production deployment requires working password recovery
 
-**No Logout Implementation:**
-- Problem: NextAuth handlers imported but `signOut` function not used anywhere
-- Blocks: Users cannot end sessions; security risk for shared devices
+**Token Generation Missing Access/Refresh Tokens:**
+- Problem: Login returns user object only, no tokens for authenticated requests
+- Blocks: All protected endpoints cannot be accessed; frontend cannot authorize requests
 
-**No Error Boundary or Fallback Pages:**
-- Problem: No error.tsx or not-found.tsx in Next.js app layout
-- Blocks: Unhandled errors show raw React error pages; 404s show generic Hono response
+**Organization Management:**
+- Problem: No multi-tenant support; every user shares single namespace
+- Blocks: Team/workspace features cannot be implemented
 
-**No Request Validation Middleware:**
-- Problem: API routes accept any JSON without schema validation
-- Blocks: Garbage data can corrupt database; no protection against malformed requests
+**Subscription/Payment:**
+- Problem: Stripe integration not started; payment processing impossible
+- Blocks: Revenue model and premium tier features cannot be launched
+
+**User Authentication on Protected Routes:**
+- Problem: User and auth routes not protected with authMiddleware
+- Blocks: Anyone can create/list/delete users; no authorization boundaries
 
 ## Test Coverage Gaps
 
-**Zero Test Files Found:**
-- What's not tested: All business logic, API routes, auth flows, database operations
-- Files: All source files lack corresponding `.test.ts` or `.spec.ts` files
-- Risk: Medium+ risk - breaking changes go undetected; refactoring is unsafe
-- Priority: High
+**No Unit Tests for Auth Service:**
+- What's not tested: Password verification, token creation, email verification flow, password reset logic
+- Files: `apps/api/src/services/auth.service.ts`
+- Risk: Changes to authentication logic could introduce security bugs undetected
+- Priority: HIGH - authentication is critical path
 
-**Auth Flow Untested:**
-- What's not tested: NextAuth callbacks (jwt, session, authorized), Credentials provider flow, token validation
-- Files: `/apps/web/src/lib/auth/`, `/apps/api/src/services/auth.service.ts`
-- Risk: High - authentication failure in production would be critical
-- Priority: High
+**No Tests for Auth Middleware:**
+- What's not tested: Invalid tokens, expired tokens, missing authorization header, Base64 decoding edge cases
+- Files: `apps/api/src/middleware/auth.middleware.ts`
+- Risk: Unauthorized requests could bypass authentication
+- Priority: HIGH - authentication critical
 
-**Repository Layer Untested:**
-- What's not tested: Firestore queries, pagination, entity mapping, error handling
-- Files: `/apps/api/src/repositories/`, `/apps/api/src/models/`
-- Risk: Medium - data corruption or data access bugs could go unnoticed
-- Priority: High
+**No Tests for User Repository:**
+- What's not tested: Email uniqueness enforcement, pagination with cursors, password hashing in storage
+- Files: `apps/api/src/repositories/user.repository.ts`
+- Risk: Data integrity issues could develop (duplicate emails, corrupt passwords)
+- Priority: HIGH - data layer
 
-**API Endpoint Integration Untested:**
-- What's not tested: Request/response serialization, error responses, HTTP status codes, CORS
-- Files: `/apps/api/src/routes/`, `/apps/api/src/index.ts`
-- Risk: Medium - endpoint behavior could differ from spec
-- Priority: Medium
+**No Integration Tests:**
+- What's not tested: Full auth flow (register -> verify email -> login), password reset flow, cross-endpoint data consistency
+- Files: All route handlers
+- Risk: Endpoints might work in isolation but fail when used together
+- Priority: MEDIUM - integration scenarios
 
-**Frontend Component Tests Missing:**
-- What's not tested: React components, form submissions, error states
-- Files: `/apps/web/src/components/`, `/apps/web/src/app/`
-- Risk: Low-Medium - UI regressions would be caught in manual testing
-- Priority: Medium
+**No E2E Tests:**
+- What's not tested: Complete user journeys, multiple sequential requests, token lifecycle
+- Risk: Frontend integration could fail despite backend tests passing
+- Priority: MEDIUM - user journeys
+
+**No Tests for Zod Schemas:**
+- What's not tested: Input validation, rejection of invalid data, schema completeness
+- Files: `packages/shared/src/schemas/`
+- Risk: Invalid data could reach service layer
+- Priority: MEDIUM - data validation
 
 ---
 

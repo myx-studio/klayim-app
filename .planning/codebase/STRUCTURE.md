@@ -6,206 +6,317 @@
 
 ```
 klayim/
-├── apps/                               # Monorepo workspaces
-│   ├── api/                            # Firebase Functions backend
+├── apps/
+│   ├── api/                    # Backend API (Hono + Firebase Functions)
 │   │   ├── src/
-│   │   │   ├── index.ts                # Firebase Function entrypoint
-│   │   │   ├── routes/                 # HTTP route handlers
-│   │   │   ├── usecases/               # Business logic (use cases)
-│   │   │   ├── repositories/           # Data access layer
-│   │   │   ├── models/                 # Domain entities
-│   │   │   ├── services/               # Firebase service wrappers
-│   │   │   ├── middleware/             # Request processing middleware
-│   │   │   ├── types/                  # TypeScript types and interfaces
-│   │   │   └── lib/                    # Utilities and SDK initialization
-│   │   ├── lib/                        # Compiled JavaScript output
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   └── web/                            # Next.js frontend app
+│   │   │   ├── index.ts        # Entry point, Hono app setup, routes registration
+│   │   │   ├── middleware/     # Cross-cutting concerns
+│   │   │   ├── types/          # API-specific types (extends shared types)
+│   │   │   ├── models/         # Domain entities (UserEntity)
+│   │   │   ├── repositories/   # Data access layer
+│   │   │   ├── services/       # Business logic (AuthService, StorageService)
+│   │   │   ├── usecases/       # Application workflows
+│   │   │   │   └── user/       # User CRUD use cases
+│   │   │   ├── routes/         # HTTP route handlers
+│   │   │   └── lib/            # Infrastructure (Firebase, utilities)
+│   │   ├── lib/                # Compiled JavaScript output
+│   │   ├── package.json        # Hono, Firebase Functions, bcryptjs
+│   │   ├── tsconfig.json       # TypeScript config with path aliases (@/*)
+│   │   └── firebase.json       # Firebase project config
+│   │
+│   └── web/                    # Frontend (Next.js 16 + React 19)
 │       ├── src/
-│       │   ├── app/                    # Next.js App Router pages
-│       │   ├── components/             # React components (UI + providers)
-│       │   ├── hooks/                  # Custom React hooks
-│       │   ├── lib/                    # Utilities, API client, auth config
-│       │   └── middleware.ts           # Next.js middleware
-│       ├── public/                     # Static assets
-│       ├── package.json
-│       └── tsconfig.json
-├── packages/                           # Shared packages (reserved)
-├── package.json                        # Root workspace config
-├── turbo.json                          # Turbo build orchestration
-└── .planning/
-    └── codebase/                       # Architecture documentation
+│       │   ├── app/            # Next.js App Router pages and layouts
+│       │   │   ├── page.tsx    # Home/landing page
+│       │   │   ├── layout.tsx  # Root layout with providers
+│       │   │   └── api/v1/     # Backend-for-frontend routes
+│       │   │       └── auth/   # Auth endpoints (login, register, etc.)
+│       │   ├── components/     # React components
+│       │   │   ├── ui/         # Shadcn UI component library
+│       │   │   └── providers/  # Context providers
+│       │   ├── hooks/          # Custom React hooks (useAuth, useMobile)
+│       │   ├── lib/
+│       │   │   ├── api.ts      # Direct backend API client
+│       │   │   ├── fetcher.ts  # BFF proxy fetcher (calls /api/v1)
+│       │   │   ├── auth/       # NextAuth configuration
+│       │   │   │   ├── config.ts  # Auth provider setup
+│       │   │   │   └── index.ts   # Auth export
+│       │   │   ├── firebase.ts # Firebase client SDK
+│       │   │   └── utils.ts    # Utility functions
+│       │   ├── middleware.ts   # NextAuth middleware for route protection
+│       │   └── app/            # Global providers, layout
+│       ├── public/             # Static assets
+│       ├── .next/              # Next.js build output (not committed)
+│       ├── package.json        # Next.js, React, React Query, NextAuth
+│       ├── tsconfig.json       # TypeScript config with @/* alias
+│       └── next.config.ts      # Next.js configuration
+│
+├── packages/
+│   └── shared/                 # Shared types and schemas (published as @klayim/shared)
+│       ├── src/
+│       │   ├── types/
+│       │   │   ├── index.ts       # Re-exports all types
+│       │   │   ├── common.ts      # ApiResponse, PaginationParams, Timestamps
+│       │   │   ├── user.ts        # User, UserProfile, CreateUserInput, UpdateUserInput
+│       │   │   ├── organization.ts # Organization, OrganizationMember, OnboardingStatus
+│       │   │   ├── auth.ts        # LoginInput, RegisterInput, AuthSession
+│       │   │   └── subscription.ts # Subscription types (if present)
+│       │   │
+│       │   ├── schemas/
+│       │   │   ├── index.ts       # Re-exports all schemas
+│       │   │   ├── common.ts      # Common validation schemas
+│       │   │   ├── user.ts        # Zod schemas for user validation
+│       │   │   ├── organization.ts # Organization schemas
+│       │   │   ├── auth.ts        # Auth schemas (loginSchema, registerSchema)
+│       │   │   └── subscription.ts # Subscription schemas (if present)
+│       │   │
+│       │   └── index.ts        # Main export (types and schemas)
+│       ├── package.json        # Zod dependency
+│       └── tsconfig.json       # Shared TypeScript config
+│
+├── .planning/
+│   └── codebase/              # GSD analysis documents
+│       ├── ARCHITECTURE.md    # This file: patterns, layers, data flow
+│       ├── STRUCTURE.md       # File organization, key locations
+│       ├── CONVENTIONS.md     # Coding style, naming
+│       ├── TESTING.md         # Test patterns and frameworks
+│       ├── CONCERNS.md        # Tech debt, known issues
+│       ├── STACK.md           # Tech stack and versions
+│       └── INTEGRATIONS.md    # External services
+│
+├── .firebase/
+├── .git/
+├── .github/                   # CI/CD workflows (if present)
+├── node_modules/              # Workspace root dependencies
+├── pnpm-lock.yaml            # Lockfile for all workspaces
+├── pnpm-workspace.yaml       # Workspace configuration
+├── package.json              # Root workspace config
+├── tsconfig.json             # Root TypeScript base config
+├── turbo.json                # Turborepo configuration
+├── README.md                 # Project documentation
+└── .env*, .firebaserc        # Configuration files (never commit secrets)
 ```
 
 ## Directory Purposes
 
-**apps/api/src/routes/:**
-- Purpose: Define HTTP endpoints and request/response handling
-- Contains: Route handlers using Hono framework
-- Key files: `user.route.ts` (CRUD for users), `health.route.ts` (health check)
-- Pattern: Each route file exports a Hono router instance
+**`apps/api/src/`:**
+- Purpose: Backend API source code using Clean Architecture
+- Contains: All layers (models, repositories, services, usecases, routes, middleware)
+- Key files: `index.ts` (entry), `routes/*` (HTTP handlers), `services/*` (business logic)
 
-**apps/api/src/usecases/:**
-- Purpose: Implement business logic for specific operations
-- Contains: Use case classes with execute() method
-- Key files: `user/create-user.usecase.ts`, `user/get-user.usecase.ts`, `user/update-user.usecase.ts`, `user/delete-user.usecase.ts`, `user/list-users.usecase.ts`
-- Pattern: One use case per business operation, dependency injection via imports
+**`apps/api/src/middleware/`:**
+- Purpose: Middleware for cross-cutting concerns
+- Contains: `auth.middleware.ts` (Bearer token validation), potentially CORS, logging
+- Key files: `index.ts` (barrel export), `auth.middleware.ts` (authentication)
 
-**apps/api/src/repositories/:**
-- Purpose: Abstract data access and Firestore interaction
-- Contains: UserRepository implementing IRepository interface
-- Key files: `user.repository.ts` (Firestore CRUD), `base.repository.ts` (interface definition)
-- Pattern: Singleton pattern with firestore collection reference, private mapping methods
+**`apps/api/src/types/`:**
+- Purpose: Type definitions specific to backend API
+- Contains: Re-exports from `@klayim/shared/types`, API-specific extensions (UserWithPassword, token types)
+- Key files: `index.ts` (aggregates all types and re-exports)
 
-**apps/api/src/models/:**
-- Purpose: Define domain entities with business methods
-- Contains: Entity classes with initialization and transformation logic
-- Key files: `user.model.ts` (UserEntity class)
-- Pattern: Constructor takes interface, static create() factory, instance methods for mutations
+**`apps/api/src/repositories/`:**
+- Purpose: Data access layer abstraction
+- Contains: Repository classes implementing CRUD operations against Firestore
+- Key files:
+  - `base.repository.ts` - `IRepository<T, CreateDTO, UpdateDTO>` interface
+  - `user.repository.ts` - UserRepository with findByEmail, findByIdWithPassword, etc.
+  - `token.repository.ts` - Token persistence for email verification and password reset
 
-**apps/api/src/services/:**
-- Purpose: Wrap Firebase SDK and external services
-- Contains: Auth and Storage service classes
-- Key files: `auth.service.ts` (Firebase Auth operations), `storage.service.ts`
-- Pattern: Singleton pattern with try-catch error handling
+**`apps/api/src/models/`:**
+- Purpose: Domain entities with business logic
+- Contains: Entity classes representing core domain objects
+- Key files: `user.model.ts` - UserEntity with create, update, setEmailVerified methods
 
-**apps/api/src/middleware/:**
-- Purpose: Handle cross-cutting concerns (auth, logging, CORS)
-- Contains: Middleware functions for Hono
-- Key files: `auth.middleware.ts` (verify Bearer tokens)
-- Pattern: Hono middleware signature (Context, Next) → Promise
+**`apps/api/src/services/`:**
+- Purpose: Business logic orchestration and external service interaction
+- Contains: Service classes handling application workflows
+- Key files:
+  - `auth.service.ts` - login, register, password reset, email verification
+  - `storage.service.ts` - File storage operations
 
-**apps/api/src/types/:**
-- Purpose: Define shared TypeScript interfaces and DTOs
-- Contains: Type definitions for models, requests, responses
-- Key files: `user.ts` (User, CreateUserDTO, UpdateUserDTO), `common.ts` (ApiResponse, PaginationParams)
-- Pattern: Interfaces for domain types, DTO suffixes for request/input types
+**`apps/api/src/usecases/user/`:**
+- Purpose: Application-specific workflows for User domain
+- Contains: Individual use case classes following Single Responsibility Principle
+- Key files:
+  - `create-user.usecase.ts` - CreateUserUseCase
+  - `get-user.usecase.ts` - GetUserUseCase
+  - `update-user.usecase.ts` - UpdateUserUseCase
+  - `delete-user.usecase.ts` - DeleteUserUseCase
+  - `list-users.usecase.ts` - ListUsersUseCase
 
-**apps/api/src/lib/:**
-- Purpose: Utilities and SDK initialization
-- Contains: Firebase initialization, helper functions
-- Key files: `firebase.ts` (initialize Admin SDK), `index.ts` (exports)
+**`apps/api/src/routes/`:**
+- Purpose: HTTP route handlers for Hono framework
+- Contains: Route definitions matching Express/REST patterns
+- Key files:
+  - `auth.route.ts` - POST /login, /register, /forgot-password, /reset-password, /verify-email
+  - `user.route.ts` - GET /, GET /:id, POST /, PATCH /:id, DELETE /:id
+  - `health.route.ts` - Health check endpoint
 
-**apps/web/src/app/:**
-- Purpose: Next.js App Router pages and API routes
-- Contains: Layout, pages, and API route handlers
-- Key files: `layout.tsx` (root layout with providers), `page.tsx` (home page), `api/auth/[...nextauth]/route.ts` (NextAuth handler)
-- Pattern: File-based routing, `route.ts` for API endpoints, `layout.tsx` for page layouts
+**`apps/api/src/lib/`:**
+- Purpose: Infrastructure and utilities
+- Contains: Firebase Admin SDK initialization, utility functions
+- Key files: `firebase.ts` - Firestore, Storage, RTDB, Auth initialization
 
-**apps/web/src/components/:**
+**`apps/web/src/app/`:**
+- Purpose: Next.js App Router pages and layouts
+- Contains: Page components, layout components, API routes
+- Key files:
+  - `layout.tsx` - Root layout with providers
+  - `page.tsx` - Home page
+  - `api/v1/auth/*` - Backend-for-frontend routes proxying to backend API
+
+**`apps/web/src/components/`:**
 - Purpose: Reusable React components
-- Contains: Providers and UI components
-- Key files: `providers/query-provider.tsx` (React Query setup), `providers/session-provider.tsx` (NextAuth), `ui/` (shadcn/ui components)
-- Pattern: Provider components for context setup, UI folder for styled base components
+- Contains: UI library components (Shadcn) and feature components
+- Key files:
+  - `ui/` - Shadcn UI component library (button, card, input, etc.)
+  - `providers/` - Context providers (SessionProvider, QueryClientProvider, etc.)
 
-**apps/web/src/hooks/:**
-- Purpose: Custom React hooks for business logic
-- Contains: Auth mutations, mobile detection
-- Key files: `use-auth.ts` (login, logout, register mutations)
-- Pattern: Hooks return useMutation objects with typed mutationFn
+**`apps/web/src/hooks/`:**
+- Purpose: Custom React hooks for data fetching and state
+- Contains: Hooks using React Query and NextAuth
+- Key files:
+  - `use-auth.ts` - useLogin, useRegister, useForgotPassword, useResetPassword, useVerifyEmail
+  - `use-mobile.ts` - Mobile viewport detection
 
-**apps/web/src/lib/:**
-- Purpose: Utilities, API client, auth configuration
-- Contains: Fetch wrapper, Firebase client, NextAuth config
-- Key files: `api.ts` (fetch wrapper with ApiError), `auth/config.ts` (NextAuth configuration), `fetcher.ts` (typed fetch helper), `firebase.ts` (Firebase client init)
+**`apps/web/src/lib/`:**
+- Purpose: Utilities and configuration
+- Contains: API clients, authentication setup, Firebase config
+- Key files:
+  - `api.ts` - Direct backend API client (for NextAuth provider)
+  - `fetcher.ts` - BFF proxy fetcher (/api/v1/...)
+  - `auth/config.ts` - NextAuth configuration with credentials provider
+  - `firebase.ts` - Firebase client SDK initialization
+
+**`packages/shared/src/types/`:**
+- Purpose: Shared type definitions across all workspaces
+- Contains: Domain types used by backend, frontend, and type safety
+- Key files:
+  - `user.ts` - User, UserProfile, CreateUserInput, UpdateUserInput
+  - `organization.ts` - Organization, OrganizationMember, OnboardingStatus, OrganizationMemberRole
+  - `auth.ts` - LoginInput, RegisterInput, AuthSession
+  - `common.ts` - ApiResponse<T>, PaginationParams, PaginatedResult<T>
+
+**`packages/shared/src/schemas/`:**
+- Purpose: Zod validation schemas (single source of truth)
+- Contains: Runtime validation rules for all DTOs
+- Key files:
+  - `user.ts` - createUserSchema, updateUserSchema with password requirements
+  - `auth.ts` - loginSchema, registerSchema, passwordResetSchema
+  - Same schemas used in: backend routes (zValidator), frontend NextAuth provider, form validation
 
 ## Key File Locations
 
 **Entry Points:**
-- `apps/api/src/index.ts`: Firebase Function main export, Hono app initialization, global middleware setup
-- `apps/web/src/app/layout.tsx`: Root React component, provider nesting, global metadata
-- `apps/web/src/middleware.ts`: Next.js request middleware (auth, redirects)
+- Backend API: `apps/api/src/index.ts` - Hono app with Firebase Functions export
+- Frontend App: `apps/web/src/app/page.tsx` - Home page
+- Frontend Layout: `apps/web/src/app/layout.tsx` - Root layout with providers
+- NextAuth Config: `apps/web/src/lib/auth/config.ts` - Credentials provider setup
 
 **Configuration:**
-- `apps/api/tsconfig.json`: TypeScript config targeting ES2022, outputs to `./lib/`
-- `apps/web/tsconfig.json`: Next.js TypeScript config with path alias `@/*` → `./src/*`
-- `turbo.json`: Monorepo build configuration
-- `apps/web/src/lib/auth/config.ts`: NextAuth provider and callback setup
+- Backend TypeScript: `apps/api/tsconfig.json` - Path aliases (@/types, @/repositories, etc.)
+- Frontend TypeScript: `apps/web/tsconfig.json` - Path alias (@/*)
+- Backend Hono: `apps/api/src/index.ts` - CORS, middleware, route registration
+- Frontend NextAuth: `apps/web/src/lib/auth/config.ts` - Credentials provider, callbacks, pages
+- Firebase: `firebase.json` - Hosting, functions, emulator config
 
 **Core Logic:**
-- `apps/api/src/repositories/user.repository.ts`: Firestore CRUD operations and data mapping
-- `apps/api/src/usecases/user/`: Business logic for user operations
-- `apps/api/src/routes/user.route.ts`: HTTP endpoints for user resource
-- `apps/web/src/hooks/use-auth.ts`: Authentication mutations and state
+- User Management: `apps/api/src/usecases/user/` (use cases), `apps/api/src/repositories/user.repository.ts` (data access)
+- Authentication: `apps/api/src/services/auth.service.ts` (backend logic), `apps/web/src/lib/auth/config.ts` (frontend integration)
+- API Contract: `packages/shared/src/types/` (types), `packages/shared/src/schemas/` (validation)
 
 **Testing:**
-- Not detected - no test files present
+- Backend tests: Not yet configured (would go in `apps/api/__tests__/` or `apps/api/src/**/*.test.ts`)
+- Frontend tests: Not yet configured (would go in `apps/web/__tests__/` or `apps/web/src/**/*.test.tsx`)
 
 ## Naming Conventions
 
 **Files:**
-- Route files: `{entity}.route.ts` (e.g., `user.route.ts`)
-- Use case files: `{operation}-{entity}.usecase.ts` (e.g., `create-user.usecase.ts`)
-- Repository files: `{entity}.repository.ts` (e.g., `user.repository.ts`)
-- Service files: `{service}.service.ts` (e.g., `auth.service.ts`)
-- Hook files: `use-{name}.ts` (e.g., `use-auth.ts`)
-- Component files: `{component}.tsx` (e.g., `query-provider.tsx`)
-- Type files: `{entity}.ts` for domain types, `common.ts` for shared types
-- Middleware files: `{name}.middleware.ts` (e.g., `auth.middleware.ts`)
+- Route handlers: `*.route.ts` (e.g., `user.route.ts`, `auth.route.ts`)
+- Use cases: `kebab-case.usecase.ts` (e.g., `create-user.usecase.ts`, `delete-user.usecase.ts`)
+- Repositories: `*.repository.ts` (e.g., `user.repository.ts`, `token.repository.ts`)
+- Services: `*.service.ts` (e.g., `auth.service.ts`, `storage.service.ts`)
+- Models: `*.model.ts` (e.g., `user.model.ts`)
+- Middleware: `*.middleware.ts` (e.g., `auth.middleware.ts`)
+- Types: `*.ts` in `types/` directory (e.g., `user.ts`, `auth.ts`)
+- Schemas: `*.ts` in `schemas/` directory (e.g., `user.ts`, `auth.ts`)
+- Components: PascalCase `.tsx` (e.g., `LoginForm.tsx`, `UserProfile.tsx`)
+- Hooks: `use*` camelCase `.ts` (e.g., `use-auth.ts`, `use-mobile.ts`)
 
 **Directories:**
-- Lowercase plural for collections: `routes`, `usecases`, `repositories`, `models`, `services`, `middleware`, `types`
-- Entity-specific subdirectories: `usecases/user/`, `components/ui/`, `components/providers/`
-
-**Functions:**
-- camelCase for all functions
-- Hooks start with `use` prefix (e.g., `useLogin`, `useRegister`)
-- Use case classes: PascalCase (e.g., `CreateUserUseCase`)
-- Service classes: PascalCase (e.g., `AuthService`)
-- Repository classes: PascalCase (e.g., `UserRepository`)
-- Entity classes: PascalCase with Entity suffix (e.g., `UserEntity`)
-
-**Variables:**
-- camelCase for const/let variables
-- UPPERCASE with underscore for constants (e.g., `COLLECTION = "users"`)
-
-**Types:**
-- PascalCase for interfaces and types (e.g., `User`, `ApiResponse`, `CreateUserDTO`)
-- DTO suffix for request/input types (e.g., `CreateUserDTO`, `UpdateUserDTO`)
-- Result/Response suffix for output types (e.g., `CreateUserResult`)
+- API routes: App Router structure mirrors REST hierarchy (e.g., `api/v1/auth/login/`)
+- Use cases organized by domain: `usecases/user/`, would extend to `usecases/organization/`, etc.
+- Components grouped by feature: `components/` contains UI library, feature components would go in `components/features/`
+- Shared packages use scoped name: `@klayim/shared`
 
 ## Where to Add New Code
 
-**New Feature (e.g., Products CRUD):**
-- API Routes: `apps/api/src/routes/product.route.ts`
-- Business Logic: `apps/api/src/usecases/product/{operation}.usecase.ts`
-- Data Access: `apps/api/src/repositories/product.repository.ts`
-- Domain Model: `apps/api/src/models/product.model.ts`
-- Types: Add `product.ts` to `apps/api/src/types/`
-- Frontend Hook: `apps/web/src/hooks/use-products.ts` (if mutations needed)
+**New Feature (e.g., Organizations):**
+
+Backend:
+- Types: `packages/shared/src/types/organization.ts` (types already exist)
+- Schemas: `packages/shared/src/schemas/organization.ts` (schemas already exist)
+- Models: `apps/api/src/models/organization.model.ts` (new entity class)
+- Repository: `apps/api/src/repositories/organization.repository.ts` (new data access layer)
+- Service: `apps/api/src/services/organization.service.ts` (if complex business logic needed)
+- Use Cases: `apps/api/src/usecases/organization/` (create, read, update, delete, list)
+- Routes: `apps/api/src/routes/organization.route.ts` (HTTP endpoints)
+
+Frontend:
+- Hooks: `apps/web/src/hooks/use-organization.ts` (React Query mutations/queries)
+- Components: `apps/web/src/components/organization/` (feature components)
+- Pages: `apps/web/src/app/organizations/` (App Router pages)
+- API Routes: `apps/web/src/app/api/v1/organization/` (BFF proxies if needed)
 
 **New Component/Module:**
-- Reusable UI: `apps/web/src/components/ui/{name}.tsx`
-- Feature Component: `apps/web/src/components/{feature}/{name}.tsx`
-- Page/Route: `apps/web/src/app/{path}/page.tsx`
-- API Handler: `apps/web/src/app/api/{path}/route.ts`
+
+Path: `apps/web/src/components/` for reusable components
+
+Naming:
+- `components/LoginForm.tsx` - Feature component with clear purpose
+- `components/ui/Button.tsx` - UI library component
+- `components/providers/QueryProvider.tsx` - Provider components
 
 **Utilities:**
-- Shared fetch/API logic: `apps/web/src/lib/{name}.ts`
-- Custom hooks: `apps/web/src/hooks/use-{name}.ts`
-- Middleware: `apps/api/src/middleware/{name}.middleware.ts`
-- Services: `apps/api/src/services/{name}.service.ts`
+
+Shared helpers: `apps/web/src/lib/` or `apps/api/src/lib/`
+
+Examples:
+- `apps/web/src/lib/utils.ts` - Frontend utilities
+- `apps/api/src/lib/helpers.ts` - Backend helpers
 
 ## Special Directories
 
-**apps/api/lib/:**
-- Purpose: Compiled JavaScript output from TypeScript
-- Generated: Yes (via `tsc` build command)
+**`apps/api/lib/`:**
+- Purpose: Compiled JavaScript output from TypeScript compilation
+- Generated: Yes (from `tsc` build)
 - Committed: No (in .gitignore)
+- Build output of `src/` directory with tsc-alias path resolution
 
-**apps/web/.next/:**
-- Purpose: Next.js build cache and compiled output
-- Generated: Yes (via `next build` command)
+**`apps/web/.next/`:**
+- Purpose: Next.js build artifacts and cache
+- Generated: Yes (from `next build`)
 - Committed: No (in .gitignore)
+- Contains: Compiled pages, serverless functions, cache
 
-**node_modules/:**
-- Purpose: Installed dependencies
-- Generated: Yes (via `pnpm install`)
-- Committed: No (in .gitignore)
-
-**packages/:**
-- Purpose: Reserved for shared internal packages (monorepo feature)
+**`packages/shared/src/`:**
+- Purpose: Shared source code published as `@klayim/shared` package
 - Generated: No
-- Committed: Yes (reserved structure)
+- Committed: Yes
+- Used by: Both `apps/api` and `apps/web` via workspace dependency
 
+**`.planning/codebase/`:**
+- Purpose: GSD-generated codebase analysis documents
+- Generated: Yes (by gsd:map-codebase orchestrator)
+- Committed: Yes
+- Contains: ARCHITECTURE.md, STRUCTURE.md, CONVENTIONS.md, TESTING.md, CONCERNS.md, STACK.md, INTEGRATIONS.md
+
+**`node_modules/` at root:**
+- Purpose: Monorepo workspace dependencies
+- Generated: Yes (from `pnpm install`)
+- Committed: No (in .gitignore)
+- Installed: All workspace root + app/package dependencies
+
+---
+
+*Structure analysis: 2026-02-25*
