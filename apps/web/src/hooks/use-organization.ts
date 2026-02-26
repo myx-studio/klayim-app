@@ -58,6 +58,26 @@ export function useCreateOrganization() {
   });
 }
 
+export function useUpdateOrganization() {
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name: string } }) => {
+      const response = await fetcher<ApiResponse<{ organization: Organization }>>(
+        `/organizations/${id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Failed to update organization");
+      }
+
+      return response.data;
+    },
+  });
+}
+
 export function useCheckOrganizationName(name: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ["organization-name-check", name],

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateOrganization } from "@/hooks/use-organization";
+import { useCreateOrganization, useUpdateOrganization, useOrganization } from "@/hooks/use-organization";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
 import { organizationNameSchema } from "@klayim/shared/schemas";
@@ -25,29 +25,52 @@ interface CheckNameResponse {
 const SetupOrganizationPage = () => {
   const router = useRouter();
   const { update: updateSession } = useSession();
+  const { organization: existingOrg, isLoading: isLoadingOrg } = useOrganization();
   const createOrganization = useCreateOrganization();
+  const updateOrganization = useUpdateOrganization();
+
+  const isEditMode = !!existingOrg;
 
   const form = useForm({
     defaultValues: {
-      name: "",
+      name: existingOrg?.name || "",
     },
     onSubmit: async ({ value }) => {
-      createOrganization.mutate(
-        { name: value.name.trim() },
-        {
-          onSuccess: async (data) => {
-            await updateSession({
-              defaultOrganizationId: data?.organization?.id,
-            });
-            router.push("/onboarding/plan-selection");
-          },
-        }
-      );
+      if (isEditMode && existingOrg) {
+        // Update existing organization
+        updateOrganization.mutate(
+          { id: existingOrg.id, data: { name: value.name.trim() } },
+          {
+            onSuccess: async () => {
+              router.push("/onboarding/plan-selection");
+            },
+          }
+        );
+      } else {
+        // Create new organization
+        createOrganization.mutate(
+          { name: value.name.trim() },
+          {
+            onSuccess: async (data) => {
+              await updateSession({
+                defaultOrganizationId: data?.organization?.id,
+              });
+              router.push("/onboarding/plan-selection");
+            },
+          }
+        );
+      }
     },
   });
 
-  const isLoading = createOrganization.isPending;
-  const error = createOrganization.error?.message || null;
+  // Update form default when org loads
+  const nameField = form.getFieldValue("name");
+  if (existingOrg?.name && !nameField) {
+    form.setFieldValue("name", existingOrg.name);
+  }
+
+  const isLoading = createOrganization.isPending || updateOrganization.isPending || isLoadingOrg;
+  const error = createOrganization.error?.message || updateOrganization.error?.message || null;
 
   return (
     <div className="mx-auto max-w-xl">
@@ -57,8 +80,12 @@ const SetupOrganizationPage = () => {
             <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold">Create Your Organization</h1>
-            <p className="text-muted-foreground text-sm">Set up your workspace to get started</p>
+            <h1 className="text-xl font-semibold">
+              {isEditMode ? "Update Your Organization" : "Create Your Organization"}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {isEditMode ? "Update your workspace details" : "Set up your workspace to get started"}
+            </p>
           </div>
         </CardHeader>
 
@@ -169,8 +196,10 @@ const SetupOrganizationPage = () => {
                 {isLoading ? (
                   <>
                     <Spinner className="mr-2 size-4" />
-                    Creating...
+                    {isEditMode ? "Updating..." : "Creating..."}
                   </>
+                ) : isEditMode ? (
+                  "Continue"
                 ) : (
                   "Create Organization"
                 )}
