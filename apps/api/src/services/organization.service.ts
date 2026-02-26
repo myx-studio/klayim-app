@@ -17,6 +17,53 @@ import type {
 } from "@klayim/shared/types";
 
 export class OrganizationService {
+  // Name availability check
+
+  /**
+   * Check if an organization name is available.
+   * Converts name to slug and checks slug availability.
+   * Returns suggestion if name is taken.
+   */
+  async checkNameAvailability(
+    name: string
+  ): Promise<{ available: boolean; suggestion?: string }> {
+    // Generate slug from name
+    const slug = this.generateSlug(name);
+
+    // Check if slug is available
+    const isAvailable = await organizationRepository.isSlugAvailable(slug);
+
+    if (isAvailable) {
+      return { available: true };
+    }
+
+    // Generate suggestion by appending number
+    let suggestion = slug;
+    let counter = 1;
+    while (!(await organizationRepository.isSlugAvailable(`${slug}-${counter}`))) {
+      counter++;
+      if (counter > 10) break; // Safety limit
+    }
+    if (counter <= 10) {
+      suggestion = `${slug}-${counter}`;
+    }
+
+    return { available: false, suggestion };
+  }
+
+  /**
+   * Generate a URL-friendly slug from an organization name
+   */
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
   // Organization CRUD
 
   async createOrganization(

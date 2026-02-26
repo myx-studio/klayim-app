@@ -21,6 +21,22 @@ import { z } from "zod";
 
 const organizations = new Hono();
 
+// GET /organizations/check-name - Check organization name availability (public endpoint)
+// NOTE: This route MUST be before /:id to prevent "check-name" being interpreted as an ID
+organizations.get(
+  "/check-name",
+  zValidator("query", z.object({ name: z.string().min(2).max(50) })),
+  async (c) => {
+    const { name } = c.req.valid("query");
+    const result = await organizationService.checkNameAvailability(name);
+
+    return c.json<ApiResponse<{ available: boolean; suggestion?: string }>>({
+      success: true,
+      data: result,
+    });
+  }
+);
+
 // GET /organizations - List user's organizations
 organizations.get("/", zValidator("query", paginationSchema), async (c) => {
   const userId = c.get("userId") as string | undefined;
