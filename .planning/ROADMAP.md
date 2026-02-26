@@ -64,11 +64,11 @@ Plans:
   2. User can navigate forward and backward through wizard steps
   3. User can skip optional steps and proceed to next
   4. User sees completion page with "What happens next" after finishing setup
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md - Sub-stepper and shared components: SubStepper, ProviderCard, InfoAccordion, OrgOnboardingLayout
+- [ ] 03-02-PLAN.md - Organization onboarding pages: Connect HRIS, Connect Calendar, Connect Task, Configure Governance, Onboarding Success, Upload CSV dialog
 
 ### Phase 4: Integration Infrastructure
 **Goal**: Secure foundation for all provider integrations with encrypted tokens and reliable webhooks
@@ -180,4 +180,4 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-26*
+*Last updated: 2026-02-27*
