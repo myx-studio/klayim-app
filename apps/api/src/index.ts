@@ -5,7 +5,7 @@ import { onRequest, HttpsFunction, HttpsOptions } from "firebase-functions/v2/ht
 import { defineSecret } from "firebase-functions/params";
 import type { Request, Response } from "express";
 
-import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes } from "@/routes/index.js";
+import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes, webhookRoutes } from "@/routes/index.js";
 import { authMiddleware } from "@/middleware/index.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -28,6 +28,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Webhook routes (no auth, raw body needed for signature verification)
+app.route("/webhooks", webhookRoutes);
 
 // Public routes
 app.route("/health", healthRoute);
@@ -76,8 +79,13 @@ app.onError((err, c) => {
   return c.json(response, 500);
 });
 
+// Extended Express request type with rawBody (Firebase Functions v2)
+interface FirebaseRequest extends Request {
+  rawBody?: Buffer;
+}
+
 // Convert Express request to Web Request
-function toWebRequest(req: Request): globalThis.Request {
+function toWebRequest(req: FirebaseRequest): globalThis.Request {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   const headers = new Headers();
@@ -96,8 +104,14 @@ function toWebRequest(req: Request): globalThis.Request {
     headers,
   };
 
-  if (req.method !== "GET" && req.method !== "HEAD" && req.body) {
-    init.body = JSON.stringify(req.body);
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    // For webhooks, use raw body to preserve signature verification
+    // Firebase Functions v2 provides rawBody as Buffer
+    if (req.rawBody) {
+      init.body = req.rawBody.toString("utf-8");
+    } else if (req.body) {
+      init.body = JSON.stringify(req.body);
+    }
   }
 
   return new globalThis.Request(url.toString(), init);

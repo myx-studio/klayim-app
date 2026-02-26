@@ -81,7 +81,7 @@ export interface Plan {
 export interface ActivePlan {
   planId: string;
   planType: PlanType;
-  status: PlanStatus;
+  status: PlanStatus | SubscriptionStatus; // Allow both for flexibility
   startDate: string;
   endDate?: string;
   stripeSubscriptionId?: string;
@@ -145,6 +145,8 @@ export interface UpdateOrganizationInput {
   logo?: string | null;
   description?: string | null;
   website?: string | null;
+  stripeCustomerId?: string;
+  activePlan?: ActivePlan;
 }
 
 export interface InviteMemberInput {
