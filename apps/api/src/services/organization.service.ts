@@ -121,6 +121,21 @@ export class OrganizationService {
     };
   }
 
+  async getUserDefaultOrganization(userId: string): Promise<Organization | null> {
+    // Get user to find their default organization
+    const user = await userRepository.findById(userId);
+    if (!user?.defaultOrganizationId) {
+      // If no default, try to get first organization user is a member of
+      const members = await organizationMemberRepository.findByUser(userId);
+      if (members.length === 0) {
+        return null;
+      }
+      return organizationRepository.findById(members[0].organizationId);
+    }
+
+    return organizationRepository.findById(user.defaultOrganizationId);
+  }
+
   async getUserOrganizations(
     userId: string,
     params?: PaginationParams

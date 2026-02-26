@@ -37,6 +37,27 @@ organizations.get(
   }
 );
 
+// GET /organizations/me - Get current user's default organization
+// NOTE: This route MUST be before /:id to prevent "me" being interpreted as an ID
+organizations.get("/me", async (c) => {
+  const userId = c.get("userId") as string | undefined;
+
+  if (!userId) {
+    return c.json<ApiResponse<null>>({ success: false, error: "Unauthorized" }, 401);
+  }
+
+  const organization = await organizationService.getUserDefaultOrganization(userId);
+
+  if (!organization) {
+    return c.json<ApiResponse<null>>({ success: false, error: "No organization found" }, 404);
+  }
+
+  return c.json<ApiResponse<{ organization: Organization }>>({
+    success: true,
+    data: { organization },
+  });
+});
+
 // GET /organizations - List user's organizations
 organizations.get("/", zValidator("query", paginationSchema), async (c) => {
   const userId = c.get("userId") as string | undefined;
