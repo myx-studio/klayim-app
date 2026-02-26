@@ -1,13 +1,15 @@
-import { stripe } from "@/lib/stripe.js";
+import { getStripe } from "@/lib/stripe.js";
 import type { SubscriptionCheckoutInput, ContactSalesRequest } from "@klayim/shared/types";
 import type { CreatePortalSessionInput } from "@klayim/shared/schemas";
 import type Stripe from "stripe";
 
 // Map plan types to Stripe Price IDs from environment
-const PRICE_MAP: Record<"starter" | "professional", string | undefined> = {
-  starter: process.env.STRIPE_PRICE_STARTER,
-  professional: process.env.STRIPE_PRICE_PROFESSIONAL,
-};
+function getPriceId(planType: "starter" | "professional"): string | undefined {
+  if (planType === "starter") {
+    return process.env.STRIPE_PRICE_INDIVIDUAL;
+  }
+  return process.env.STRIPE_PRICE_TEAM;
+}
 
 class BillingService {
   async createCheckoutSession(
@@ -20,14 +22,14 @@ class BillingService {
       return { error: `Plan type ${input.planType} is not available for checkout` };
     }
 
-    const priceId = PRICE_MAP[input.planType];
+    const priceId = getPriceId(input.planType);
 
     if (!priceId) {
       return { error: `Price ID not configured for plan: ${input.planType}` };
     }
 
     try {
-      const session = await stripe.checkout.sessions.create({
+      const session = await getStripe().checkout.sessions.create({
         mode: "subscription",
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${input.successUrl}?session_id={CHECKOUT_SESSION_ID}`,
@@ -58,7 +60,7 @@ class BillingService {
     customerId: string
   ): Promise<Stripe.BillingPortal.Session | { error: string }> {
     try {
-      const session = await stripe.billingPortal.sessions.create({
+      const session = await getStripe().billingPortal.sessions.create({
         customer: customerId,
         return_url: input.returnUrl,
       });

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { stripe } from "@/lib/stripe.js";
+import { getStripe } from "@/lib/stripe.js";
 import { webhookService } from "@/services/index.js";
 
 const webhooks = new Hono();
@@ -20,7 +20,7 @@ webhooks.post("/stripe", async (c) => {
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
