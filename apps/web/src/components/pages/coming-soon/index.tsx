@@ -11,6 +11,11 @@ import NewsletterForm from "./newsletter-form";
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
 const ComingSoonPage = () => {
+  // Debug: log if reCAPTCHA key is missing
+  if (!RECAPTCHA_SITE_KEY) {
+    console.warn("NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set");
+  }
+
   return (
     <RecaptchaProvider siteKey={RECAPTCHA_SITE_KEY}>
       <div

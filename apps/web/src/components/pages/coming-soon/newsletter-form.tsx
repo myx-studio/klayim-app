@@ -114,6 +114,10 @@ const NewsletterForm = () => {
       <p className="text-muted-foreground text-xs">
         We respect your privacy. Unsubscribe at any time.
       </p>
+
+      {!isLoaded && (
+        <p className="text-muted-foreground text-xs">Loading security verification...</p>
+      )}
     </form>
   );
 };
