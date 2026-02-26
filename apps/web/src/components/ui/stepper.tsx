@@ -14,6 +14,9 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+// Step state type (moved before StepperProps for reference)
+export type StepState = "completed" | "active" | "pending";
+
 // Step type definition
 export interface Step {
   id: string;
@@ -27,6 +30,7 @@ export interface StepperProps {
   currentStep: number; // 0-indexed
   onStepClick?: (stepIndex: number) => void;
   className?: string;
+  stepStates?: StepState[]; // Optional override for individual step states
 }
 
 // CVA variants for step circle states
@@ -82,8 +86,6 @@ const stepLabelVariants = cva(
   }
 );
 
-type StepState = "completed" | "active" | "pending";
-
 function getStepState(stepIndex: number, currentStep: number): StepState {
   if (stepIndex < currentStep) return "completed";
   if (stepIndex === currentStep) return "active";
@@ -97,6 +99,7 @@ interface StepItemProps extends VariantProps<typeof stepCircleVariants> {
   currentStep: number;
   onStepClick?: (stepIndex: number) => void;
   showConnector: boolean;
+  stateOverride?: StepState; // Optional state override
 }
 
 function StepItem({
@@ -106,8 +109,10 @@ function StepItem({
   onStepClick,
   showConnector,
   size,
+  stateOverride,
 }: StepItemProps) {
-  const state = getStepState(stepIndex, currentStep);
+  // Use override if provided, otherwise compute from currentStep
+  const state = stateOverride ?? getStepState(stepIndex, currentStep);
   const isClickable = state === "completed" && onStepClick;
 
   const handleClick = () => {
@@ -147,7 +152,8 @@ function StepItem({
         <div
           className={cn(
             connectorVariants({
-              state: stepIndex < currentStep ? "completed" : "pending",
+              // Use state-based connector: completed if this step is completed
+              state: state === "completed" ? "completed" : "pending",
             }),
             "mx-2 mb-6"
           )}
@@ -182,7 +188,7 @@ function MobileStepper({ steps, currentStep }: MobileStepperProps) {
 }
 
 // Main Stepper component
-function Stepper({ steps, currentStep, onStepClick, className }: StepperProps) {
+function Stepper({ steps, currentStep, onStepClick, className, stepStates }: StepperProps) {
   return (
     <nav
       aria-label="Progress"
@@ -204,6 +210,7 @@ function Stepper({ steps, currentStep, onStepClick, className }: StepperProps) {
               currentStep={currentStep}
               onStepClick={onStepClick}
               showConnector={index < steps.length - 1}
+              stateOverride={stepStates?.[index]}
             />
           </li>
         ))}
