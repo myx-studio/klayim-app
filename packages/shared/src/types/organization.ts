@@ -6,6 +6,9 @@ export type PlanType = "free" | "starter" | "professional" | "enterprise";
 
 export type PlanStatus = "active" | "expired" | "cancelled";
 
+// Subscription status for Stripe webhooks
+export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "expired";
+
 // Organization onboarding steps
 export type OrganizationOnboardingStep =
   | "profile"               // Set org name, logo, description
@@ -82,6 +85,10 @@ export interface ActivePlan {
   startDate: string;
   endDate?: string;
   stripeSubscriptionId?: string;
+  stripeCustomerId?: string;
+  currentPeriodStart?: string; // ISO date
+  currentPeriodEnd?: string;   // ISO date
+  cancelAtPeriodEnd?: boolean;
 }
 
 export interface Organization extends Timestamps {
