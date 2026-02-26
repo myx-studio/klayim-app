@@ -32,11 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can create an organization with a name during onboarding
   3. User sees a progress stepper showing their position in the onboarding flow
   4. User is redirected to plan selection after completing account details
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md - Foundation: Stepper component, validation schemas, name availability endpoint
+- [ ] 01-02-PLAN.md - Onboarding forms: Account details and organization creation pages
 
 ### Phase 2: Plan & Billing
 **Goal**: Users can select a subscription plan and pay via Stripe
@@ -168,7 +168,7 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. User Onboarding | 0/2 | Not started | - |
+| 1. User Onboarding | 0/2 | Planned | - |
 | 2. Plan & Billing | 0/2 | Not started | - |
 | 3. Organization Onboarding UI | 0/2 | Not started | - |
 | 4. Integration Infrastructure | 0/3 | Not started | - |
