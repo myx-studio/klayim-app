@@ -7,7 +7,6 @@ import { pricingPlans, type PlanType } from "@klayim/shared";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateCheckoutSession } from "@/hooks/use-billing";
 import { EnterpriseForm } from "./enterprise-form";
@@ -20,7 +19,6 @@ const PLAN_TYPE_MAP: Record<string, PlanType> = {
 };
 
 const PlanSelectionPage = () => {
-  const router = useRouter();
   const { data: session } = useSession();
   const { organization } = useOrganization();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -133,17 +131,6 @@ const PlanSelectionPage = () => {
             "Continue to Payment"
           )}
         </Button>
-
-        <p className="text-muted-foreground text-center text-sm">
-          Not sure yet?{" "}
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="text-primary hover:underline"
-          >
-            Skip for now
-          </button>
-        </p>
       </div>
     </div>
   );
