@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const emailSchema = z.string().email("Invalid email address");
 
+export const nameSchema = z.string().min(2, "Name must be at least 2 characters").max(100);
+
 export const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -9,16 +11,59 @@ export const passwordSchema = z
   .regex(/[a-z]/, "Password must contain at least one lowercase letter")
   .regex(/[0-9]/, "Password must contain at least one number");
 
+// Extended password schema with special character requirement (for onboarding)
+export const onboardingPasswordSchema = passwordSchema.regex(
+  /[!@#$%^&*(),.?":{}|<>]/,
+  "Password must contain at least one special character"
+);
+
+// Password requirements for checklist component
+export const PASSWORD_REQUIREMENTS = [
+  { id: "length", label: "At least 8 characters", test: (p: string) => p.length >= 8 },
+  { id: "uppercase", label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  { id: "lowercase", label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
+  { id: "number", label: "One number", test: (p: string) => /[0-9]/.test(p) },
+  {
+    id: "special",
+    label: "One special character",
+    test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p),
+  },
+] as const;
+
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
 });
 
+// Email-only signup (for initial registration)
+export const signupSchema = z.object({
+  email: emailSchema,
+});
+
+// Full registration (legacy, kept for backwards compatibility)
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
-  name: z.string().min(2, "Name must be at least 2 characters").max(100),
+  name: nameSchema,
 });
+
+// Complete profile during onboarding (legacy - without special char requirement)
+export const completeProfileSchema = z.object({
+  name: nameSchema,
+  password: passwordSchema,
+});
+
+// Complete profile during onboarding with special character requirement and confirm password
+export const onboardingCompleteProfileSchema = z
+  .object({
+    name: nameSchema,
+    password: onboardingPasswordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
@@ -49,7 +94,10 @@ export const refreshTokenSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+export type SignupInput = z.infer<typeof signupSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type CompleteProfileInput = z.infer<typeof completeProfileSchema>;
+export type OnboardingCompleteProfileInput = z.infer<typeof onboardingCompleteProfileSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
