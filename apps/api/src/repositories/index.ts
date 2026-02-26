@@ -4,3 +4,4 @@ export * from "./token.repository.js";
 export * from "./organization.repository.js";
 export * from "./organization-member.repository.js";
 export * from "./newsletter.repository.js";
+export * from "./processed-event.repository.js";
