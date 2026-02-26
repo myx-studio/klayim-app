@@ -1,15 +1,11 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { Spinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
-import {
-  ONBOARDING_STEPS,
-  getCurrentStepIndex,
-  getStepState,
-} from "@/lib/onboarding";
+import { ONBOARDING_STEPS, getCurrentStepIndex, getStepState } from "@/lib/onboarding";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 // Extended user type for onboarding session data
 interface OnboardingUser {
@@ -24,16 +20,15 @@ interface OnboardingLayoutProps {
 const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const currentIndex = getCurrentStepIndex(pathname);
-  const prevIndex = useRef(currentIndex);
-  const [direction, setDirection] = useState(0);
 
-  // Track direction for slide animation
+  // Redirect to signin if not authenticated
   useEffect(() => {
-    setDirection(currentIndex > prevIndex.current ? 1 : -1);
-    prevIndex.current = currentIndex;
-  }, [currentIndex]);
+    if (status === "unauthenticated") {
+      router.replace("/auth/signin");
+    }
+  }, [status, router]);
 
   // Derive step states from user data (cast to access extended properties)
   const user = session?.user as OnboardingUser | undefined;
@@ -42,39 +37,27 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
 
   const steps = ONBOARDING_STEPS.map((step, index) => ({
     ...step,
-    state: getStepState(
-      index,
-      currentIndex,
-      userOnboardingCompleted,
-      hasOrganization
-    ),
+    state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization),
   }));
 
-  const handleStepClick = (stepIndex: number) => {
-    const step = steps[stepIndex];
-    // Only allow clicking completed steps (per user decision)
-    if (step.state === "completed" && step.href) {
-      router.push(step.href);
-    }
-  };
+  // Show loading while checking auth
+  if (status === "loading") {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{
+          background: "url('/images/bg-particle.png') repeat",
+        }}
+      >
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
-  // Page transition variants (per user decision - slide left/right)
-  const pageVariants: Variants = {
-    initial: (dir: number) => ({
-      x: dir > 0 ? "100%" : "-100%",
-      opacity: 0,
-    }),
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: { type: "tween", duration: 0.3, ease: "easeInOut" },
-    },
-    exit: (dir: number) => ({
-      x: dir > 0 ? "-100%" : "100%",
-      opacity: 0,
-      transition: { type: "tween", duration: 0.3, ease: "easeInOut" },
-    }),
-  };
+  // Don't render if not authenticated
+  if (!session) {
+    return null;
+  }
 
   return (
     <div
@@ -83,32 +66,20 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
         background: "url('/images/bg-particle.png') repeat",
       }}
     >
-      <div className="flex min-h-screen flex-col items-center justify-center p-4">
-        {/* Stepper - shown above the card */}
-        <div className="mb-8 w-full max-w-md">
+      {/* Stepper - fixed at top */}
+      <div className="fixed top-0 z-10 w-full px-4 py-4">
+        <div className="mx-auto max-w-3xl">
           <Stepper
-            steps={steps.map((s) => ({ id: s.id, label: s.label, href: s.href }))}
+            steps={steps.map((s) => ({ id: s.id, label: s.label }))}
             currentStep={currentIndex}
-            onStepClick={handleStepClick}
             stepStates={steps.map((s) => s.state)}
           />
         </div>
+      </div>
 
-        {/* Content with slide animation */}
-        <div className="relative w-full max-w-md overflow-hidden">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={pathname}
-              custom={direction}
-              variants={pageVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      {/* Content - centered */}
+      <div className="flex min-h-screen flex-col items-center justify-start p-4 py-30">
+        <div className="w-full max-w-md">{children}</div>
       </div>
     </div>
   );

@@ -8,11 +8,12 @@ export type UserStatus = "active" | "inactive" | "pending";
 export interface User extends Timestamps {
   id: string;
   email: string;
-  name: string;
+  name?: string; // Optional - set during onboarding
   avatar?: string;
   type: UserType;
   status: UserStatus;
   emailVerified?: boolean;
+  onboardingCompleted?: boolean; // Track if user completed onboarding
   lastLoginAt?: string;
   defaultOrganizationId?: string;
 }
@@ -20,15 +21,18 @@ export interface User extends Timestamps {
 export interface UserProfile {
   id: string;
   email: string;
-  name: string;
+  name?: string;
   avatar?: string;
   type: UserType;
+  onboardingCompleted?: boolean;
+  defaultOrganizationId?: string;
 }
 
+// For email-only signup
 export interface CreateUserInput {
   email: string;
-  password: string;
-  name: string;
+  password?: string; // Optional - set during onboarding
+  name?: string; // Optional - set during onboarding
   type?: UserType;
 }
 

@@ -85,7 +85,7 @@ export class UserRepository {
     };
   }
 
-  async create(input: CreateUserInput & { passwordHash: string }): Promise<User> {
+  async create(input: CreateUserInput & { passwordHash?: string }): Promise<User> {
     const docRef = this.collection.doc();
     const entity = UserEntity.create(docRef.id, {
       ...input,
@@ -95,6 +95,27 @@ export class UserRepository {
     await docRef.set(this.mapToFirestore(entity));
 
     return entity.toJSON();
+  }
+
+  async completeProfile(
+    id: string,
+    name: string,
+    passwordHash: string
+  ): Promise<User | null> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    await this.collection.doc(id).update({
+      name,
+      passwordHash,
+      onboardingCompleted: true,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return this.findById(id);
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User | null> {
@@ -174,6 +195,7 @@ export class UserRepository {
       type: data.type,
       status: data.status,
       emailVerified: data.emailVerified,
+      onboardingCompleted: data.onboardingCompleted,
       lastLoginAt: data.lastLoginAt,
       defaultOrganizationId: data.defaultOrganizationId,
       createdAt: data.createdAt,
@@ -194,10 +216,17 @@ export class UserRepository {
   private mapToFirestore(entity: UserEntity): Record<string, unknown> {
     const data = entity.toJSON();
     const { id, ...rest } = data;
-    return {
+    const result: Record<string, unknown> = {
       ...rest,
       passwordHash: entity.passwordHash,
     };
+    // Remove undefined values (Firestore doesn't accept undefined)
+    Object.keys(result).forEach((key) => {
+      if (result[key] === undefined) {
+        delete result[key];
+      }
+    });
+    return result;
   }
 }
 

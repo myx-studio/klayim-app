@@ -218,7 +218,14 @@ export class OrganizationMemberRepository {
   private mapToFirestore(entity: OrganizationMemberEntity): Record<string, unknown> {
     const data = entity.toJSON();
     const { id, ...rest } = data;
-    return rest;
+    const result: Record<string, unknown> = { ...rest };
+    // Remove undefined values (Firestore doesn't accept undefined)
+    Object.keys(result).forEach((key) => {
+      if (result[key] === undefined) {
+        delete result[key];
+      }
+    });
+    return result;
   }
 }
 

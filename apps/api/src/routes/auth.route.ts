@@ -2,13 +2,17 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import {
   loginSchema,
+  signupSchema,
   registerSchema,
+  completeProfileSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
   verifyEmailSchema,
+  resendVerificationSchema,
 } from "@klayim/shared/schemas";
 import { authService } from "@/services/index.js";
+import { authMiddleware } from "@/middleware/index.js";
 import type { ApiResponse, UserProfile, User } from "@klayim/shared/types";
 
 const auth = new Hono();
@@ -36,7 +40,56 @@ auth.post(
   }
 );
 
-// POST /auth/register
+// POST /auth/signup (email-only signup)
+auth.post(
+  "/signup",
+  zValidator("json", signupSchema),
+  async (c) => {
+    const input = c.req.valid("json");
+
+    const result = await authService.signup(input);
+
+    if ("error" in result) {
+      return c.json<ApiResponse<null>>(
+        { success: false, error: result.error },
+        400
+      );
+    }
+
+    return c.json<ApiResponse<{ user: User }>>(
+      { success: true, data: { user: result.user } },
+      201
+    );
+  }
+);
+
+// POST /auth/complete-profile (complete profile during onboarding - requires auth)
+auth.post(
+  "/complete-profile",
+  authMiddleware,
+  zValidator("json", completeProfileSchema),
+  async (c) => {
+    const userId = c.get("userId");
+
+    const input = c.req.valid("json");
+
+    const result = await authService.completeProfile(userId, input);
+
+    if ("error" in result) {
+      return c.json<ApiResponse<null>>(
+        { success: false, error: result.error },
+        400
+      );
+    }
+
+    return c.json<ApiResponse<{ user: User }>>({
+      success: true,
+      data: { user: result.user },
+    });
+  }
+);
+
+// POST /auth/register (legacy - full registration)
 auth.post(
   "/register",
   zValidator("json", registerSchema),
@@ -115,9 +168,62 @@ auth.post(
       );
     }
 
-    return c.json<ApiResponse<null>>({
+    return c.json<ApiResponse<{ user: User; loginToken: string }>>({
       success: true,
       message: "Email verified successfully",
+      data: {
+        user: result.user!,
+        loginToken: result.loginToken!,
+      },
+    });
+  }
+);
+
+// POST /auth/login-with-token (one-time auto-login)
+auth.post("/login-with-token", async (c) => {
+  const body = await c.req.json<{ token: string }>();
+
+  if (!body.token) {
+    return c.json<ApiResponse<null>>(
+      { success: false, error: "Token is required" },
+      400
+    );
+  }
+
+  const result = await authService.loginWithToken(body.token);
+
+  if (!result) {
+    return c.json<ApiResponse<null>>(
+      { success: false, error: "Invalid or expired token" },
+      401
+    );
+  }
+
+  return c.json<ApiResponse<{ user: UserProfile }>>({
+    success: true,
+    data: result,
+  });
+});
+
+// POST /auth/resend-verification
+auth.post(
+  "/resend-verification",
+  zValidator("json", resendVerificationSchema),
+  async (c) => {
+    const { email } = c.req.valid("json");
+
+    const result = await authService.resendVerificationEmail(email);
+
+    if (!result.success) {
+      return c.json<ApiResponse<null>>(
+        { success: false, error: result.error },
+        400
+      );
+    }
+
+    return c.json<ApiResponse<null>>({
+      success: true,
+      message: "Verification code sent",
     });
   }
 );

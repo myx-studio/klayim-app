@@ -15,7 +15,7 @@
     "emulators:export": "firebase emulators:export ./.emulator-data",
     "emulators:functions": "firebase emulators:start --only functions --import=./.emulator-data --export-on-exit",
     "dev:shared": "pnpm --filter @klayim/shared run build",
-    "dev:all": "pnpm dev:shared && concurrently -n emu,api,web -c blue,yellow,green \"pnpm emulators\" \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:all": "./scripts/dev.sh",
     "deploy:api": "pnpm --filter api run build && firebase deploy --only functions",
     "deploy:web": "firebase apphosting:deploy --root apps/web"
   },

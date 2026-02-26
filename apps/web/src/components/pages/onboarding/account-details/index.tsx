@@ -2,12 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -15,21 +10,21 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { useCompleteProfile } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
 import {
   nameSchema,
   onboardingPasswordSchema,
   PASSWORD_REQUIREMENTS,
 } from "@klayim/shared/schemas";
 import { useForm } from "@tanstack/react-form";
-import { Eye, EyeOff, Check, Circle } from "lucide-react";
+import { Check, Circle, Eye, EyeOff } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/spinner";
-import { env } from "next-runtime-env";
 
 // Password Checklist Component
 const PasswordChecklist = ({ password }: { password: string }) => {
@@ -89,10 +84,9 @@ const PasswordMatchIndicator = ({
 const AccountDetailsPage = () => {
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const completeProfile = useCompleteProfile();
 
   const form = useForm({
     defaultValues: {
@@ -101,65 +95,33 @@ const AccountDetailsPage = () => {
       confirmPassword: "",
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const apiUrl = env("NEXT_PUBLIC_API_URL");
-        const response = await fetch(`${apiUrl}/api/v1/auth/complete-profile`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      completeProfile.mutate(
+        { name: value.name, password: value.password },
+        {
+          onSuccess: async () => {
+            await updateSession({
+              name: value.name,
+              onboardingCompleted: true,
+            });
+            router.push("/onboarding/setup-organization");
           },
-          credentials: "include",
-          body: JSON.stringify({
-            name: value.name,
-            password: value.password,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Update session to reflect completed profile
-          await updateSession();
-          router.push("/onboarding/setup-organization");
-        } else {
-          setError(data.error || "Failed to complete profile");
         }
-      } catch {
-        setError("Something went wrong. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
+      );
     },
   });
+
+  const isLoading = completeProfile.isPending;
+  const error = completeProfile.error?.message || null;
 
   return (
     <Card className="w-full border px-2">
       <CardHeader className="flex flex-col items-center gap-4 text-center">
-        <Link
-          href="/"
-          className="flex flex-col items-center justify-center gap-2"
-        >
-          <Image
-            src="/images/logo/symbol.svg"
-            alt="Klayim"
-            width={32}
-            height={32}
-          />
-          <Image
-            src="/images/logo/text.svg"
-            alt="Klayim"
-            width={140}
-            height={40}
-          />
+        <Link href="/" className="flex flex-col items-center justify-center gap-2">
+          <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
         </Link>
         <div>
-          <h1 className="text-xl font-semibold">Complete Your Account</h1>
-          <p className="text-muted-foreground text-sm">
-            Enter your details to get started
-          </p>
+          <h1 className="text-2xl font-semibold">Add your account details</h1>
+          <p className="text-muted-foreground text-sm">Enter your details to get started</p>
         </div>
       </CardHeader>
 
@@ -171,11 +133,9 @@ const AccountDetailsPage = () => {
             type="email"
             value={session?.user?.email || ""}
             disabled
-            className="h-11 bg-muted"
+            className="bg-muted h-11"
           />
-          <p className="text-muted-foreground mt-1 text-xs">
-            Email verified and cannot be changed
-          </p>
+          <p className="text-muted-foreground mt-1 text-xs">Email verified and cannot be changed</p>
         </Field>
 
         <form
@@ -199,8 +159,7 @@ const AccountDetailsPage = () => {
               }}
             >
               {(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
@@ -230,10 +189,7 @@ const AccountDetailsPage = () => {
 
             {/* Password Field with Live Checklist - wrapped in Subscribe for real-time updates */}
             <form.Subscribe
-              selector={(state) => [
-                state.values.password,
-                state.values.confirmPassword,
-              ]}
+              selector={(state) => [state.values.password, state.values.confirmPassword]}
             >
               {([passwordValue, confirmPasswordValue]) => (
                 <>
@@ -270,11 +226,7 @@ const AccountDetailsPage = () => {
                               type="button"
                               size="icon-sm"
                               onClick={() => setShowPassword(!showPassword)}
-                              aria-label={
-                                showPassword
-                                  ? "Hide password"
-                                  : "Show password"
-                              }
+                              aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                               {showPassword ? (
                                 <EyeOff className="size-4" />
@@ -304,13 +256,10 @@ const AccountDetailsPage = () => {
                     }}
                   >
                     {(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>
-                            Confirm Password
-                          </FieldLabel>
+                          <FieldLabel htmlFor={field.name}>Confirm Password</FieldLabel>
                           <InputGroup className="h-11">
                             <InputGroupInput
                               id={field.name}
@@ -318,9 +267,7 @@ const AccountDetailsPage = () => {
                               type={showConfirmPassword ? "text" : "password"}
                               placeholder="Confirm your password"
                               value={field.state.value}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
+                              onChange={(e) => field.handleChange(e.target.value)}
                               onBlur={field.handleBlur}
                               disabled={isLoading}
                               aria-invalid={isInvalid}
@@ -329,14 +276,8 @@ const AccountDetailsPage = () => {
                               <InputGroupButton
                                 type="button"
                                 size="icon-sm"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                                aria-label={
-                                  showConfirmPassword
-                                    ? "Hide password"
-                                    : "Show password"
-                                }
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                               >
                                 {showConfirmPassword ? (
                                   <EyeOff className="size-4" />
@@ -361,9 +302,7 @@ const AccountDetailsPage = () => {
             </form.Subscribe>
 
             {/* Error Message */}
-            {error && (
-              <p className="text-destructive text-center text-sm">{error}</p>
-            )}
+            {error && <p className="text-destructive text-center text-sm">{error}</p>}
 
             {/* Submit Button - Always enabled per user decision */}
             <Button type="submit" disabled={isLoading} className="h-11 w-full">

@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { api, ApiError } from "@/lib/api";
-import type { ApiResponse } from "@klayim/shared/types";
+import type { ApiResponse, User } from "@klayim/shared/types";
+
+interface VerifyEmailResponse {
+  user: User;
+  loginToken: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const data = await api<ApiResponse<null>>("/auth/verify-email", {
+    const data = await api<ApiResponse<VerifyEmailResponse>>("/auth/verify-email", {
       method: "POST",
       body: JSON.stringify(body),
     });

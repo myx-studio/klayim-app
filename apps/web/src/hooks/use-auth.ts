@@ -7,10 +7,51 @@ import type {
   ApiResponse,
   User,
   LoginInput,
-  RegisterInput,
+  SignupInput,
+  CompleteProfileInput,
   ForgotPasswordInput,
   ResetPasswordInput,
 } from "@klayim/shared/types";
+
+export function useSignup() {
+  return useMutation({
+    mutationFn: async (data: SignupInput) => {
+      const response = await fetcher<ApiResponse<{ user: User }>>(
+        "/auth/signup",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Signup failed");
+      }
+
+      return response.data;
+    },
+  });
+}
+
+export function useCompleteProfile() {
+  return useMutation({
+    mutationFn: async (data: CompleteProfileInput) => {
+      const response = await fetcher<ApiResponse<{ user: User }>>(
+        "/auth/complete-profile",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Failed to complete profile");
+      }
+
+      return response.data;
+    },
+  });
+}
 
 export function useLogin() {
   return useMutation({
@@ -33,23 +74,6 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       await signOut({ redirect: false });
-    },
-  });
-}
-
-export function useRegister() {
-  return useMutation({
-    mutationFn: async (data: RegisterInput) => {
-      const response = await fetcher<ApiResponse<{ user: User }>>("/auth/register", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-
-      if (!response.success) {
-        throw new FetchError(400, response.error || "Registration failed");
-      }
-
-      return response.data;
     },
   });
 }

@@ -10,12 +10,18 @@ import MarketingLayout from "../layouts/marketings";
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const pathName = usePathname();
   const isMarketingPage = !pathName.startsWith("/app");
+  const isAuthPage = pathName.startsWith("/auth");
+  const isOnboarding = pathName.startsWith("/onboarding");
   return (
     <SessionProvider>
       <QueryProvider>
         <AnalyticsProvider>
           <TooltipProvider>
-            {isMarketingPage ? <MarketingLayout>{children}</MarketingLayout> : children}
+            {isMarketingPage && !isAuthPage && !isOnboarding ? (
+              <MarketingLayout>{children}</MarketingLayout>
+            ) : (
+              children
+            )}
             <Toaster />
           </TooltipProvider>
         </AnalyticsProvider>

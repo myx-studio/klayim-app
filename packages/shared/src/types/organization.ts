@@ -6,19 +6,62 @@ export type PlanType = "free" | "starter" | "professional" | "enterprise";
 
 export type PlanStatus = "active" | "expired" | "cancelled";
 
-export type OnboardingStep =
-  | "profile"      // Set org name, logo, description
-  | "invite"       // Invite team members
-  | "plan"         // Select subscription plan
-  | "payment"      // Complete payment (if paid plan)
-  | "complete";    // Onboarding finished
+// Organization onboarding steps
+export type OrganizationOnboardingStep =
+  | "profile"               // Set org name, logo, description
+  | "plan"                  // Select subscription plan & payment
+  | "import_employees"      // Import employee data
+  | "connect_calendar"      // Connect calendar (Google, Outlook, etc.)
+  | "connect_tasks"         // Connect task management (Jira, Asana, etc.)
+  | "time_governance"       // Set threshold for time governance
+  | "complete";             // Onboarding finished
 
-export interface OnboardingStatus {
-  currentStep: OnboardingStep;
-  completedSteps: OnboardingStep[];
-  skippedSteps: OnboardingStep[];
+// Legacy alias for backwards compatibility
+export type OnboardingStep = OrganizationOnboardingStep;
+
+export interface OrganizationOnboardingStatus {
+  currentStep: OrganizationOnboardingStep;
+  completedSteps: OrganizationOnboardingStep[];
+  skippedSteps: OrganizationOnboardingStep[];
   startedAt: string;
   completedAt?: string;
+}
+
+// Legacy alias for backwards compatibility
+export type OnboardingStatus = OrganizationOnboardingStatus;
+
+// Time governance settings
+export interface TimeGovernanceSettings {
+  meetingTimeThreshold: number;      // Max hours per day for meetings
+  focusTimeMinimum: number;          // Min hours per day for focus time
+  afterHoursLimit: number;           // Max hours per week for after-hours work
+  meetingFreeCap: number;            // Min meeting-free days per week
+  alertsEnabled: boolean;
+}
+
+// Calendar integration
+export type CalendarProvider = "google" | "outlook" | "apple";
+
+export interface CalendarConnection {
+  id: string;
+  provider: CalendarProvider;
+  email: string;
+  connected: boolean;
+  connectedAt?: string;
+  lastSyncAt?: string;
+}
+
+// Task management integration
+export type TaskProvider = "jira" | "asana" | "monday" | "trello" | "clickup" | "linear";
+
+export interface TaskConnection {
+  id: string;
+  provider: TaskProvider;
+  workspaceId?: string;
+  workspaceName?: string;
+  connected: boolean;
+  connectedAt?: string;
+  lastSyncAt?: string;
 }
 
 export interface Plan {
@@ -51,7 +94,12 @@ export interface Organization extends Timestamps {
   stripeCustomerId?: string;
   activePlan?: ActivePlan;
   memberCount: number;
-  onboarding?: OnboardingStatus;
+  onboarding?: OrganizationOnboardingStatus;
+  // Integrations
+  calendarConnections?: CalendarConnection[];
+  taskConnections?: TaskConnection[];
+  // Settings
+  timeGovernance?: TimeGovernanceSettings;
 }
 
 export interface OrganizationMember extends Timestamps {
@@ -129,12 +177,20 @@ export function isOnboardingComplete(org: Organization): boolean {
   return org.onboarding?.currentStep === "complete";
 }
 
-export function getNextOnboardingStep(org: Organization): OnboardingStep | null {
+export function getNextOnboardingStep(org: Organization): OrganizationOnboardingStep | null {
   if (!org.onboarding || org.onboarding.currentStep === "complete") {
     return null;
   }
 
-  const steps: OnboardingStep[] = ["profile", "invite", "plan", "payment", "complete"];
+  const steps: OrganizationOnboardingStep[] = [
+    "profile",
+    "plan",
+    "import_employees",
+    "connect_calendar",
+    "connect_tasks",
+    "time_governance",
+    "complete",
+  ];
   const currentIndex = steps.indexOf(org.onboarding.currentStep);
 
   if (currentIndex < steps.length - 1) {

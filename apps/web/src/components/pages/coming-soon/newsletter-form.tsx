@@ -3,7 +3,7 @@
 import { useRecaptcha } from "@/components/providers/recaptcha-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
@@ -56,7 +56,7 @@ const NewsletterForm = () => {
         setEmail("");
       } else {
         setStatus("error");
-        setMessage(data.error || "Something went wrong. Please try again.");
+        setMessage(getErrorMessage(data.error));
       }
     } catch (error) {
       setStatus("error");

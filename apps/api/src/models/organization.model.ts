@@ -2,8 +2,8 @@ import type {
   Organization,
   CreateOrganizationInput,
   UpdateOrganizationInput,
-  OnboardingStatus,
-  OnboardingStep,
+  OrganizationOnboardingStatus,
+  OrganizationOnboardingStep,
 } from "@klayim/shared/types";
 
 export class OrganizationEntity implements Organization {
@@ -16,7 +16,7 @@ export class OrganizationEntity implements Organization {
   stripeCustomerId?: string;
   activePlan?: Organization["activePlan"];
   memberCount: number;
-  onboarding?: OnboardingStatus;
+  onboarding?: OrganizationOnboardingStatus;
   createdAt: string;
   updatedAt?: string;
 
@@ -63,12 +63,20 @@ export class OrganizationEntity implements Organization {
     });
   }
 
-  completeOnboardingStep(step: OnboardingStep, skip = false): OrganizationEntity {
+  completeOnboardingStep(step: OrganizationOnboardingStep, skip = false): OrganizationEntity {
     if (!this.onboarding) {
       return this;
     }
 
-    const steps: OnboardingStep[] = ["profile", "invite", "plan", "payment", "complete"];
+    const steps: OrganizationOnboardingStep[] = [
+      "profile",
+      "plan",
+      "import_employees",
+      "connect_calendar",
+      "connect_tasks",
+      "time_governance",
+      "complete",
+    ];
     const currentIndex = steps.indexOf(this.onboarding.currentStep);
     const stepIndex = steps.indexOf(step);
 

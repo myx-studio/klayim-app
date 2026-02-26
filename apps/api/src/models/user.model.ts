@@ -3,11 +3,12 @@ import type { User, CreateUserInput, UpdateUserInput } from "@klayim/shared/type
 export class UserEntity implements User {
   id: string;
   email: string;
-  name: string;
+  name?: string;
   avatar?: string;
   type: User["type"];
   status: User["status"];
   emailVerified?: boolean;
+  onboardingCompleted?: boolean;
   lastLoginAt?: string;
   defaultOrganizationId?: string;
   createdAt: string;
@@ -22,6 +23,7 @@ export class UserEntity implements User {
     this.type = data.type;
     this.status = data.status;
     this.emailVerified = data.emailVerified;
+    this.onboardingCompleted = data.onboardingCompleted;
     this.lastLoginAt = data.lastLoginAt;
     this.defaultOrganizationId = data.defaultOrganizationId;
     this.createdAt = data.createdAt;
@@ -31,7 +33,7 @@ export class UserEntity implements User {
 
   static create(
     id: string,
-    input: CreateUserInput & { passwordHash: string }
+    input: CreateUserInput & { passwordHash?: string }
   ): UserEntity {
     return new UserEntity({
       id,
@@ -40,6 +42,7 @@ export class UserEntity implements User {
       type: input.type ?? "customer",
       status: "pending",
       emailVerified: false,
+      onboardingCompleted: false,
       createdAt: new Date().toISOString(),
       passwordHash: input.passwordHash,
     });
@@ -81,6 +84,7 @@ export class UserEntity implements User {
       type: this.type,
       status: this.status,
       emailVerified: this.emailVerified,
+      onboardingCompleted: this.onboardingCompleted,
       lastLoginAt: this.lastLoginAt,
       defaultOrganizationId: this.defaultOrganizationId,
       createdAt: this.createdAt,
@@ -88,7 +92,7 @@ export class UserEntity implements User {
     };
   }
 
-  toProfile(): { id: string; email: string; name: string; avatar?: string; type: User["type"] } {
+  toProfile(): { id: string; email: string; name?: string; avatar?: string; type: User["type"] } {
     return {
       id: this.id,
       email: this.email,

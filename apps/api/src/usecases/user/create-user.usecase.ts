@@ -21,8 +21,10 @@ export class CreateUserUseCase {
       };
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
+    // Hash password if provided
+    const passwordHash = input.password
+      ? await bcrypt.hash(input.password, SALT_ROUNDS)
+      : undefined;
 
     const user = await userRepository.create({
       ...input,

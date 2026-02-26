@@ -1,4 +1,4 @@
-import type { UserProfile } from "./user.js";
+import type { User, UserProfile } from "./user.js";
 
 export interface LoginInput {
   email: string;
@@ -11,6 +11,16 @@ export interface LoginResponse {
   refreshToken: string;
 }
 
+// Email-only signup
+export interface SignupInput {
+  email: string;
+}
+
+export interface SignupResponse {
+  user: User;
+}
+
+// Legacy full registration
 export interface RegisterInput {
   email: string;
   password: string;
@@ -19,6 +29,12 @@ export interface RegisterInput {
 
 export interface RegisterResponse {
   user: UserProfile;
+}
+
+// Complete profile during onboarding
+export interface CompleteProfileInput {
+  name: string;
+  password: string;
 }
 
 export interface ForgotPasswordInput {
