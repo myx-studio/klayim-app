@@ -16,9 +16,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Plan & Billing
 
 - [ ] **BILL-01**: User can view 3 plan tiers (Individual $49, Team $149, Enterprise custom)
-- [ ] **BILL-02**: User can select Individual or Team plan and pay via Stripe Checkout
+- [x] **BILL-02**: User can select Individual or Team plan and pay via Stripe Checkout
 - [ ] **BILL-03**: User on Enterprise plan can request contact with sales
-- [ ] **BILL-04**: System creates Stripe subscription and stores subscription ID
+- [x] **BILL-04**: System creates Stripe subscription and stores subscription ID
 - [ ] **BILL-05**: System handles Stripe webhooks (payment success, failure, cancellation)
 
 ### Organization Onboarding
@@ -122,9 +122,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UONB-02 | Phase 1 | Pending |
 | UONB-03 | Phase 1 | Complete |
 | BILL-01 | Phase 2 | Pending |
-| BILL-02 | Phase 2 | Pending |
+| BILL-02 | Phase 2 | Complete |
 | BILL-03 | Phase 2 | Pending |
-| BILL-04 | Phase 2 | Pending |
+| BILL-04 | Phase 2 | Complete |
 | BILL-05 | Phase 2 | Pending |
 | OONB-01 | Phase 3 | Pending |
 | OONB-02 | Phase 3 | Pending |
