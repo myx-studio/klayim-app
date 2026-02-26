@@ -4,3 +4,4 @@ export * from "./auth.js";
 export * from "./organization.js";
 export * from "./subscription.js";
 export * from "./newsletter.js";
+export * from "./billing.js";

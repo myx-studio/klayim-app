@@ -26,6 +26,11 @@ export {
   // Subscription schemas
   subscriptionCheckoutSchema,
   planChangeSchema,
+  // Billing schemas
+  checkoutPlanTypeSchema,
+  createCheckoutSessionSchema,
+  contactSalesSchema,
+  createPortalSessionSchema,
   // Newsletter schemas
   newsletterSubscribeSchema,
 } from "./schemas/index.js";
