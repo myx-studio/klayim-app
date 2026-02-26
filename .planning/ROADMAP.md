@@ -48,11 +48,12 @@ Plans:
   3. User on Enterprise plan can request contact with sales team
   4. System creates Stripe subscription and user gains access to organization onboarding
   5. System handles payment webhooks (success, failure, cancellation) without data loss
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md - Stripe backend infrastructure: SDK, billing service, checkout session API
+- [ ] 02-02-PLAN.md - Plan selection UI: Pricing cards, enterprise contact form
+- [ ] 02-03-PLAN.md - Webhook handler: Idempotent event processing, subscription status updates
 
 ### Phase 3: Organization Onboarding UI
 **Goal**: Users see a clear wizard interface guiding them through integration setup
@@ -168,8 +169,8 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. User Onboarding | 0/2 | Planned | - |
-| 2. Plan & Billing | 0/2 | Not started | - |
+| 1. User Onboarding | 1/2 | In Progress | - |
+| 2. Plan & Billing | 0/3 | Planned | - |
 | 3. Organization Onboarding UI | 0/2 | Not started | - |
 | 4. Integration Infrastructure | 0/3 | Not started | - |
 | 5. Calendar Integration | 0/3 | Not started | - |
