@@ -19,7 +19,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **BILL-02**: User can select Individual or Team plan and pay via Stripe Checkout
 - [ ] **BILL-03**: User on Enterprise plan can request contact with sales
 - [x] **BILL-04**: System creates Stripe subscription and stores subscription ID
-- [ ] **BILL-05**: System handles Stripe webhooks (payment success, failure, cancellation)
+- [x] **BILL-05**: System handles Stripe webhooks (payment success, failure, cancellation)
 
 ### Organization Onboarding
 
@@ -125,7 +125,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BILL-02 | Phase 2 | Complete |
 | BILL-03 | Phase 2 | Pending |
 | BILL-04 | Phase 2 | Complete |
-| BILL-05 | Phase 2 | Pending |
+| BILL-05 | Phase 2 | Complete |
 | OONB-01 | Phase 3 | Pending |
 | OONB-02 | Phase 3 | Pending |
 | OONB-03 | Phase 3 | Pending |
