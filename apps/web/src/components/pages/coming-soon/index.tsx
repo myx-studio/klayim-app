@@ -3,18 +3,13 @@
 import { FadeIn } from "@/components/motion";
 import { RecaptchaProvider } from "@/components/providers/recaptcha-provider";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
+import { env } from "next-runtime-env";
 import NewsletterForm from "./newsletter-form";
 
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
-
 const ComingSoonPage = () => {
-  // Debug: log if reCAPTCHA key is missing
-  if (!RECAPTCHA_SITE_KEY) {
-    console.warn("NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set");
-  }
+  const RECAPTCHA_SITE_KEY = env("NEXT_PUBLIC_RECAPTCHA_SITE_KEY") || "";
 
   return (
     <RecaptchaProvider siteKey={RECAPTCHA_SITE_KEY}>

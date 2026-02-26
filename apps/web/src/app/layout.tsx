@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { PublicEnvScript } from "next-runtime-env";
 
 import AppProvider from "../components/providers/app-provider";
 import "./globals.css";
@@ -57,6 +58,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body className={`${nhaasGrotesk.variable} antialiased`}>
         <AppProvider>{children}</AppProvider>
       </body>
