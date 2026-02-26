@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### User Onboarding
 
-- [ ] **UONB-01**: User can complete account details (name, password) after email verification
+- [x] **UONB-01**: User can complete account details (name, password) after email verification
 - [ ] **UONB-02**: User can create organization with name during onboarding
-- [ ] **UONB-03**: User sees onboarding progress stepper (Create Account → Account Details → Setup Organization → Onboarding)
+- [x] **UONB-03**: User sees onboarding progress stepper (Create Account → Account Details → Setup Organization → Onboarding)
 
 ### Plan & Billing
 
@@ -118,9 +118,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UONB-01 | Phase 1 | Pending |
+| UONB-01 | Phase 1 | Complete |
 | UONB-02 | Phase 1 | Pending |
-| UONB-03 | Phase 1 | Pending |
+| UONB-03 | Phase 1 | Complete |
 | BILL-01 | Phase 2 | Pending |
 | BILL-02 | Phase 2 | Pending |
 | BILL-03 | Phase 2 | Pending |
