@@ -22,16 +22,24 @@ export class OrganizationService {
   /**
    * Check if an organization name is available.
    * Converts name to slug and checks slug availability.
+   * If userId provided, excludes user's own organization from the check.
    * Returns suggestion if name is taken.
    */
   async checkNameAvailability(
-    name: string
+    name: string,
+    userId?: string
   ): Promise<{ available: boolean; suggestion?: string }> {
     // Generate slug from name
     const slug = this.generateSlug(name);
 
-    // Check if slug is available
-    const isAvailable = await organizationRepository.isSlugAvailable(slug);
+    // Check if slug is available, excluding user's own organization
+    let excludeOrgId: string | undefined;
+    if (userId) {
+      const userOrg = await this.getUserDefaultOrganization(userId);
+      excludeOrgId = userOrg?.id;
+    }
+
+    const isAvailable = await organizationRepository.isSlugAvailable(slug, excludeOrgId);
 
     if (isAvailable) {
       return { available: true };
@@ -40,7 +48,7 @@ export class OrganizationService {
     // Generate suggestion by appending number
     let suggestion = slug;
     let counter = 1;
-    while (!(await organizationRepository.isSlugAvailable(`${slug}-${counter}`))) {
+    while (!(await organizationRepository.isSlugAvailable(`${slug}-${counter}`, excludeOrgId))) {
       counter++;
       if (counter > 10) break; // Safety limit
     }
@@ -124,6 +132,7 @@ export class OrganizationService {
   async getUserDefaultOrganization(userId: string): Promise<Organization | null> {
     // Get user to find their default organization
     const user = await userRepository.findById(userId);
+
     if (!user?.defaultOrganizationId) {
       // If no default, try to get first organization user is a member of
       const members = await organizationMemberRepository.findByUser(userId);
