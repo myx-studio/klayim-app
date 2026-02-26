@@ -9,6 +9,35 @@ interface CheckNameResponse {
   suggestion?: string;
 }
 
+/**
+ * Hook to get the current user's organization
+ */
+export function useOrganization() {
+  const query = useQuery({
+    queryKey: ["organization"],
+    queryFn: async () => {
+      const response = await fetcher<ApiResponse<{ organization: Organization }>>(
+        "/organizations/me"
+      );
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Failed to get organization");
+      }
+
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false, // Don't retry on 404 (user may not have an org yet)
+  });
+
+  return {
+    organization: query.data?.organization,
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
+
 export function useCreateOrganization() {
   return useMutation({
     mutationFn: async (data: { name: string }) => {
