@@ -19,6 +19,10 @@ export async function api<T>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<T> {
+  if (!API_URL) {
+    throw new Error("API_URL environment variable is not set");
+  }
+
   const { params, ...fetchOptions } = options;
 
   let url = API_URL + endpoint;

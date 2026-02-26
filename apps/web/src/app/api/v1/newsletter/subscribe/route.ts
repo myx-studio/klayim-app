@@ -17,10 +17,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
+    console.error("Newsletter subscribe error:", error);
+
     if (error instanceof ApiError) {
       return NextResponse.json({ success: false, error: error.message }, { status: error.status });
     }
 
-    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
