@@ -2,6 +2,7 @@ import { integrationRepository, type OAuthCredentials } from "@/repositories/ind
 import { decrypt, encrypt, type EncryptedData } from "@/lib/encryption.js";
 import type { Integration, IntegrationProvider } from "@klayim/shared/types";
 import { googleCalendarService } from "./google-calendar.service.js";
+import { microsoftCalendarService } from "./microsoft-calendar.service.js";
 
 /**
  * Buffer time before token expiry to trigger refresh (5 minutes)
@@ -174,40 +175,21 @@ class TokenRefreshService {
 
   /**
    * Refresh Microsoft OAuth token
-   * Uses @azure/msal-node ConfidentialClientApplication
-   *
-   * TODO: Install @azure/msal-node and implement actual refresh
-   * pnpm add @azure/msal-node
+   * Uses @azure/msal-node ConfidentialClientApplication via microsoftCalendarService
    */
   private async refreshMicrosoftToken(
     credentials: OAuthCredentials,
     integration: Integration
   ): Promise<RefreshResult> {
-    // TODO: Implement when @azure/msal-node is installed (Phase 5)
-    // import { ConfidentialClientApplication } from '@azure/msal-node';
-    //
-    // const msalClient = new ConfidentialClientApplication({
-    //   auth: {
-    //     clientId: process.env.MICROSOFT_CLIENT_ID!,
-    //     clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
-    //     authority: `https://login.microsoftonline.com/${tenantId}`
-    //   }
-    // });
-    //
-    // const result = await msalClient.acquireTokenByRefreshToken({
-    //   refreshToken: credentials.refreshToken,
-    //   scopes: integration.scopes
-    // });
-    //
-    // if (!result) throw new Error('Token refresh failed');
-    // return {
-    //   accessToken: result.accessToken,
-    //   expiresInMs: result.expiresOn!.getTime() - Date.now(),
-    // };
-
-    throw new Error(
-      "Microsoft Calendar token refresh not implemented. Install @azure/msal-node package in Phase 5."
+    const result = await microsoftCalendarService.refreshToken(
+      credentials.refreshToken,
+      integration.scopes
     );
+
+    return {
+      accessToken: result.accessToken,
+      expiresInMs: result.expiresInMs,
+    };
   }
 
   /**
