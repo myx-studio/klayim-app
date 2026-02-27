@@ -1,4 +1,5 @@
 import { google, Auth, calendar_v3 } from "googleapis";
+import crypto from "crypto";
 import type { CalendarEvent, CalendarEventStatus, EventAttendee, AttendeeResponseStatus } from "@klayim/shared/types";
 
 /**
@@ -47,6 +48,16 @@ export interface GoogleListEventsResult {
   events: calendar_v3.Schema$Event[];
   nextSyncToken: string;
   needsFullSync?: boolean;
+}
+
+/**
+ * Result from registering a webhook
+ */
+export interface GoogleWebhookResult {
+  channelId: string;
+  resourceId: string;
+  expiration: string;
+  secret: string;
 }
 
 /**
@@ -351,6 +362,82 @@ class GoogleCalendarService {
       default:
         return "needsAction";
     }
+  }
+
+  /**
+   * Register a webhook for push notifications on calendar changes
+   *
+   * @param accessToken - Current access token
+   * @param organizationId - Organization ID for token format
+   * @param integrationId - Integration ID for uniqueness
+   * @returns Webhook channel details including channelId, resourceId, expiration, and secret
+   */
+  async registerWebhook(
+    accessToken: string,
+    organizationId: string,
+    integrationId: string
+  ): Promise<GoogleWebhookResult> {
+    const oauth2Client = this.createOAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    const channelId = crypto.randomUUID();
+    const secret = crypto.randomBytes(16).toString("hex");
+    const channelToken = `${organizationId}:${secret}`;
+
+    // Set expiration to 7 days from now (Google may return less)
+    const expiration = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    const apiUrl = process.env.API_URL || "http://localhost:5001";
+
+    const response = await calendar.events.watch({
+      calendarId: "primary",
+      requestBody: {
+        id: channelId,
+        type: "web_hook",
+        address: `${apiUrl}/webhooks/google`,
+        token: channelToken,
+        expiration: String(expiration),
+      },
+    });
+
+    if (!response.data.resourceId) {
+      throw new Error("No resourceId returned from Google webhook registration");
+    }
+
+    return {
+      channelId,
+      resourceId: response.data.resourceId,
+      expiration: response.data.expiration
+        ? new Date(Number(response.data.expiration)).toISOString()
+        : new Date(expiration).toISOString(),
+      secret,
+    };
+  }
+
+  /**
+   * Stop a webhook channel to unsubscribe from push notifications
+   *
+   * @param accessToken - Current access token
+   * @param channelId - The channel ID to stop
+   * @param resourceId - The resource ID from registration
+   */
+  async stopWebhook(
+    accessToken: string,
+    channelId: string,
+    resourceId: string
+  ): Promise<void> {
+    const oauth2Client = this.createOAuth2Client();
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    await calendar.channels.stop({
+      requestBody: {
+        id: channelId,
+        resourceId,
+      },
+    });
   }
 }
 

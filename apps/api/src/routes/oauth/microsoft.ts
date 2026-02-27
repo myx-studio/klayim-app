@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { microsoftCalendarService, type MicrosoftOAuthState } from "@/services/microsoft-calendar.service.js";
 import { integrationService } from "@/services/integration.service.js";
 import { calendarSyncService } from "@/services/calendar-sync.service.js";
+import { integrationRepository } from "@/repositories/integration.repository.js";
+import { syncStateRepository } from "@/repositories/sync-state.repository.js";
 import { authMiddleware } from "@/middleware/auth.middleware.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -139,6 +141,42 @@ microsoftOAuth.get("/callback", async (c) => {
       refreshToken: result.tokens.refreshToken,
       expiresAt: result.tokens.expiresAt,
     });
+
+    // Register webhook for push notifications (best effort)
+    try {
+      const webhook = await microsoftCalendarService.registerWebhook(
+        result.tokens.accessToken,
+        state.organizationId,
+        integration.id
+      );
+
+      // Update integration with subscription ID and encrypted secret
+      await integrationRepository.update(integration.id, {
+        subscriptionId: webhook.subscriptionId,
+        webhookSecret: webhook.secret,
+      });
+
+      // Create or update sync state with webhook expiration
+      const existingSyncState = await syncStateRepository.findByIntegration(integration.id);
+      if (existingSyncState) {
+        await syncStateRepository.updateWebhookState(integration.id, {
+          channelId: webhook.subscriptionId, // Use subscriptionId as channelId for consistency
+          expiration: webhook.expiration,
+        });
+      } else {
+        await syncStateRepository.create({
+          organizationId: state.organizationId,
+          integrationId: integration.id,
+          webhookChannelId: webhook.subscriptionId,
+          webhookExpiration: webhook.expiration,
+        });
+      }
+
+      console.log(`[OAuth/Microsoft] Webhook registered, expires: ${webhook.expiration}`);
+    } catch (webhookError) {
+      console.error("[OAuth/Microsoft] Failed to register webhook:", webhookError);
+      // Continue without webhook - polling will still work
+    }
 
     // Trigger initial sync async (don't await - redirect immediately)
     calendarSyncService.triggerInitialSync(integration.id).catch((err) => {

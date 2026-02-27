@@ -1,5 +1,6 @@
 import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
 import { Client, PageCollection, PageIterator } from "@microsoft/microsoft-graph-client";
+import crypto from "crypto";
 import type { CalendarEvent, CalendarEventStatus, EventAttendee, AttendeeResponseStatus } from "@klayim/shared/types";
 
 /**
@@ -66,6 +67,15 @@ export interface MicrosoftGraphEvent {
 export interface MicrosoftListEventsResult {
   events: MicrosoftGraphEvent[];
   nextDeltaLink: string;
+}
+
+/**
+ * Result from registering a webhook subscription
+ */
+export interface MicrosoftWebhookResult {
+  subscriptionId: string;
+  expiration: string;
+  secret: string;
 }
 
 /**
@@ -408,6 +418,84 @@ class MicrosoftCalendarService {
       default:
         return "needsAction";
     }
+  }
+
+  /**
+   * Register a webhook subscription for push notifications on calendar changes
+   *
+   * @param accessToken - Current access token
+   * @param organizationId - Organization ID for clientState format
+   * @param integrationId - Integration ID for uniqueness
+   * @returns Webhook subscription details including subscriptionId, expiration, and secret
+   */
+  async registerWebhook(
+    accessToken: string,
+    organizationId: string,
+    integrationId: string
+  ): Promise<MicrosoftWebhookResult> {
+    const graphClient = this.createGraphClient(accessToken);
+
+    const secret = crypto.randomBytes(16).toString("hex");
+    const clientState = `${organizationId}:${secret}`;
+
+    // Set expiration to 3 days from now (Microsoft calendar max is ~7 days)
+    const expirationDateTime = new Date();
+    expirationDateTime.setDate(expirationDateTime.getDate() + 3);
+
+    const apiUrl = process.env.API_URL || "http://localhost:5001";
+
+    const subscription = await graphClient.api("/subscriptions").post({
+      changeType: "created,updated,deleted",
+      notificationUrl: `${apiUrl}/webhooks/microsoft`,
+      resource: "me/events",
+      clientState,
+      expirationDateTime: expirationDateTime.toISOString(),
+    });
+
+    return {
+      subscriptionId: subscription.id,
+      expiration: subscription.expirationDateTime,
+      secret,
+    };
+  }
+
+  /**
+   * Renew a webhook subscription to extend its expiration
+   *
+   * @param accessToken - Current access token
+   * @param subscriptionId - The subscription ID to renew
+   * @returns New expiration date
+   */
+  async renewWebhook(
+    accessToken: string,
+    subscriptionId: string
+  ): Promise<{ expiration: string }> {
+    const graphClient = this.createGraphClient(accessToken);
+
+    // Extend by 3 days
+    const expirationDateTime = new Date();
+    expirationDateTime.setDate(expirationDateTime.getDate() + 3);
+
+    const subscription = await graphClient
+      .api(`/subscriptions/${subscriptionId}`)
+      .patch({
+        expirationDateTime: expirationDateTime.toISOString(),
+      });
+
+    return {
+      expiration: subscription.expirationDateTime,
+    };
+  }
+
+  /**
+   * Delete a webhook subscription
+   *
+   * @param accessToken - Current access token
+   * @param subscriptionId - The subscription ID to delete
+   */
+  async deleteWebhook(accessToken: string, subscriptionId: string): Promise<void> {
+    const graphClient = this.createGraphClient(accessToken);
+    await graphClient.api(`/subscriptions/${subscriptionId}`).delete();
   }
 }
 
