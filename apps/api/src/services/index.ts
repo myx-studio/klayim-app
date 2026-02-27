@@ -10,3 +10,4 @@ export * from "./google-calendar.service.js";
 export * from "./microsoft-calendar.service.js";
 export * from "./calendar-sync.service.js";
 export * from "./webhook-handler.service.js";
+export * from "./bamboohr.service.js";
