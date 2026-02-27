@@ -146,7 +146,7 @@ asanaOAuth.get("/callback", async (c) => {
     });
 
     // Trigger initial sync (non-blocking)
-    taskSyncService.triggerInitialSync(integration.id, "asana").catch((err) => {
+    taskSyncService.triggerInitialSync(state.organizationId, "asana").catch((err) => {
       console.error("Failed to trigger initial Asana sync:", err);
     });
 

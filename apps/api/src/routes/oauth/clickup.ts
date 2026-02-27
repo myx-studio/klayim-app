@@ -155,7 +155,7 @@ clickupOAuth.get("/callback", async (c) => {
     });
 
     // Trigger initial sync (non-blocking)
-    taskSyncService.triggerInitialSync(integration.id, "clickup").catch((err) => {
+    taskSyncService.triggerInitialSync(state.organizationId, "clickup").catch((err) => {
       console.error("Failed to trigger initial ClickUp sync:", err);
     });
 

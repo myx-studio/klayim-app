@@ -146,7 +146,7 @@ linearOAuth.get("/callback", async (c) => {
     });
 
     // Trigger initial sync (non-blocking)
-    taskSyncService.triggerInitialSync(integration.id, "linear").catch((err) => {
+    taskSyncService.triggerInitialSync(state.organizationId, "linear").catch((err) => {
       console.error("Failed to trigger initial Linear sync:", err);
     });
 
