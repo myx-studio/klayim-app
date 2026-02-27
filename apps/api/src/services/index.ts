@@ -16,3 +16,4 @@ export * from "./finch.service.js";
 export * from "./asana.service.js";
 export * from "./clickup.service.js";
 export * from "./linear.service.js";
+export * from "./task-sync.service.js";
