@@ -151,12 +151,12 @@ Plans:
   4. System imports tasks with creation date, completion status, and assignees
   5. System imports time tracking data where available from provider
   6. User sees explanation of what task data will be imported before connecting
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
-- [ ] 07-03: TBD
+- [ ] 07-01-PLAN.md - Foundation: Install asana and @linear/sdk, create Task/TaskSyncState types
+- [ ] 07-02-PLAN.md - Provider services: Asana, ClickUp, Linear OAuth services and routes, token refresh
+- [ ] 07-03-PLAN.md - Sync and frontend: TaskSyncService, task repository, connect-task page wiring
 
 ### Phase 8: Governance Configuration
 **Goal**: Users can configure thresholds and rules that power meeting cost governance
@@ -189,10 +189,10 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 3. Organization Onboarding UI | 2/2 | Complete | 2026-02-27 |
 | 4. Integration Infrastructure | 3/3 | Complete | 2026-02-27 |
 | 5. Calendar Integration | 3/3 | Complete | 2026-02-27 |
-| 6. HRIS Integration | 2/3 | In Progress|  |
-| 7. Task Management Integration | 0/3 | Not started | - |
+| 6. HRIS Integration | 3/3 | Complete | 2026-02-27 |
+| 7. Task Management Integration | 0/3 | Planned | - |
 | 8. Governance Configuration | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27 - Phase 6 Planned*
+*Last updated: 2026-02-27 - Phase 7 Planned*
