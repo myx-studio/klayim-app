@@ -82,5 +82,17 @@ service cloud.firestore {
     match /tokens/{tokenId} {
       allow read, write: if false;
     }
+
+    // Calendar events - org members can read, admins can write (or service account)
+    match /calendar_events/{eventId} {
+      allow read: if isOrgMember(resource.data.organizationId);
+      allow create: if isOrgAdmin(request.resource.data.organizationId);
+      allow update, delete: if isOrgAdmin(resource.data.organizationId);
+    }
+
+    // Sync states - server-side only (tracks sync tokens per integration)
+    match /sync_states/{stateId} {
+      allow read, write: if false;
+    }
   }
 }

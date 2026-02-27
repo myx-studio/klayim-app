@@ -42,12 +42,12 @@ export interface TimeGovernanceSettings {
   alertsEnabled: boolean;
 }
 
-// Calendar integration
-export type CalendarProvider = "google" | "outlook" | "apple";
+// Calendar integration (UI placeholders - actual integrations use types/calendar.ts)
+export type UICalendarProvider = "google" | "outlook" | "apple";
 
 export interface CalendarConnection {
   id: string;
-  provider: CalendarProvider;
+  provider: UICalendarProvider;
   email: string;
   connected: boolean;
   connectedAt?: string;

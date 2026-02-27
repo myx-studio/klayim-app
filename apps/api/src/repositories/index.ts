@@ -9,3 +9,5 @@ export * from "./integration.repository.js";
 export * from "./employee.repository.js";
 export * from "./webhook-queue.repository.js";
 export * from "./webhook-processed-event.repository.js";
+export * from "./calendar-event.repository.js";
+export * from "./sync-state.repository.js";
