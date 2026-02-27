@@ -54,7 +54,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **TASK-03**: User can connect Linear workspace via OAuth
 - [x] **TASK-04**: System syncs task data (creation date, completion, assignees)
 - [x] **TASK-05**: System syncs time tracking data where available
-- [ ] **TASK-06**: User sees "What we'll import" explanation before connecting
+- [x] **TASK-06**: User sees "What we'll import" explanation before connecting
 
 ### Governance Configuration
 
@@ -222,7 +222,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TASK-03 | Phase 7 (07-02) | Complete |
 | TASK-04 | Phase 7 | Complete |
 | TASK-05 | Phase 7 | Complete |
-| TASK-06 | Phase 7 | Pending |
+| TASK-06 | Phase 7 | Complete |
 | GOV-01 | Phase 8 | Pending |
 | GOV-02 | Phase 8 | Pending |
 | GOV-03 | Phase 8 | Pending |
