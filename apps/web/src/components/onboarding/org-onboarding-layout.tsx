@@ -34,7 +34,7 @@ export interface OrgOnboardingLayoutProps {
   /** Next/Complete button handler */
   onNext: () => void;
   /** Label for next button (default: "Next") */
-  nextLabel?: string;
+  nextLabel?: React.ReactNode;
   /** Show skip button (default: true) */
   showSkip?: boolean;
   /** Optional className for additional styling */
