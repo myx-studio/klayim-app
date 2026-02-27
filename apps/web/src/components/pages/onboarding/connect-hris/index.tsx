@@ -224,7 +224,7 @@ const ConnectHrisPage = () => {
 
         {/* Fallback section */}
         <div className="flex flex-col items-center gap-4 pt-4">
-          <p className="text-muted-foreground text-sm">Don't see your HRIS?</p>
+          <p className="text-muted-foreground text-sm">Don&apos;t see your HRIS?</p>
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => router.push("/onboarding/upload-csv")}>
               <Users className="mr-2 h-4 w-4" />
@@ -265,7 +265,7 @@ const ConnectHrisPage = () => {
                 <span className="text-muted-foreground text-sm">.bamboohr.com</span>
               </div>
               <p className="text-muted-foreground text-xs">
-                Example: If your BambooHR URL is acme.bamboohr.com, enter "acme"
+                Example: If your BambooHR URL is acme.bamboohr.com, enter &quot;acme&quot;
               </p>
             </div>
           </div>
