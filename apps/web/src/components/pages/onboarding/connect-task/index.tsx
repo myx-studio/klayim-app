@@ -3,30 +3,61 @@
 import { InfoAccordion } from "@/components/onboarding/info-accordion";
 import { OrgOnboardingLayout } from "@/components/onboarding/org-onboarding-layout";
 import { ProviderCard } from "@/components/onboarding/provider-card";
-import { useRouter } from "next/navigation";
+import { useOrganization } from "@/hooks/use-organization";
+import { getAsanaAuthUrl, getClickUpAuthUrl, getLinearAuthUrl } from "@/lib/api/tasks";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-
-// Provider icon placeholder components
-const AsanaIcon = () => (
-  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-rose-100">
-    <span className="text-lg font-bold text-rose-600">A</span>
-  </div>
-);
-
-const ClickUpIcon = () => (
-  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-    <span className="text-lg font-bold text-purple-600">CU</span>
-  </div>
-);
-
-const LinearIcon = () => (
-  <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
-    <span className="text-primary text-lg font-bold">L</span>
-  </div>
-);
 
 const ConnectTaskPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { organization } = useOrganization();
+
+  // Loading states
+  const [loading, setLoading] = useState({
+    asana: false,
+    clickup: false,
+    linear: false,
+  });
+
+  const organizationId = organization?.id;
+
+  // Get current redirect URL for OAuth callback
+  const getRedirectUrl = useCallback(() => {
+    if (typeof window !== "undefined") {
+      return `${window.location.origin}/onboarding/connect-task`;
+    }
+    return "/onboarding/connect-task";
+  }, []);
+
+  // Handle OAuth callback status from URL parameters
+  useEffect(() => {
+    const success = searchParams.get("success");
+    const error = searchParams.get("error");
+    const provider = searchParams.get("provider");
+    const message = searchParams.get("message");
+
+    if (success === "true") {
+      const providerName =
+        provider === "asana"
+          ? "Asana"
+          : provider === "clickup"
+            ? "ClickUp"
+            : provider === "linear"
+              ? "Linear"
+              : "Task provider";
+      toast.success(`${providerName} connected successfully!`);
+      // Clear query params from URL
+      router.replace("/onboarding/connect-task", { scroll: false });
+    } else if (error) {
+      const errorMessage = message || "Failed to connect task provider";
+      toast.error(errorMessage);
+      // Clear query params from URL
+      router.replace("/onboarding/connect-task", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   const handleSkip = () => {
     router.push("/onboarding/configure-governance");
@@ -36,24 +67,67 @@ const ConnectTaskPage = () => {
     router.push("/onboarding/configure-governance");
   };
 
-  const handleConnectAsana = () => {
-    toast.info("Task integration coming soon");
+  const handleConnectAsana = async () => {
+    if (!organizationId) {
+      toast.error("Please complete organization setup first");
+      return;
+    }
+
+    setLoading((prev) => ({ ...prev, asana: true }));
+
+    try {
+      const redirectUrl = getRedirectUrl();
+      const { url } = await getAsanaAuthUrl(organizationId, redirectUrl);
+      window.location.href = url;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect Asana");
+      setLoading((prev) => ({ ...prev, asana: false }));
+    }
   };
 
-  const handleConnectClickUp = () => {
-    toast.info("Task integration coming soon");
+  const handleConnectClickUp = async () => {
+    if (!organizationId) {
+      toast.error("Please complete organization setup first");
+      return;
+    }
+
+    setLoading((prev) => ({ ...prev, clickup: true }));
+
+    try {
+      const redirectUrl = getRedirectUrl();
+      const { url } = await getClickUpAuthUrl(organizationId, redirectUrl);
+      window.location.href = url;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect ClickUp");
+      setLoading((prev) => ({ ...prev, clickup: false }));
+    }
   };
 
-  const handleConnectLinear = () => {
-    toast.info("Task integration coming soon");
+  const handleConnectLinear = async () => {
+    if (!organizationId) {
+      toast.error("Please complete organization setup first");
+      return;
+    }
+
+    setLoading((prev) => ({ ...prev, linear: true }));
+
+    try {
+      const redirectUrl = getRedirectUrl();
+      const { url } = await getLinearAuthUrl(organizationId, redirectUrl);
+      window.location.href = url;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect Linear");
+      setLoading((prev) => ({ ...prev, linear: false }));
+    }
   };
 
-  // Info accordion items for what we'll import
+  // Info accordion items for what we'll import (TASK-06)
   const importItems = [
     { text: "Task creation and completion dates" },
-    { text: "Task updates and reassignments" },
-    { text: "Time to completion by task type" },
-    { text: "Tasks assigned to external contractors" },
+    { text: "Task status and assignee information" },
+    { text: "Time tracking data (Asana and ClickUp)" },
+    { text: "Story point estimates (Linear)" },
+    { text: "Project and workspace organization" },
   ];
 
   return (
@@ -66,26 +140,50 @@ const ConnectTaskPage = () => {
       {/* Provider cards grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <ProviderCard
-          icon={<AsanaIcon />}
+          icon={
+            <Image
+              src="/images/onboarding/tasks/asana.svg"
+              alt="Asana"
+              width={48}
+              height={48}
+            />
+          }
           name="Asana"
-          description="Sync tasks and projects to keep meetings aligned with work"
+          description="Sync tasks and projects with time tracking data"
           onConnect={handleConnectAsana}
+          loading={loading.asana}
         />
         <ProviderCard
-          icon={<ClickUpIcon />}
+          icon={
+            <Image
+              src="/images/onboarding/tasks/clickup.svg"
+              alt="ClickUp"
+              width={48}
+              height={48}
+            />
+          }
           name="ClickUp"
-          description="Sync tasks and projects to keep meetings aligned with work"
+          description="Sync tasks, lists, and time tracking data"
           onConnect={handleConnectClickUp}
+          loading={loading.clickup}
         />
         <ProviderCard
-          icon={<LinearIcon />}
+          icon={
+            <Image
+              src="/images/onboarding/tasks/linear.svg"
+              alt="Linear"
+              width={48}
+              height={48}
+            />
+          }
           name="Linear"
-          description="Sync tasks and projects to keep meetings aligned with work"
+          description="Sync issues with status and estimate points"
           onConnect={handleConnectLinear}
+          loading={loading.linear}
         />
       </div>
 
-      {/* Info accordion */}
+      {/* Info accordion - explains what data will be imported (TASK-06) */}
       <InfoAccordion title="What we'll import" items={importItems} />
     </OrgOnboardingLayout>
   );
