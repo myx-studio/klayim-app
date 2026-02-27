@@ -3,6 +3,9 @@ import { googleOAuth } from "./google.js";
 import { microsoftOAuth } from "./microsoft.js";
 import { bambooHROAuth } from "./bamboohr.js";
 import { finchOAuth } from "./finch.js";
+import { asanaOAuth } from "./asana.js";
+import { clickupOAuth } from "./clickup.js";
+import { linearOAuth } from "./linear.js";
 
 /**
  * OAuth Routes
@@ -12,6 +15,9 @@ import { finchOAuth } from "./finch.js";
  * - /microsoft - Microsoft Calendar OAuth
  * - /bamboohr - BambooHR HRIS OAuth
  * - /finch - Finch unified HRIS OAuth (Rippling, Gusto, etc.)
+ * - /asana - Asana task management OAuth
+ * - /clickup - ClickUp task management OAuth
+ * - /linear - Linear task management OAuth
  */
 export const oauthRoutes = new Hono();
 
@@ -26,3 +32,12 @@ oauthRoutes.route("/bamboohr", bambooHROAuth);
 
 // Mount Finch OAuth routes at /finch
 oauthRoutes.route("/finch", finchOAuth);
+
+// Mount Asana OAuth routes at /asana
+oauthRoutes.route("/asana", asanaOAuth);
+
+// Mount ClickUp OAuth routes at /clickup
+oauthRoutes.route("/clickup", clickupOAuth);
+
+// Mount Linear OAuth routes at /linear
+oauthRoutes.route("/linear", linearOAuth);
