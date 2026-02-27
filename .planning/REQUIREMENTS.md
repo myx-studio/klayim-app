@@ -49,9 +49,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Task Management Integration
 
-- [ ] **TASK-01**: User can connect Asana workspace via OAuth
-- [ ] **TASK-02**: User can connect ClickUp workspace via OAuth
-- [ ] **TASK-03**: User can connect Linear workspace via OAuth
+- [x] **TASK-01**: User can connect Asana workspace via OAuth
+- [x] **TASK-02**: User can connect ClickUp workspace via OAuth
+- [x] **TASK-03**: User can connect Linear workspace via OAuth
 - [x] **TASK-04**: System syncs task data (creation date, completion, assignees)
 - [x] **TASK-05**: System syncs time tracking data where available
 - [ ] **TASK-06**: User sees "What we'll import" explanation before connecting
@@ -217,9 +217,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HRIS-05 | Phase 6 | Complete |
 | HRIS-06 | Phase 6 | Complete |
 | HRIS-07 | Phase 6 | Complete |
-| TASK-01 | Phase 7 | Pending |
-| TASK-02 | Phase 7 | Pending |
-| TASK-03 | Phase 7 | Pending |
+| TASK-01 | Phase 7 (07-02) | Complete |
+| TASK-02 | Phase 7 (07-02) | Complete |
+| TASK-03 | Phase 7 (07-02) | Complete |
 | TASK-04 | Phase 7 | Complete |
 | TASK-05 | Phase 7 | Complete |
 | TASK-06 | Phase 7 | Pending |
