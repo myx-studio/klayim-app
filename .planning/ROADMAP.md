@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: User Onboarding** - Account completion and organization creation after email verification
 - [ ] **Phase 2: Plan & Billing** - Stripe subscription integration with 3-tier pricing
 - [ ] **Phase 3: Organization Onboarding UI** - 3-step wizard shell for integration configuration
-- [ ] **Phase 4: Integration Infrastructure** - OAuth token management, webhook handlers, multi-tenant isolation
+- [x] **Phase 4: Integration Infrastructure** - OAuth token management, webhook handlers, multi-tenant isolation
 - [ ] **Phase 5: Calendar Integration** - Google and Microsoft calendar sync with webhooks
 - [ ] **Phase 6: HRIS Integration** - Employee data import via BambooHR, Finch, or CSV
 - [ ] **Phase 7: Task Management Integration** - Asana, ClickUp, and Linear task sync
@@ -91,9 +91,9 @@ See REQUIREMENTS.md "Data Model Clarification" section for full schema.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md - Foundation: AES-256-GCM encryption library, integration types, employee types and schema
-- [ ] 04-02-PLAN.md - Repositories and services: Integration repo with encrypted credentials, employee repo, token refresh service
-- [ ] 04-03-PLAN.md - Webhooks and security: Signature verification, queue-based processing, Firestore security rules
+- [x] 04-01-PLAN.md - Foundation: AES-256-GCM encryption library, integration types, employee types and schema
+- [x] 04-02-PLAN.md - Repositories and services: Integration repo with encrypted credentials, employee repo, token refresh service
+- [x] 04-03-PLAN.md - Webhooks and security: Signature verification, queue-based processing, Firestore security rules
 
 ### Phase 5: Calendar Integration
 **Goal**: Users can connect Google or Microsoft calendars and sync meeting data
@@ -187,7 +187,7 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 1. User Onboarding | 1/2 | In Progress | - |
 | 2. Plan & Billing | 3/3 | Complete | 2026-02-26 |
 | 3. Organization Onboarding UI | 2/2 | Complete | 2026-02-27 |
-| 4. Integration Infrastructure | 2/3 | In Progress | - |
+| 4. Integration Infrastructure | 3/3 | Complete | 2026-02-27 |
 | 5. Calendar Integration | 0/3 | Not started | - |
 | 6. HRIS Integration | 0/3 | Not started | - |
 | 7. Task Management Integration | 0/3 | Not started | - |
@@ -195,4 +195,4 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27*
+*Last updated: 2026-02-27 - Phase 4 Complete*

@@ -68,10 +68,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Infrastructure
 
 - [x] **INFRA-01**: System encrypts OAuth tokens with Cloud KMS before storing in Firestore
-- [ ] **INFRA-02**: System handles token refresh automatically
-- [ ] **INFRA-03**: System provides webhook endpoints for all providers
-- [ ] **INFRA-04**: System verifies webhook signatures per provider spec
-- [ ] **INFRA-05**: System implements idempotent webhook processing
+- [x] **INFRA-02**: System handles token refresh automatically
+- [x] **INFRA-03**: System provides webhook endpoints for all providers
+- [x] **INFRA-04**: System verifies webhook signatures per provider spec
+- [x] **INFRA-05**: System implements idempotent webhook processing
 - [x] **INFRA-06**: System enforces multi-tenant data isolation (org-scoped collections)
 
 ## v2 Requirements
@@ -199,10 +199,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OONB-03 | Phase 3 | Complete |
 | OONB-04 | Phase 3 | Complete |
 | INFRA-01 | Phase 4 | Complete |
-| INFRA-02 | Phase 4 | Pending |
-| INFRA-03 | Phase 4 | Pending |
-| INFRA-04 | Phase 4 | Pending |
-| INFRA-05 | Phase 4 | Pending |
+| INFRA-02 | Phase 4 | Complete |
+| INFRA-03 | Phase 4 | Complete |
+| INFRA-04 | Phase 4 | Complete |
+| INFRA-05 | Phase 4 | Complete |
 | INFRA-06 | Phase 4 | Complete |
 | CAL-01 | Phase 5 | Pending |
 | CAL-02 | Phase 5 | Pending |
@@ -237,4 +237,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-27 after Phase 3 completion*
+*Last updated: 2026-02-27 after Phase 4 completion*
