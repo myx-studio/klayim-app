@@ -32,10 +32,6 @@ const ConfigureGovernancePage = () => {
   const [dashboardRefresh, setDashboardRefresh] = useState("30");
   const [pullToRefresh, setPullToRefresh] = useState(true);
 
-  const handleBack = () => {
-    router.push("/onboarding/connect-task");
-  };
-
   const handleNext = () => {
     router.push("/onboarding/onboarding-success");
   };
@@ -44,7 +40,6 @@ const ConfigureGovernancePage = () => {
     <OrgOnboardingLayout
       title="Configure Governance"
       description="Set thresholds and rules for your organization"
-      onBack={handleBack}
       onSkip={handleNext}
       onNext={handleNext}
       showSkip={false}

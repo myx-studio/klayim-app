@@ -33,10 +33,6 @@ const ConnectHrisPage = () => {
   const router = useRouter();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
-  const handleBack = () => {
-    router.push("/onboarding/overview");
-  };
-
   const handleSkip = () => {
     router.push("/onboarding/connect-calendar");
   };
@@ -74,7 +70,6 @@ const ConnectHrisPage = () => {
       <OrgOnboardingLayout
         title="Connect HRIS"
         description="Import employee data and rates from your HR system"
-        onBack={handleBack}
         onSkip={handleSkip}
         onNext={handleNext}
       >

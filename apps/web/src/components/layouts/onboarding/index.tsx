@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
 import {
@@ -10,6 +11,7 @@ import {
   isOrgOnboardingPage,
   getOrgStepIndex,
 } from "@/lib/onboarding";
+import { ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -58,6 +60,32 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
         state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization, hasPlan),
       }));
 
+  // Get back navigation path for org onboarding pages
+  const getBackPath = (): string | null => {
+    if (!isOrgOnboarding) return null;
+
+    switch (pathname) {
+      case "/onboarding/connect-hris":
+        return "/onboarding/overview";
+      case "/onboarding/connect-calendar":
+        return "/onboarding/connect-hris";
+      case "/onboarding/connect-task":
+        return "/onboarding/connect-calendar";
+      case "/onboarding/configure-governance":
+        return "/onboarding/connect-task";
+      default:
+        return null;
+    }
+  };
+
+  const backPath = getBackPath();
+
+  const handleBack = () => {
+    if (backPath) {
+      router.push(backPath);
+    }
+  };
+
   // Don't render if not authenticated (but allow loading state to keep children mounted)
   if (status === "unauthenticated") {
     return null;
@@ -88,12 +116,33 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
     >
       {/* Stepper - fixed at top */}
       <div className="fixed top-0 z-10 w-full px-4 py-4">
-        <div className="mx-auto w-full max-w-4xl">
-          <Stepper
-            steps={steps.map((s) => ({ id: s.id, label: s.label }))}
-            currentStep={currentIndex}
-            stepStates={steps.map((s) => s.state)}
-          />
+        <div className="mx-auto flex w-full max-w-4xl items-center gap-4">
+          {/* Back button - only show on org onboarding pages */}
+          {backPath ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              aria-label="Go back"
+              className="shrink-0"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          ) : (
+            <div className="w-10" /> // Placeholder for alignment
+          )}
+
+          {/* Stepper */}
+          <div className="flex-1">
+            <Stepper
+              steps={steps.map((s) => ({ id: s.id, label: s.label }))}
+              currentStep={currentIndex}
+              stepStates={steps.map((s) => s.state)}
+            />
+          </div>
+
+          {/* Placeholder for right side alignment */}
+          <div className="w-10 shrink-0" />
         </div>
       </div>
 

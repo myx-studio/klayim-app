@@ -22,10 +22,6 @@ const Microsoft365Icon = () => (
 const ConnectCalendarPage = () => {
   const router = useRouter();
 
-  const handleBack = () => {
-    router.push("/onboarding/connect-hris");
-  };
-
   const handleSkip = () => {
     router.push("/onboarding/connect-task");
   };
@@ -61,7 +57,6 @@ const ConnectCalendarPage = () => {
     <OrgOnboardingLayout
       title="Connect Calendars"
       description="Sync team meeting data from your calendar"
-      onBack={handleBack}
       onSkip={handleSkip}
       onNext={handleNext}
     >

@@ -28,10 +28,6 @@ const LinearIcon = () => (
 const ConnectTaskPage = () => {
   const router = useRouter();
 
-  const handleBack = () => {
-    router.push("/onboarding/connect-calendar");
-  };
-
   const handleSkip = () => {
     router.push("/onboarding/configure-governance");
   };
@@ -64,7 +60,6 @@ const ConnectTaskPage = () => {
     <OrgOnboardingLayout
       title="Connect Task Management"
       description="Sync tasks and projects to track work alongside meetings"
-      onBack={handleBack}
       onSkip={handleSkip}
       onNext={handleNext}
     >

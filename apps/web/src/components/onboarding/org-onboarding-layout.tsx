@@ -11,7 +11,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -23,8 +22,6 @@ export interface OrgOnboardingLayoutProps {
   title: string;
   /** Page description */
   description: string;
-  /** Optional back button handler - if provided, shows back button */
-  onBack?: () => void;
   /** Skip button handler */
   onSkip: () => void;
   /** Next/Complete button handler */
@@ -39,14 +36,13 @@ export interface OrgOnboardingLayoutProps {
 
 /**
  * OrgOnboardingLayout provides consistent structure for all organization onboarding pages.
- * Includes back navigation, title/description, content slot, and action buttons.
- * The main stepper is handled by the parent OnboardingLayout.
+ * Includes title/description, content slot, and action buttons.
+ * The main stepper and back button are handled by the parent OnboardingLayout.
  */
 function OrgOnboardingLayout({
   children,
   title,
   description,
-  onBack,
   onSkip,
   onNext,
   nextLabel = "Next",
@@ -54,20 +50,7 @@ function OrgOnboardingLayout({
   className,
 }: OrgOnboardingLayoutProps) {
   return (
-    <div className={cn("relative mx-auto w-full max-w-2xl", className)} data-slot="org-onboarding-layout">
-      {/* Back button (top-left, outside card) */}
-      {onBack && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onBack}
-          className="absolute -top-12 left-0"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-      )}
-
+    <div className={cn("mx-auto w-full max-w-2xl", className)} data-slot="org-onboarding-layout">
       {/* Main card */}
       <Card className="w-full border px-2">
         <CardHeader className="flex flex-col items-center gap-4 text-center">
