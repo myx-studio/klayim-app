@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Organizations can see the true cost of their meetings and make data-driven decisions about time governance.
-**Current focus:** Phase 4 - Integration Infrastructure
+**Current focus:** Phase 5 - Calendar Integration
 
 ## Current Position
 
-Phase: 4 of 8 (Integration Infrastructure)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-02-27 - Completed 04-03-PLAN.md (Webhooks and Security)
+Phase: 5 of 8 (Calendar Integration)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-02-27 - Completed 05-01-PLAN.md (Calendar OAuth Setup)
 
-Progress: [██████░░░░] 56%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 3.7 min
-- Total execution time: 0.48 hours
+- Total plans completed: 10
+- Average duration: 3.6 min
+- Total execution time: 0.57 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [██████░░░░] 56%
 | 02-plan-billing | 3 | 12 min | 4 min |
 | 03-organization-onboarding-ui | 2 | 5 min | 2.5 min |
 | 04-integration-infrastructure | 3 | 9 min | 3 min |
+| 05-calendar-integration | 1 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (2 min), 03-02 (3 min), 04-01 (3 min), 04-02 (3 min), 04-03 (3 min)
+- Last 5 plans: 03-02 (3 min), 04-01 (3 min), 04-02 (3 min), 04-03 (3 min), 05-01 (5 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -72,6 +73,10 @@ Recent decisions affecting current work:
 - Separate processed_events collection from processed_stripe_events for clarity
 - Channel token format {organizationId}:{secret} for org extraction
 - Microsoft expects 202 Accepted, not 200 OK
+- Use googleapis Auth.OAuth2Client type import instead of google-auth-library
+- MSAL common authority for multi-tenant support (personal and work Microsoft accounts)
+- OAuth state carries organizationId and redirectUrl for callback context
+- Extract refresh token from MSAL cache since it's not exposed in token response
 
 ### Pending Todos
 
@@ -87,8 +92,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 04-03-PLAN.md (Webhooks and Security) - Phase 4 Complete
-Resume file: .planning/phases/05-calendar-integration/05-01-PLAN.md
+Stopped at: Completed 05-01-PLAN.md (Calendar OAuth Setup)
+Resume file: .planning/phases/05-calendar-integration/05-02-PLAN.md
 
 ---
 *State initialized: 2026-02-26*
