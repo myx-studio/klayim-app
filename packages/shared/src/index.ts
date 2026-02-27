@@ -35,6 +35,7 @@ export {
   newsletterSubscribeSchema,
   // Employee schemas
   csvEmployeeRowSchema,
+  csvColumnAliases,
 } from "./schemas/index.js";
 
 // Config

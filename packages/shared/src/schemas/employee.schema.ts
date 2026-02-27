@@ -1,6 +1,33 @@
 import { z } from "zod";
 
 /**
+ * Mapping of common CSV column variations to our field names
+ */
+export const csvColumnAliases: Record<string, string> = {
+  // Name variations
+  full_name: "name",
+  employee_name: "name",
+  fullname: "name",
+  "full name": "name",
+  // Email variations
+  email_address: "email",
+  work_email: "email",
+  "email address": "email",
+  // Role variations
+  job_title: "role",
+  title: "role",
+  position: "role",
+  // Salary variations
+  annual_salary: "annualSalary",
+  yearly_salary: "annualSalary",
+  salary: "annualSalary",
+  // Hourly rate variations
+  hourly_rate: "hourlyRate",
+  rate: "hourlyRate",
+  hourly: "hourlyRate",
+};
+
+/**
  * Employment status validation enum
  */
 export const employmentStatusSchema = z.enum([

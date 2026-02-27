@@ -37,8 +37,8 @@ importers:
         specifier: ^0.7.6
         version: 0.7.6(hono@4.12.2)(zod@3.25.76)
       '@klayim/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
+        specifier: file:./shared
+        version: file:apps/api/shared
       '@microsoft/microsoft-graph-client':
         specifier: ^3.0.7
         version: 3.0.7
@@ -115,6 +115,9 @@ importers:
       '@tryfinch/react-connect':
         specifier: ^5.0.1
         version: 5.0.1(react@19.2.3)
+      '@types/papaparse':
+        specifier: ^5.5.2
+        version: 5.5.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -151,6 +154,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      papaparse:
+        specifier: ^5.5.3
+        version: 5.5.3
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1048,6 +1054,9 @@ packages:
 
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
+
+  '@klayim/shared@file:apps/api/shared':
+    resolution: {directory: apps/api/shared, type: directory}
 
   '@microsoft/microsoft-graph-client@3.0.7':
     resolution: {integrity: sha512-/AazAV/F+HK4LIywF9C+NYHcJo038zEnWkteilcxC1FM/uK/4NVGDKGrxx7nNq1ybspAroRKT4I1FHfxQzxkUw==}
@@ -7613,6 +7622,10 @@ snapshots:
   '@js-sdsl/ordered-map@4.4.2': {}
 
   '@jsdevtools/ono@7.1.3': {}
+
+  '@klayim/shared@file:apps/api/shared':
+    dependencies:
+      zod: 3.25.76
 
   '@microsoft/microsoft-graph-client@3.0.7':
     dependencies:
