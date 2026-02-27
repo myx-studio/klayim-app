@@ -6,10 +6,13 @@ import { Stepper } from "@/components/ui/stepper";
 import {
   ONBOARDING_STEPS,
   ORG_ONBOARDING_STEPS,
+  CSV_UPLOAD_STEPS,
   getCurrentStepIndex,
   getStepState,
   isOrgOnboardingPage,
   getOrgStepIndex,
+  isCsvUploadPage,
+  getCsvUploadStepIndex,
 } from "@/lib/onboarding";
 import { ArrowLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -32,9 +35,16 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  // Check if we're on org onboarding pages
+  // Check which flow we're on
+  const isCsvUpload = isCsvUploadPage(pathname);
   const isOrgOnboarding = isOrgOnboardingPage(pathname);
-  const currentIndex = isOrgOnboarding ? getOrgStepIndex(pathname) : getCurrentStepIndex(pathname);
+
+  // Get current step index based on flow
+  const currentIndex = isCsvUpload
+    ? getCsvUploadStepIndex(pathname)
+    : isOrgOnboarding
+      ? getOrgStepIndex(pathname)
+      : getCurrentStepIndex(pathname);
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -49,19 +59,39 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
   const hasOrganization = !!user?.defaultOrganizationId;
   const hasPlan = !!user?.activePlan;
 
-  // Use org onboarding steps when on those pages, otherwise main onboarding steps
-  const steps = isOrgOnboarding
-    ? ORG_ONBOARDING_STEPS.map((step, index) => ({
+  // Determine which steps to show based on flow
+  const steps = isCsvUpload
+    ? CSV_UPLOAD_STEPS.map((step, index) => ({
         ...step,
         state: index < currentIndex ? "completed" as const : index === currentIndex ? "active" as const : "pending" as const,
       }))
-    : ONBOARDING_STEPS.map((step, index) => ({
-        ...step,
-        state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization, hasPlan),
-      }));
+    : isOrgOnboarding
+      ? ORG_ONBOARDING_STEPS.map((step, index) => ({
+          ...step,
+          state: index < currentIndex ? "completed" as const : index === currentIndex ? "active" as const : "pending" as const,
+        }))
+      : ONBOARDING_STEPS.map((step, index) => ({
+          ...step,
+          state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization, hasPlan),
+        }));
 
-  // Get back navigation path for org onboarding pages
+  // Get back navigation path
   const getBackPath = (): string | null => {
+    // CSV upload flow back navigation
+    if (isCsvUpload) {
+      switch (pathname) {
+        case "/onboarding/upload-csv":
+          return "/onboarding/connect-hris";
+        case "/onboarding/upload-csv/validate":
+          return "/onboarding/upload-csv";
+        case "/onboarding/upload-csv/confirm":
+          return "/onboarding/upload-csv/validate";
+        default:
+          return null;
+      }
+    }
+
+    // Org onboarding flow back navigation
     if (!isOrgOnboarding) return null;
 
     switch (pathname) {

@@ -9,12 +9,21 @@ export const ONBOARDING_STEPS = [
 // Organization onboarding step definitions (integration setup flow)
 export const ORG_ONBOARDING_STEPS = [
   { id: "connect-hris", label: "Connect HRIS", href: "/onboarding/connect-hris" },
-  { id: "connect-calendars-task", label: "Connect Calendars & Task", href: "/onboarding/connect-calendar" },
+  { id: "connect-calendar", label: "Connect Calendar", href: "/onboarding/connect-calendar" },
+  { id: "connect-task", label: "Connect Task", href: "/onboarding/connect-task" },
   { id: "configure-governance", label: "Configure Governance", href: "/onboarding/configure-governance" },
+] as const;
+
+// CSV Upload step definitions (sub-flow of Connect HRIS)
+export const CSV_UPLOAD_STEPS = [
+  { id: "upload", label: "Upload", href: "/onboarding/upload-csv" },
+  { id: "validate", label: "Validate", href: "/onboarding/upload-csv/validate" },
+  { id: "confirm", label: "Confirm", href: "/onboarding/upload-csv/confirm" },
 ] as const;
 
 export type OnboardingStepId = (typeof ONBOARDING_STEPS)[number]["id"];
 export type OrgOnboardingStepId = (typeof ORG_ONBOARDING_STEPS)[number]["id"];
+export type CsvUploadStepId = (typeof CSV_UPLOAD_STEPS)[number]["id"];
 
 // Check if pathname is in org onboarding flow
 export function isOrgOnboardingPage(pathname: string): boolean {
@@ -26,11 +35,25 @@ export function isOrgOnboardingPage(pathname: string): boolean {
   );
 }
 
+// Check if pathname is in CSV upload flow
+export function isCsvUploadPage(pathname: string): boolean {
+  return pathname.startsWith("/onboarding/upload-csv");
+}
+
+// Get CSV upload step index from pathname
+export function getCsvUploadStepIndex(pathname: string): number {
+  if (pathname === "/onboarding/upload-csv") return 0;
+  if (pathname === "/onboarding/upload-csv/validate") return 1;
+  if (pathname === "/onboarding/upload-csv/confirm") return 2;
+  return 0;
+}
+
 // Get org onboarding step index from pathname
 export function getOrgStepIndex(pathname: string): number {
   if (pathname === "/onboarding/connect-hris") return 0;
-  if (pathname === "/onboarding/connect-calendar" || pathname === "/onboarding/connect-task") return 1;
-  if (pathname === "/onboarding/configure-governance") return 2;
+  if (pathname === "/onboarding/connect-calendar") return 1;
+  if (pathname === "/onboarding/connect-task") return 2;
+  if (pathname === "/onboarding/configure-governance") return 3;
   return 0;
 }
 

@@ -1,10 +1,9 @@
 "use client";
 
 import { OrgOnboardingLayout } from "@/components/onboarding/org-onboarding-layout";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
@@ -28,7 +27,6 @@ const ConfigureGovernancePage = () => {
   // Form state (local state, no API integration yet - Phase 8)
   const [meetingCostThreshold, setMeetingCostThreshold] = useState("500");
   const [lowRoiThreshold, setLowRoiThreshold] = useState("1.0");
-  const [approvalEmail, setApprovalEmail] = useState("");
   const [dashboardRefresh, setDashboardRefresh] = useState("30");
   const [pullToRefresh, setPullToRefresh] = useState(true);
 
@@ -50,86 +48,75 @@ const ConfigureGovernancePage = () => {
         </>
       }
     >
-      <FieldGroup>
-        {/* Meeting Cost Threshold */}
-        <Field>
-          <FieldLabel>Meeting Cost Threshold</FieldLabel>
-          <FieldDescription>
-            Meetings exceeding this cost will require manager approval
-          </FieldDescription>
-          <InputGroup className="h-11">
-            <InputGroupAddon align="inline-start">
-              <InputGroupText>$</InputGroupText>
-            </InputGroupAddon>
-            <InputGroupInput
-              type="number"
-              placeholder="500"
-              value={meetingCostThreshold}
-              onChange={(e) => setMeetingCostThreshold(e.target.value)}
+      <Card className="p-6">
+        <FieldGroup>
+          {/* Meeting Cost Threshold */}
+          <Field>
+            <FieldLabel>Meeting Cost Threshold</FieldLabel>
+            <FieldDescription>
+              Meetings exceeding this cost will require manager approval
+            </FieldDescription>
+            <InputGroup className="h-11">
+              <InputGroupAddon align="inline-start">
+                <InputGroupText>$</InputGroupText>
+              </InputGroupAddon>
+              <InputGroupInput
+                type="number"
+                placeholder="500"
+                value={meetingCostThreshold}
+                onChange={(e) => setMeetingCostThreshold(e.target.value)}
+              />
+            </InputGroup>
+          </Field>
+
+          {/* Low ROI Threshold */}
+          <Field>
+            <FieldLabel>Low ROI Threshold</FieldLabel>
+            <FieldDescription>
+              Meetings with ROI below this will be flagged for review
+            </FieldDescription>
+            <InputGroup className="h-11">
+              <InputGroupInput
+                type="number"
+                step="0.1"
+                placeholder="1.0"
+                value={lowRoiThreshold}
+                onChange={(e) => setLowRoiThreshold(e.target.value)}
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupText>x</InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
+          </Field>
+
+          {/* Dashboard Refresh */}
+          <Field>
+            <FieldLabel>Dashboard Refresh</FieldLabel>
+            <FieldDescription>Auto-refresh every</FieldDescription>
+            <Select value={dashboardRefresh} onValueChange={setDashboardRefresh}>
+              <SelectTrigger className="h-11 w-full">
+                <SelectValue placeholder="Select refresh interval" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">15 minutes</SelectItem>
+                <SelectItem value="30">30 minutes</SelectItem>
+                <SelectItem value="60">1 hour</SelectItem>
+                <SelectItem value="120">2 hours</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Pull to Refresh */}
+          <Field orientation="horizontal">
+            <Checkbox
+              id="pull-to-refresh"
+              checked={pullToRefresh}
+              onCheckedChange={(checked) => setPullToRefresh(checked === true)}
             />
-          </InputGroup>
-        </Field>
-
-        {/* Low ROI Threshold */}
-        <Field>
-          <FieldLabel>Low ROI Threshold</FieldLabel>
-          <FieldDescription>
-            Meetings with ROI below this will be flagged for review
-          </FieldDescription>
-          <InputGroup className="h-11">
-            <InputGroupInput
-              type="number"
-              step="0.1"
-              placeholder="1.0"
-              value={lowRoiThreshold}
-              onChange={(e) => setLowRoiThreshold(e.target.value)}
-            />
-            <InputGroupAddon align="inline-end">
-              <InputGroupText>x</InputGroupText>
-            </InputGroupAddon>
-          </InputGroup>
-        </Field>
-
-        {/* Approval Email */}
-        <Field>
-          <FieldLabel>Approval Email</FieldLabel>
-          <FieldDescription>Who should receive approval requests?</FieldDescription>
-          <Input
-            type="email"
-            placeholder="Enter approval email here..."
-            value={approvalEmail}
-            onChange={(e) => setApprovalEmail(e.target.value)}
-            className="h-11"
-          />
-        </Field>
-
-        {/* Dashboard Refresh */}
-        <Field>
-          <FieldLabel>Dashboard Refresh</FieldLabel>
-          <FieldDescription>Auto-refresh every</FieldDescription>
-          <Select value={dashboardRefresh} onValueChange={setDashboardRefresh}>
-            <SelectTrigger className="h-11 w-full">
-              <SelectValue placeholder="Select refresh interval" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">15 minutes</SelectItem>
-              <SelectItem value="30">30 minutes</SelectItem>
-              <SelectItem value="60">1 hour</SelectItem>
-              <SelectItem value="120">2 hours</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-
-        {/* Pull to Refresh */}
-        <Field orientation="horizontal">
-          <Checkbox
-            id="pull-to-refresh"
-            checked={pullToRefresh}
-            onCheckedChange={(checked) => setPullToRefresh(checked === true)}
-          />
-          <FieldLabel htmlFor="pull-to-refresh">Enable pull-to-refresh</FieldLabel>
-        </Field>
-      </FieldGroup>
+            <FieldLabel htmlFor="pull-to-refresh">Enable pull-to-refresh</FieldLabel>
+          </Field>
+        </FieldGroup>
+      </Card>
     </OrgOnboardingLayout>
   );
 };

@@ -54,12 +54,12 @@ export interface CalendarConnection {
   lastSyncAt?: string;
 }
 
-// Task management integration
-export type TaskProvider = "jira" | "asana" | "monday" | "trello" | "clickup" | "linear";
+// Task management integration (UI placeholders - actual integrations use types/task.ts)
+export type UITaskProvider = "jira" | "asana" | "monday" | "trello" | "clickup" | "linear";
 
 export interface TaskConnection {
   id: string;
-  provider: TaskProvider;
+  provider: UITaskProvider;
   workspaceId?: string;
   workspaceName?: string;
   connected: boolean;

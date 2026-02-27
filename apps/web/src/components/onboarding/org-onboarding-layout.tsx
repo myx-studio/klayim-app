@@ -29,6 +29,8 @@ export interface OrgOnboardingLayoutProps {
   nextLabel?: React.ReactNode;
   /** Show skip button (default: true) */
   showSkip?: boolean;
+  /** Disable next button (default: false) */
+  nextDisabled?: boolean;
   /** Optional className for additional styling */
   className?: string;
 }
@@ -46,6 +48,7 @@ function OrgOnboardingLayout({
   onNext,
   nextLabel = "Next",
   showSkip = true,
+  nextDisabled = false,
   className,
 }: OrgOnboardingLayoutProps) {
   return (
@@ -77,7 +80,11 @@ function OrgOnboardingLayout({
             Skip for Now
           </Button>
         )}
-        <Button onClick={onNext} className={cn("h-11", showSkip ? "flex-1" : "w-full")}>
+        <Button
+          onClick={onNext}
+          disabled={nextDisabled}
+          className={cn("h-11", showSkip ? "flex-1" : "w-full")}
+        >
           {nextLabel}
         </Button>
       </div>
