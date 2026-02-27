@@ -4,3 +4,5 @@ export * from "./auth.js";
 export * from "./organization.js";
 export * from "./subscription.js";
 export * from "./billing.js";
+export * from "./integration.js";
+export * from "./employee.js";
