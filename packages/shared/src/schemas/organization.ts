@@ -100,9 +100,22 @@ export const completeOnboardingStepSchema = z.object({
   skip: z.boolean().optional().default(false),
 });
 
+// Governance settings schema for cost tracking and alerts
+export const governanceSettingsSchema = z.object({
+  meetingCostThresholdCents: z.number().int().min(0).max(10000000), // 0 to $100,000
+  lowRoiThreshold: z.number().min(0).max(100),                       // 0 to 100x
+  approvalEmail: z.string().email().or(z.literal("")),               // Valid email or empty string
+  dashboardRefreshMinutes: z.number().refine(
+    (val) => [15, 30, 60, 120].includes(val),
+    { message: "Dashboard refresh must be 15, 30, 60, or 120 minutes" }
+  ),
+  pullToRefreshEnabled: z.boolean(),
+});
+
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
 export type OnboardingCreateOrganizationInput = z.infer<typeof onboardingCreateOrganizationSchema>;
 export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>;
+export type GovernanceSettingsInput = z.infer<typeof governanceSettingsSchema>;
 export type InviteMemberInput = z.infer<typeof inviteMemberSchema>;
 export type UpdateMemberRoleInput = z.infer<typeof updateMemberRoleSchema>;
 export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;

@@ -42,6 +42,15 @@ export interface TimeGovernanceSettings {
   alertsEnabled: boolean;
 }
 
+// Governance settings for cost tracking and alerts
+export interface GovernanceSettings {
+  meetingCostThresholdCents: number;   // Cost threshold in cents (e.g., 50000 = $500)
+  lowRoiThreshold: number;              // ROI threshold (e.g., 1.0 = 1x)
+  approvalEmail: string;                // Email for approval routing (empty string if not set)
+  dashboardRefreshMinutes: number;      // Dashboard refresh interval (15, 30, 60, or 120)
+  pullToRefreshEnabled: boolean;        // Enable pull-to-refresh on mobile
+}
+
 // Calendar integration (UI placeholders - actual integrations use types/calendar.ts)
 export type UICalendarProvider = "google" | "outlook" | "apple";
 
@@ -107,6 +116,7 @@ export interface Organization extends Timestamps {
   taskConnections?: TaskConnection[];
   // Settings
   timeGovernance?: TimeGovernanceSettings;
+  governanceSettings?: GovernanceSettings;
 }
 
 export interface OrganizationMember extends Timestamps {
