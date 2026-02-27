@@ -1,4 +1,5 @@
 import { bambooHRService, type BambooHREmployee } from "./bamboohr.service.js";
+import { finchService, type FinchEmployee } from "./finch.service.js";
 import { employeeRepository } from "@/repositories/employee.repository.js";
 import { integrationRepository } from "@/repositories/integration.repository.js";
 import { tokenRefreshService } from "./token-refresh.service.js";
@@ -71,6 +72,97 @@ class HRISSyncService {
   }
 
   /**
+   * Sync employees from Finch to Firestore
+   *
+   * @param organizationId - Organization to sync employees for
+   * @param accessToken - Valid Finch access token
+   * @returns Sync result with imported/updated counts
+   */
+  async syncFromFinch(
+    organizationId: string,
+    accessToken: string
+  ): Promise<HRISSyncResult> {
+    // Fetch employees from Finch
+    const finchEmployees = await finchService.fetchEmployees(accessToken);
+
+    let imported = 0;
+    let updated = 0;
+
+    // Process each employee
+    for (const employee of finchEmployees) {
+      // Skip inactive employees
+      if (!employee.isActive) {
+        continue;
+      }
+
+      const result = await this.upsertFinchEmployee(organizationId, employee);
+      if (result === "created") {
+        imported++;
+      } else {
+        updated++;
+      }
+    }
+
+    return { imported, updated };
+  }
+
+  /**
+   * Transform and upsert a Finch employee to Firestore
+   *
+   * @param organizationId - Organization ID
+   * @param employee - Finch employee data
+   * @returns "created" or "updated" depending on operation
+   */
+  private async upsertFinchEmployee(
+    organizationId: string,
+    employee: FinchEmployee
+  ): Promise<"created" | "updated"> {
+    // Skip employees without email (can't match to meeting attendees)
+    if (!employee.workEmail) {
+      console.log(`[HRISSync] Skipping Finch employee ${employee.id} - no email`);
+      return "updated"; // Count as processed but not imported
+    }
+
+    // Calculate hourly rate from income
+    let hourlyRateCents = 0;
+    if (employee.income) {
+      if (employee.income.unit === "hourly") {
+        hourlyRateCents = Math.round(employee.income.amount * 100);
+      } else {
+        // Annual salary to hourly: 2080 hours/year (40 hrs/week * 52 weeks)
+        hourlyRateCents = Math.round((employee.income.amount * 100) / 2080);
+      }
+    }
+
+    // Check if employee already exists by source ID
+    const existing = await employeeRepository.findBySourceId(
+      organizationId,
+      "finch",
+      employee.id
+    );
+
+    // Prepare employee data
+    const employeeData = {
+      email: employee.workEmail.toLowerCase(),
+      name: `${employee.firstName} ${employee.lastName}`.trim() || "Unknown",
+      role: employee.jobTitle || "",
+      department: employee.department || "",
+      hourlyRateCents,
+      employmentStatus: "fullTime" as const,
+    };
+
+    // Upsert employee
+    await employeeRepository.upsertBySourceId(
+      organizationId,
+      "finch",
+      employee.id,
+      employeeData
+    );
+
+    return existing ? "updated" : "created";
+  }
+
+  /**
    * Transform and upsert a BambooHR employee to Firestore
    *
    * @param organizationId - Organization ID
@@ -137,32 +229,44 @@ class HRISSyncService {
         return;
       }
 
-      if (integration.provider !== "bamboohr") {
-        console.error(`[HRISSync] Unsupported provider: ${integration.provider}`);
-        return;
-      }
-
-      // Get valid access token (will refresh if needed)
+      // Get valid access token (will refresh if needed, except for Finch which doesn't expire)
       const accessToken = await tokenRefreshService.getValidToken(integrationId);
 
-      // Get company domain from accountId (stored during OAuth)
-      const companyDomain = integration.accountId;
-      if (!companyDomain) {
-        console.error(`[HRISSync] No company domain for integration ${integrationId}`);
-        return;
+      let result: HRISSyncResult;
+
+      switch (integration.provider) {
+        case "bamboohr": {
+          // Get company domain from accountId (stored during OAuth)
+          const companyDomain = integration.accountId;
+          if (!companyDomain) {
+            console.error(`[HRISSync] No company domain for integration ${integrationId}`);
+            return;
+          }
+          result = await this.syncFromBambooHR(
+            integration.organizationId,
+            companyDomain,
+            accessToken
+          );
+          console.log(
+            `[HRISSync] BambooHR sync complete for org ${integration.organizationId}: ` +
+              `${result.imported} imported, ${result.updated} updated`
+          );
+          break;
+        }
+
+        case "finch": {
+          result = await this.syncFromFinch(integration.organizationId, accessToken);
+          console.log(
+            `[HRISSync] Finch sync complete for org ${integration.organizationId}: ` +
+              `${result.imported} imported, ${result.updated} updated`
+          );
+          break;
+        }
+
+        default:
+          console.error(`[HRISSync] Unsupported provider: ${integration.provider}`);
+          return;
       }
-
-      // Perform sync
-      const result = await this.syncFromBambooHR(
-        integration.organizationId,
-        companyDomain,
-        accessToken
-      );
-
-      console.log(
-        `[HRISSync] BambooHR sync complete for org ${integration.organizationId}: ` +
-          `${result.imported} imported, ${result.updated} updated`
-      );
     } catch (error) {
       console.error(`[HRISSync] Initial sync failed for integration ${integrationId}:`, error);
       // Don't throw - this runs async and shouldn't block the OAuth flow
@@ -201,7 +305,11 @@ class HRISSyncService {
           accessToken
         );
       }
-      // Future: Add Finch sync here
+
+      case "finch": {
+        return this.syncFromFinch(integration.organizationId, accessToken);
+      }
+
       default:
         throw new Error(`Unsupported HRIS provider: ${integration.provider}`);
     }

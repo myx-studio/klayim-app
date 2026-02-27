@@ -212,17 +212,22 @@ class TokenRefreshService {
 
   /**
    * Refresh Finch OAuth token
-   * Uses @tryfinch/finch-api SDK
    *
-   * TODO: Install @tryfinch/finch-api and implement (Phase 6)
-   * pnpm add @tryfinch/finch-api
+   * Finch tokens are persistent and don't expire until the connection is
+   * disconnected by the user or admin. If we get here, the connection may
+   * be invalid and needs to be re-authorized.
+   *
+   * @throws Error always - Finch tokens don't support refresh
    */
   private async refreshFinchToken(
     _credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
+    // Finch tokens are persistent and don't expire
+    // If we get here, the connection is likely invalid - mark as error
     throw new Error(
-      "Finch token refresh not implemented. Install @tryfinch/finch-api package in Phase 6."
+      "Finch tokens do not require refresh - connection may be invalid. " +
+        "User needs to reconnect via Finch Connect."
     );
   }
 
