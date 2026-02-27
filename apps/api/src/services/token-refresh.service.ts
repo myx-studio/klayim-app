@@ -4,6 +4,8 @@ import type { Integration, IntegrationProvider } from "@klayim/shared/types";
 import { googleCalendarService } from "./google-calendar.service.js";
 import { microsoftCalendarService } from "./microsoft-calendar.service.js";
 import { bambooHRService } from "./bamboohr.service.js";
+import { asanaService } from "./asana.service.js";
+import { linearService } from "./linear.service.js";
 
 /**
  * Buffer time before token expiry to trigger refresh (5 minutes)
@@ -233,44 +235,57 @@ class TokenRefreshService {
 
   /**
    * Refresh Asana OAuth token
-   *
-   * TODO: Implement when Asana integration is built (Phase 7)
+   * Uses Asana OAuth2 refresh token flow
    */
   private async refreshAsanaToken(
-    _credentials: OAuthCredentials,
+    credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
-    throw new Error(
-      "Asana token refresh not implemented. Will be added in Phase 7."
-    );
+    const result = await asanaService.refreshToken(credentials.refreshToken);
+
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresInMs: result.expiresIn * 1000, // Convert seconds to ms
+    };
   }
 
   /**
    * Refresh ClickUp OAuth token
    *
-   * TODO: Implement when ClickUp integration is built (Phase 7)
+   * ClickUp tokens are persistent and don't expire. If we get here,
+   * the connection may be invalid and needs to be re-authorized.
+   *
+   * @throws Error always - ClickUp tokens don't require refresh
    */
   private async refreshClickUpToken(
     _credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
+    // ClickUp tokens don't expire - they're permanent until revoked
     throw new Error(
-      "ClickUp token refresh not implemented. Will be added in Phase 7."
+      "ClickUp tokens do not expire and cannot be refreshed. " +
+        "If the token is invalid, user needs to reconnect."
     );
   }
 
   /**
    * Refresh Linear OAuth token
+   * Uses Linear OAuth2 refresh token flow
    *
-   * TODO: Implement when Linear integration is built (Phase 7)
+   * Note: Linear is migrating to mandatory refresh tokens (April 2026)
    */
   private async refreshLinearToken(
-    _credentials: OAuthCredentials,
+    credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
-    throw new Error(
-      "Linear token refresh not implemented. Will be added in Phase 7."
-    );
+    const result = await linearService.refreshToken(credentials.refreshToken);
+
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresInMs: result.expiresIn * 1000, // Convert seconds to ms
+    };
   }
 
   /**

@@ -13,3 +13,6 @@ export * from "./webhook-handler.service.js";
 export * from "./bamboohr.service.js";
 export * from "./hris-sync.service.js";
 export * from "./finch.service.js";
+export * from "./asana.service.js";
+export * from "./clickup.service.js";
+export * from "./linear.service.js";
