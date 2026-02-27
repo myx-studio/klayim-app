@@ -169,11 +169,11 @@ Plans:
   4. User can configure dashboard auto-refresh interval
   5. User can enable or disable pull-to-refresh functionality
   6. Governance settings persist per organization across sessions
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md - Backend infrastructure: GovernanceSettings type, Zod schema, repository method, service method, PATCH /organizations/:id/governance endpoint
+- [ ] 08-02-PLAN.md - Frontend wiring: useUpdateGovernance hook, react-hook-form integration, add missing approvalEmail field, persist settings to API
 
 ## Progress
 
@@ -190,9 +190,9 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 4. Integration Infrastructure | 3/3 | Complete | 2026-02-27 |
 | 5. Calendar Integration | 3/3 | Complete | 2026-02-27 |
 | 6. HRIS Integration | 3/3 | Complete | 2026-02-27 |
-| 7. Task Management Integration | 2/3 | In Progress|  |
+| 7. Task Management Integration | 3/3 | Complete | 2026-02-27 |
 | 8. Governance Configuration | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27 - Completed 07-02 Provider Services*
+*Last updated: 2026-02-27 - Phase 8 plans created*
