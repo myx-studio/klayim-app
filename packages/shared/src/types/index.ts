@@ -7,3 +7,4 @@ export * from "./billing.js";
 export * from "./integration.js";
 export * from "./employee.js";
 export * from "./calendar.js";
+export * from "./task.js";
