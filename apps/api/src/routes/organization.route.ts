@@ -7,6 +7,7 @@ import {
   updateMemberRoleSchema,
   completeOnboardingStepSchema,
   paginationSchema,
+  governanceSettingsSchema,
 } from "@klayim/shared/schemas";
 import { organizationService } from "@/services/index.js";
 import type {
@@ -16,6 +17,7 @@ import type {
   OrganizationMember,
   MemberWithUser,
   PaginatedResult,
+  GovernanceSettings,
 } from "@klayim/shared/types";
 import { z } from "zod";
 
@@ -167,6 +169,33 @@ organizations.patch("/:id", zValidator("json", updateOrganizationSchema), async 
     data: result,
   });
 });
+
+// PATCH /organizations/:id/governance - Update governance settings
+organizations.patch(
+  "/:id/governance",
+  zValidator("json", governanceSettingsSchema),
+  async (c) => {
+    const userId = c.get("userId") as string | undefined;
+    const id = c.req.param("id");
+
+    if (!userId) {
+      return c.json<ApiResponse<null>>({ success: false, error: "Unauthorized" }, 401);
+    }
+
+    const input = c.req.valid("json");
+    const result = await organizationService.updateGovernanceSettings(id, input, userId);
+
+    if ("error" in result) {
+      const status = result.error === "Permission denied" ? 403 : 400;
+      return c.json<ApiResponse<null>>({ success: false, error: result.error }, status);
+    }
+
+    return c.json<ApiResponse<GovernanceSettings>>({
+      success: true,
+      data: result.governanceSettings!,
+    });
+  }
+);
 
 // DELETE /organizations/:id - Delete organization
 organizations.delete("/:id", async (c) => {
