@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 6 of 8 (HRIS Integration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-02-27 - Completed 06-01-PLAN.md (BambooHR Integration)
+Last activity: 2026-02-27 - Completed 06-02-PLAN.md (Finch Integration)
 
-Progress: [███████░░░] 73%
+Progress: [███████░░░] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 3.6 min
-- Total execution time: 0.78 hours
+- Total plans completed: 14
+- Average duration: 3.7 min
+- Total execution time: 0.87 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [███████░░░] 73%
 | 03-organization-onboarding-ui | 2 | 5 min | 2.5 min |
 | 04-integration-infrastructure | 3 | 9 min | 3 min |
 | 05-calendar-integration | 3 | 16 min | 5.3 min |
-| 06-hris-integration | 1 | 3 min | 3 min |
+| 06-hris-integration | 2 | 8 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (3 min), 05-01 (5 min), 05-02 (5 min), 05-03 (6 min), 06-01 (3 min)
+- Last 5 plans: 05-01 (5 min), 05-02 (5 min), 05-03 (6 min), 06-01 (3 min), 06-02 (5 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -91,6 +91,10 @@ Recent decisions affecting current work:
 - Use accountEmail as {companyDomain}@bamboohr since BambooHR doesn't expose user email
 - Calculate hourly rate from salary using 2080 hours/year (40 hrs/week * 52 weeks)
 - Skip employees without email (can't match to meeting attendees)
+- Use type guards for Finch SDK union types (BatchError vs valid response)
+- Set Finch token expiry to 10 years since Finch tokens don't expire
+- Store companyName@providerId in accountEmail for Finch integrations
+- Use POST endpoints for Finch OAuth (session + callback) since Connect uses embedded modal
 
 ### Pending Todos
 
@@ -106,8 +110,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 06-01-PLAN.md (BambooHR Integration)
-Resume file: .planning/phases/06-hris-integration/06-02-PLAN.md
+Stopped at: Completed 06-02-PLAN.md (Finch Integration)
+Resume file: .planning/phases/06-hris-integration/06-03-PLAN.md
 
 ---
 *State initialized: 2026-02-26*

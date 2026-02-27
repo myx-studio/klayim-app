@@ -31,8 +31,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### HRIS Integration
 
 - [x] **HRIS-01**: User can connect BambooHR via OAuth
-- [ ] **HRIS-02**: User can connect to Rippling via Finch unified API
-- [ ] **HRIS-03**: User can connect to Gusto via Finch unified API
+- [x] **HRIS-02**: User can connect to Rippling via Finch unified API
+- [x] **HRIS-03**: User can connect to Gusto via Finch unified API
 - [ ] **HRIS-04**: User can upload employee CSV as alternative to HRIS
 - [x] **HRIS-05**: System imports employee data (name, email, role, department, hourly rate)
 - [x] **HRIS-06**: System calculates hourly rate from annual salary if needed
@@ -211,8 +211,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAL-05 | Phase 5 | Complete |
 | CAL-06 | Phase 5 | Complete |
 | HRIS-01 | Phase 6 | Complete |
-| HRIS-02 | Phase 6 | Pending |
-| HRIS-03 | Phase 6 | Pending |
+| HRIS-02 | Phase 6 | Complete |
+| HRIS-03 | Phase 6 | Complete |
 | HRIS-04 | Phase 6 | Pending |
 | HRIS-05 | Phase 6 | Complete |
 | HRIS-06 | Phase 6 | Complete |
