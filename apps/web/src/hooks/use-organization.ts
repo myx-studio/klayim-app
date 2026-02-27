@@ -1,8 +1,16 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetcher, FetchError } from "@/lib/fetcher";
-import type { ApiResponse, Organization } from "@klayim/shared/types";
+import type { ApiResponse, Organization, GovernanceSettings } from "@klayim/shared/types";
+
+// API input shape for governance settings update
+export interface GovernanceSettingsInput {
+  meetingCostThresholdCents: number;
+  lowRoiThreshold: number;
+  dashboardRefreshMinutes: number;
+  pullToRefreshEnabled: boolean;
+}
 
 interface CheckNameResponse {
   available: boolean;
@@ -94,5 +102,30 @@ export function useCheckOrganizationName(name: string, enabled: boolean = true) 
     },
     enabled: enabled && name.length >= 2,
     staleTime: 1000 * 60, // 1 minute
+  });
+}
+
+export function useUpdateGovernance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: GovernanceSettingsInput }) => {
+      const response = await fetcher<ApiResponse<{ governanceSettings: GovernanceSettings }>>(
+        `/organizations/${id}/governance`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.success) {
+        throw new FetchError(400, response.error || "Failed to update governance settings");
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["organization"] });
+    },
   });
 }
