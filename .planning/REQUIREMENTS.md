@@ -23,10 +23,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Organization Onboarding
 
-- [ ] **OONB-01**: User sees organization onboarding overview with 3-step wizard
-- [ ] **OONB-02**: User can navigate through Connect HRIS → Connect Calendars & Task → Configure Governance
-- [ ] **OONB-03**: User can skip optional onboarding steps
-- [ ] **OONB-04**: User sees onboarding completion page with "What happens next"
+- [x] **OONB-01**: User sees organization onboarding overview with 3-step wizard
+- [x] **OONB-02**: User can navigate through Connect HRIS → Connect Calendars & Task → Configure Governance
+- [x] **OONB-03**: User can skip optional onboarding steps
+- [x] **OONB-04**: User sees onboarding completion page with "What happens next"
 
 ### HRIS Integration
 
@@ -126,10 +126,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BILL-03 | Phase 2 | Complete |
 | BILL-04 | Phase 2 | Complete |
 | BILL-05 | Phase 2 | Complete |
-| OONB-01 | Phase 3 | Pending |
-| OONB-02 | Phase 3 | Pending |
-| OONB-03 | Phase 3 | Pending |
-| OONB-04 | Phase 3 | Pending |
+| OONB-01 | Phase 3 | Complete |
+| OONB-02 | Phase 3 | Complete |
+| OONB-03 | Phase 3 | Complete |
+| OONB-04 | Phase 3 | Complete |
 | INFRA-01 | Phase 4 | Pending |
 | INFRA-02 | Phase 4 | Pending |
 | INFRA-03 | Phase 4 | Pending |
@@ -169,4 +169,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-26 after roadmap creation*
+*Last updated: 2026-02-27 after Phase 3 completion*
