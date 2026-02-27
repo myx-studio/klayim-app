@@ -75,7 +75,7 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
 **Success Criteria** (what must be TRUE):
-  1. OAuth tokens are encrypted with Cloud KMS before storage (never plain text)
+  1. OAuth tokens are encrypted with AES-256 before storage (never plain text)
   2. Expired tokens are refreshed automatically without user intervention
   3. Webhook endpoints exist for all providers and respond within timeout limits
   4. Webhook signatures are verified per provider specification before processing
@@ -88,12 +88,12 @@ Define the `Employee` collection schema here. Employees are imported data (NOT a
 - Calculating meeting costs via hourlyRate
 See REQUIREMENTS.md "Data Model Clarification" section for full schema.
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md - Foundation: AES-256-GCM encryption library, integration types, employee types and schema
+- [ ] 04-02-PLAN.md - Repositories and services: Integration repo with encrypted credentials, employee repo, token refresh service
+- [ ] 04-03-PLAN.md - Webhooks and security: Signature verification, queue-based processing, Firestore security rules
 
 ### Phase 5: Calendar Integration
 **Goal**: Users can connect Google or Microsoft calendars and sync meeting data
