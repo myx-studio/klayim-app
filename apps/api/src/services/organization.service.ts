@@ -14,6 +14,7 @@ import type {
   OnboardingStep,
   PaginationParams,
   PaginatedResult,
+  GovernanceSettings,
 } from "@klayim/shared/types";
 
 export class OrganizationService {
@@ -239,6 +240,27 @@ export class OrganizationService {
     }
 
     const updated = await organizationRepository.updateOnboardingStep(organizationId, step, skip);
+    if (!updated) {
+      return { error: "Organization not found" };
+    }
+
+    return updated;
+  }
+
+  // Governance Settings
+
+  async updateGovernanceSettings(
+    id: string,
+    settings: GovernanceSettings,
+    userId: string
+  ): Promise<Organization | { error: string }> {
+    // Check permission - only owner or administrator can update
+    const role = await organizationMemberRepository.getUserRole(id, userId);
+    if (!role || !["owner", "administrator"].includes(role)) {
+      return { error: "Permission denied" };
+    }
+
+    const updated = await organizationRepository.updateGovernance(id, settings);
     if (!updated) {
       return { error: "Organization not found" };
     }

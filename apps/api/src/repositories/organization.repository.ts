@@ -7,6 +7,7 @@ import type {
   PaginationParams,
   PaginatedResult,
   OnboardingStep,
+  GovernanceSettings,
 } from "@klayim/shared/types";
 
 const COLLECTION = "organizations";
@@ -154,6 +155,21 @@ export class OrganizationRepository {
     return updated.toJSON();
   }
 
+  async updateGovernance(id: string, settings: GovernanceSettings): Promise<Organization | null> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+
+    await this.collection.doc(id).update({
+      governanceSettings: settings,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return this.findById(id);
+  }
+
   async updateStripeCustomerId(id: string, stripeCustomerId: string): Promise<boolean> {
     const doc = await this.collection.doc(id).get();
 
@@ -231,6 +247,7 @@ export class OrganizationRepository {
       activePlan: data.activePlan,
       memberCount: data.memberCount || 1,
       onboarding: data.onboarding,
+      governanceSettings: data.governanceSettings,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };
