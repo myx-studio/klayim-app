@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { clickupService } from "@/services/clickup.service.js";
 import { integrationService } from "@/services/integration.service.js";
+import { taskSyncService } from "@/services/task-sync.service.js";
 import { authMiddleware } from "@/middleware/auth.middleware.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -142,7 +143,7 @@ clickupOAuth.get("/callback", async (c) => {
     // ClickUp tokens don't expire - set far future expiry (10 years)
     const expiresAt = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000).toISOString();
 
-    await integrationService.connect({
+    const integration = await integrationService.connect({
       organizationId: state.organizationId,
       provider: "clickup",
       accountEmail: user.email,
@@ -153,7 +154,10 @@ clickupOAuth.get("/callback", async (c) => {
       expiresAt,
     });
 
-    // TODO: Trigger initial sync when taskSyncService is implemented (07-03)
+    // Trigger initial sync (non-blocking)
+    taskSyncService.triggerInitialSync(integration.id, "clickup").catch((err) => {
+      console.error("Failed to trigger initial ClickUp sync:", err);
+    });
 
     // Redirect to frontend with success
     const successRedirect = new URL(redirectUrl);

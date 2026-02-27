@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { linearService } from "@/services/linear.service.js";
 import { integrationService } from "@/services/integration.service.js";
+import { taskSyncService } from "@/services/task-sync.service.js";
 import { authMiddleware } from "@/middleware/auth.middleware.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -133,7 +134,7 @@ linearOAuth.get("/callback", async (c) => {
     // Calculate expiry
     const expiresAt = new Date(Date.now() + tokens.expiresIn * 1000).toISOString();
 
-    await integrationService.connect({
+    const integration = await integrationService.connect({
       organizationId: state.organizationId,
       provider: "linear",
       accountEmail: tokens.accountEmail,
@@ -144,7 +145,10 @@ linearOAuth.get("/callback", async (c) => {
       expiresAt,
     });
 
-    // TODO: Trigger initial sync when taskSyncService is implemented (07-03)
+    // Trigger initial sync (non-blocking)
+    taskSyncService.triggerInitialSync(integration.id, "linear").catch((err) => {
+      console.error("Failed to trigger initial Linear sync:", err);
+    });
 
     // Redirect to frontend with success
     const successRedirect = new URL(redirectUrl);
