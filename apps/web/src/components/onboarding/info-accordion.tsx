@@ -34,6 +34,10 @@ export interface InfoAccordionProps {
   items: InfoItem[];
   /** Whether accordion starts expanded (default: false) */
   defaultOpen?: boolean;
+  /** Number of columns for grid layout (default: 1) */
+  columns?: 1 | 2 | 3;
+  /** Optional footer content (e.g., download button) */
+  footer?: React.ReactNode;
   /** Optional className for additional styling */
   className?: string;
 }
@@ -42,8 +46,22 @@ export interface InfoAccordionProps {
  * InfoAccordion component for expandable info sections.
  * Shows a help icon + title, expands to show checklist items with positive/negative indicators.
  */
-function InfoAccordion({ title, items, defaultOpen = false, className }: InfoAccordionProps) {
+function InfoAccordion({
+  title,
+  items,
+  defaultOpen = false,
+  columns = 1,
+  footer,
+  className,
+}: InfoAccordionProps) {
   const accordionValue = defaultOpen ? "info" : undefined;
+
+  const gridClass =
+    columns === 3
+      ? "grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3"
+      : columns === 2
+        ? "grid grid-cols-1 gap-3 sm:grid-cols-2"
+        : "flex flex-col gap-3";
 
   return (
     <Card className={cn("w-full p-4", className)} data-slot="info-accordion">
@@ -58,7 +76,7 @@ function InfoAccordion({ title, items, defaultOpen = false, className }: InfoAcc
             </span>
           </AccordionTrigger>
           <AccordionContent>
-            <ul className="flex flex-col gap-3 pt-4">
+            <ul className={cn(gridClass, "pt-4")}>
               {items.map((item, index) => {
                 const isPositive = item.positive !== false;
                 return (
@@ -77,6 +95,7 @@ function InfoAccordion({ title, items, defaultOpen = false, className }: InfoAcc
                 );
               })}
             </ul>
+            {footer && <div className="pt-4">{footer}</div>}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

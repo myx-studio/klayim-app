@@ -58,19 +58,35 @@ const ConnectHrisPage = () => {
         {/* Provider cards grid */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <ProviderCard
-            icon={<Image src="/images/onboarding/hris/bamboohr.png" alt="BambooHR" width={48} height={48} />}
+            icon={
+              <Image
+                src="/images/onboarding/hris/bamboohr.png"
+                alt="BambooHR"
+                width={32}
+                height={32}
+              />
+            }
             name="BambooHR"
             description="Sync employee data and hourly rates using BambooHR"
             onConnect={handleConnectBambooHR}
           />
           <ProviderCard
-            icon={<Image src="/images/onboarding/hris/rippling.png" alt="Rippling" width={48} height={48} />}
+            icon={
+              <Image
+                src="/images/onboarding/hris/rippling.png"
+                alt="Rippling"
+                width={32}
+                height={32}
+              />
+            }
             name="Rippling"
             description="Sync employee data and hourly rates using Rippling"
             onConnect={handleConnectRippling}
           />
           <ProviderCard
-            icon={<Image src="/images/onboarding/hris/gusto.png" alt="Gusto" width={48} height={48} />}
+            icon={
+              <Image src="/images/onboarding/hris/gusto.png" alt="Gusto" width={32} height={32} />
+            }
             name="Gusto"
             description="Sync employee data and hourly rates using Gusto"
             onConnect={handleConnectGusto}

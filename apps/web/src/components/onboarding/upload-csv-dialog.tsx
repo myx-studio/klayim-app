@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Check, ChevronRight, Download, Upload } from "lucide-react";
+import { Check, ChevronRight, Upload } from "lucide-react";
 import * as React from "react";
 
 export interface UploadCsvDialogProps {
@@ -158,15 +158,19 @@ function UploadCsvDialog({ open, onOpenChange }: UploadCsvDialogProps) {
         </div>
 
         {/* Required Columns Info */}
-        <InfoAccordion title="Required Columns" items={requiredColumns} defaultOpen />
-
-        {/* Download Template Button */}
-        <Button variant="outline" className="w-full" asChild>
-          <a href="/templates/employee-import-template.csv" download>
-            <Download className="mr-2 h-4 w-4" />
-            Download Template
-          </a>
-        </Button>
+        <InfoAccordion
+          title="Required Columns"
+          items={requiredColumns}
+          defaultOpen
+          columns={3}
+          footer={
+            <Button variant="default" className="w-auto" asChild>
+              <a href="/templates/employee-import-template.csv" download>
+                Download Template
+              </a>
+            </Button>
+          }
+        />
 
         {/* Skip Button */}
         <Button variant="ghost" onClick={() => onOpenChange(false)} className="w-full">

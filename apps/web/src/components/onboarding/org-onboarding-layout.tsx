@@ -49,7 +49,10 @@ function OrgOnboardingLayout({
   className,
 }: OrgOnboardingLayoutProps) {
   return (
-    <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-8", className)} data-slot="org-onboarding-layout">
+    <div
+      className={cn("mx-auto flex w-full max-w-4xl flex-col gap-8", className)}
+      data-slot="org-onboarding-layout"
+    >
       {/* Header */}
       <div className="flex flex-col items-center gap-4 text-center">
         {/* Klayim logo */}
