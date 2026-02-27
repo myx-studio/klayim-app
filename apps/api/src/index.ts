@@ -5,7 +5,7 @@ import { onRequest, HttpsFunction, HttpsOptions } from "firebase-functions/v2/ht
 import { defineSecret } from "firebase-functions/params";
 import type { Request, Response } from "express";
 
-import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes, webhookRoutes } from "@/routes/index.js";
+import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes, webhookRoutes, webhooksRoute } from "@/routes/index.js";
 import { authMiddleware } from "@/middleware/index.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -29,8 +29,12 @@ app.use(
   })
 );
 
-// Webhook routes (no auth, raw body needed for signature verification)
+// Stripe webhook route (no auth, raw body needed for signature verification)
 app.route("/webhooks", webhookRoutes);
+
+// Provider-specific webhooks (no auth, queue-based processing)
+// Routes: /webhooks/google, /webhooks/microsoft
+app.route("/webhooks", webhooksRoute);
 
 // Public routes
 app.route("/health", healthRoute);

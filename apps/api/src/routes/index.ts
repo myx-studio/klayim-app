@@ -5,3 +5,4 @@ export * from "./organization.route.js";
 export * from "./newsletter.route.js";
 export * from "./billing.route.js";
 export * from "./webhook.route.js";
+export * from "./webhooks/index.js";
