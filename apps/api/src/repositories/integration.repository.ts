@@ -118,6 +118,18 @@ export class IntegrationRepository {
   }
 
   /**
+   * Find all connected integrations by provider (for polling)
+   * @param provider - The integration provider type
+   */
+  async findAllConnectedByProvider(provider: IntegrationProvider): Promise<Integration[]> {
+    const snapshot = await this.collection
+      .where("provider", "==", provider)
+      .where("status", "==", "connected")
+      .get();
+    return snapshot.docs.map((doc) => this.mapToIntegration(doc.id, doc.data()));
+  }
+
+  /**
    * Decrypt and return OAuth credentials for an integration
    * Updates lastUsedAt to track token usage
    */
