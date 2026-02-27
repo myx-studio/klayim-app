@@ -58,12 +58,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Governance Configuration
 
-- [ ] **GOV-01**: User can set meeting cost threshold (meetings > $X require approval)
-- [ ] **GOV-02**: User can set low ROI threshold (meetings < X ROI flagged for review)
-- [ ] **GOV-03**: User can set approval email for routing high-cost meetings
-- [ ] **GOV-04**: User can configure dashboard auto-refresh interval
-- [ ] **GOV-05**: User can enable/disable pull-to-refresh
-- [ ] **GOV-06**: System stores governance settings per organization
+- [x] **GOV-01**: User can set meeting cost threshold (meetings > $X require approval)
+- [x] **GOV-02**: User can set low ROI threshold (meetings < X ROI flagged for review)
+- [x] **GOV-03**: User can set approval email for routing high-cost meetings
+- [x] **GOV-04**: User can configure dashboard auto-refresh interval
+- [x] **GOV-05**: User can enable/disable pull-to-refresh
+- [x] **GOV-06**: System stores governance settings per organization
 
 ### Infrastructure
 
@@ -223,12 +223,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TASK-04 | Phase 7 | Complete |
 | TASK-05 | Phase 7 | Complete |
 | TASK-06 | Phase 7 | Complete |
-| GOV-01 | Phase 8 | Pending |
-| GOV-02 | Phase 8 | Pending |
-| GOV-03 | Phase 8 | Pending |
-| GOV-04 | Phase 8 | Pending |
-| GOV-05 | Phase 8 | Pending |
-| GOV-06 | Phase 8 | Pending |
+| GOV-01 | Phase 8 | Complete |
+| GOV-02 | Phase 8 | Complete |
+| GOV-03 | Phase 8 | Complete |
+| GOV-04 | Phase 8 | Complete |
+| GOV-05 | Phase 8 | Complete |
+| GOV-06 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 42 total
