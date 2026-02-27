@@ -54,23 +54,29 @@ function InfoAccordion({ title, items, defaultOpen = false, className }: InfoAcc
     >
       <AccordionItem value="info" className="border-b-0">
         <AccordionTrigger className="py-3 hover:no-underline">
-          <span className="flex items-center gap-2 text-sm font-medium">
-            <HelpCircle className="text-muted-foreground h-4 w-4" />
+          <span className="flex items-center gap-3 text-sm font-semibold">
+            <span className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+              <HelpCircle className="text-muted-foreground h-4 w-4" />
+            </span>
             {title}
           </span>
         </AccordionTrigger>
         <AccordionContent>
-          <ul className="flex flex-col gap-2 pt-1">
+          <ul className="flex flex-col gap-3 pt-2">
             {items.map((item, index) => {
               const isPositive = item.positive !== false;
               return (
-                <li key={index} className="flex items-center gap-2 text-sm">
+                <li key={index} className="flex items-center gap-3 text-sm">
                   {isPositive ? (
-                    <Check className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                      <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                    </span>
                   ) : (
-                    <X className="h-4 w-4 shrink-0 text-red-500" aria-hidden="true" />
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                      <X className="h-4 w-4 text-red-500" aria-hidden="true" />
+                    </span>
                   )}
-                  <span className="text-muted-foreground">{item.text}</span>
+                  <span>{item.text}</span>
                 </li>
               );
             })}
