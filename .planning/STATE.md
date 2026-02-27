@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 5 of 8 (Calendar Integration)
-Plan: 2 of 3 in current phase
-Status: In Progress
-Last activity: 2026-02-27 - Completed 05-02-PLAN.md (Calendar Sync Implementation)
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-02-27 - Completed 05-03-PLAN.md (Webhooks and Frontend Wiring)
 
-Progress: [██████░░░░] 65%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 3.6 min
-- Total execution time: 0.65 hours
+- Total plans completed: 12
+- Average duration: 3.7 min
+- Total execution time: 0.73 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [██████░░░░] 65%
 | 02-plan-billing | 3 | 12 min | 4 min |
 | 03-organization-onboarding-ui | 2 | 5 min | 2.5 min |
 | 04-integration-infrastructure | 3 | 9 min | 3 min |
-| 05-calendar-integration | 2 | 10 min | 5 min |
+| 05-calendar-integration | 3 | 16 min | 5.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (3 min), 04-02 (3 min), 04-03 (3 min), 05-01 (5 min), 05-02 (5 min)
+- Last 5 plans: 04-02 (3 min), 04-03 (3 min), 05-01 (5 min), 05-02 (5 min), 05-03 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -81,6 +81,11 @@ Recent decisions affecting current work:
 - Sync state uses integrationId as document ID for 1:1 mapping
 - Initial sync runs async (non-blocking) to avoid OAuth redirect delay
 - Cancelled events are deleted from database rather than updated
+- Webhook registration best-effort: continue without if registration fails
+- Google webhooks re-registered on renewal (no PATCH support)
+- Microsoft webhooks renewed via PATCH with 3-day extension
+- Polling fallback every 15 minutes catches missed webhooks
+- OAuth callback status shown via toast notifications
 
 ### Pending Todos
 
@@ -96,8 +101,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 05-02-PLAN.md (Calendar Sync Implementation)
-Resume file: .planning/phases/05-calendar-integration/05-03-PLAN.md
+Stopped at: Completed 05-03-PLAN.md (Webhooks and Frontend Wiring) - Phase 5 Complete
+Resume file: .planning/phases/06-hris-integration/06-01-PLAN.md
 
 ---
 *State initialized: 2026-02-26*
