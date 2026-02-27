@@ -54,7 +54,7 @@ const PlanSelectionPage = () => {
       const result = await createCheckout.mutateAsync({
         organizationId,
         planType,
-        successUrl: `${window.location.origin}/onboarding/setup-organization`,
+        successUrl: `${window.location.origin}/onboarding/payment-success`,
         cancelUrl: `${window.location.origin}/onboarding/plan-selection`,
       });
 

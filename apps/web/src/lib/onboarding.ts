@@ -1,15 +1,57 @@
-// Onboarding step definitions
+// Main onboarding step definitions (account setup flow)
 export const ONBOARDING_STEPS = [
   { id: "create-account", label: "Create Account", href: "/auth/signup" },
   { id: "account-details", label: "Account Details", href: "/onboarding/account-details" },
   { id: "setup-organization", label: "Setup Organization", href: "/onboarding/setup-organization" },
-  { id: "onboarding", label: "Onboarding", href: "/dashboard" }, // Points to org onboarding in Phase 3
+  { id: "onboarding", label: "Onboarding", href: "/onboarding/overview" },
+] as const;
+
+// Organization onboarding step definitions (integration setup flow)
+export const ORG_ONBOARDING_STEPS = [
+  { id: "connect-hris", label: "Connect HRIS", href: "/onboarding/connect-hris" },
+  { id: "connect-calendars-task", label: "Connect Calendars & Task", href: "/onboarding/connect-calendar" },
+  { id: "configure-governance", label: "Configure Governance", href: "/onboarding/configure-governance" },
 ] as const;
 
 export type OnboardingStepId = (typeof ONBOARDING_STEPS)[number]["id"];
+export type OrgOnboardingStepId = (typeof ORG_ONBOARDING_STEPS)[number]["id"];
+
+// Check if pathname is in org onboarding flow
+export function isOrgOnboardingPage(pathname: string): boolean {
+  return (
+    pathname === "/onboarding/connect-hris" ||
+    pathname === "/onboarding/connect-calendar" ||
+    pathname === "/onboarding/connect-task" ||
+    pathname === "/onboarding/configure-governance"
+  );
+}
+
+// Get org onboarding step index from pathname
+export function getOrgStepIndex(pathname: string): number {
+  if (pathname === "/onboarding/connect-hris") return 0;
+  if (pathname === "/onboarding/connect-calendar" || pathname === "/onboarding/connect-task") return 1;
+  if (pathname === "/onboarding/configure-governance") return 2;
+  return 0;
+}
 
 // Get current step index from pathname
 export function getCurrentStepIndex(pathname: string): number {
+  // Plan selection and payment pages are part of Setup Organization step
+  if (
+    pathname === "/onboarding/plan-selection" ||
+    pathname === "/onboarding/payment-success"
+  ) {
+    return 2; // Setup Organization step
+  }
+
+  // Connect HRIS, Calendar, Governance pages are part of Onboarding step
+  if (
+    pathname.startsWith("/onboarding/connect-") ||
+    pathname.startsWith("/onboarding/configure-")
+  ) {
+    return 3; // Onboarding step
+  }
+
   const stepIndex = ONBOARDING_STEPS.findIndex(
     (step) => pathname === step.href || pathname.startsWith(step.href + "/")
   );
@@ -21,7 +63,8 @@ export function getStepState(
   stepIndex: number,
   currentIndex: number,
   userOnboardingCompleted: boolean,
-  hasOrganization: boolean
+  hasOrganization: boolean,
+  hasPlan?: boolean
 ): "completed" | "active" | "pending" {
   // Step 0 (Create Account) is always completed if user is here
   if (stepIndex === 0) return "completed";
@@ -33,14 +76,14 @@ export function getStepState(
     return "pending";
   }
 
-  // Step 2 (Setup Organization) - completed if has organization
+  // Step 2 (Setup Organization) - completed if has organization and plan
   if (stepIndex === 2) {
-    if (hasOrganization) return "completed";
+    if (hasOrganization && hasPlan) return "completed";
     if (currentIndex === 2) return "active";
     return "pending";
   }
 
-  // Step 3 (Onboarding) - active after org creation
+  // Step 3 (Onboarding) - active if on this step
   if (stepIndex === 3) {
     if (currentIndex === 3) return "active";
     return "pending";

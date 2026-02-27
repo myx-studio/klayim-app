@@ -1,4 +1,5 @@
 import { getStripe } from "@/lib/stripe.js";
+import { userRepository } from "@/repositories/index.js";
 import type { SubscriptionCheckoutInput, ContactSalesRequest } from "@klayim/shared/types";
 import type { CreatePortalSessionInput } from "@klayim/shared/schemas";
 import type Stripe from "stripe";
@@ -29,8 +30,33 @@ class BillingService {
     }
 
     try {
+      // Get or create Stripe customer (required for Stripe Accounts V2)
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        return { error: "User not found" };
+      }
+
+      let customerId = user.stripeCustomerId;
+
+      if (!customerId) {
+        // Create a new Stripe customer
+        const customer = await getStripe().customers.create({
+          email: user.email,
+          name: user.name,
+          metadata: {
+            userId,
+            organizationId,
+          },
+        });
+        customerId = customer.id;
+
+        // Save customer ID to user record
+        await userRepository.updateStripeCustomerId(userId, customerId);
+      }
+
       const session = await getStripe().checkout.sessions.create({
-        mode: "subscription",
+        mode: "payment",
+        customer: customerId,
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${input.successUrl}?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: input.cancelUrl,
@@ -38,13 +64,6 @@ class BillingService {
           organizationId,
           userId,
           planType: input.planType,
-        },
-        subscription_data: {
-          metadata: {
-            organizationId,
-            userId,
-            planType: input.planType,
-          },
         },
       });
 

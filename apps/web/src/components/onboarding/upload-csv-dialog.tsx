@@ -17,9 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SubStepper } from "@/components/ui/sub-stepper";
 import { cn } from "@/lib/utils";
-import { Download, Upload } from "lucide-react";
+import { Check, ChevronRight, Download, Upload } from "lucide-react";
 import * as React from "react";
 
 export interface UploadCsvDialogProps {
@@ -29,12 +28,48 @@ export interface UploadCsvDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// CSV upload sub-steps (visual only - no functionality yet)
-const csvUploadSteps = [
-  { id: "upload", label: "Upload" },
-  { id: "validate", label: "Validate" },
-  { id: "confirm", label: "Confirm" },
-];
+// Simple inline step indicator component for the dialog
+function CsvUploadStepper({ currentStep }: { currentStep: number }) {
+  const steps = ["Upload", "Validate", "Confirm"];
+
+  return (
+    <div className="flex items-center justify-center gap-1">
+      {steps.map((step, index) => {
+        const isCompleted = index < currentStep;
+        const isActive = index === currentStep;
+
+        return (
+          <React.Fragment key={step}>
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-full text-xs",
+                  isCompleted && "bg-emerald-100 text-emerald-600",
+                  isActive && "bg-primary/10 text-primary",
+                  !isCompleted && !isActive && "bg-muted text-muted-foreground"
+                )}
+              >
+                {isCompleted ? <Check className="h-3 w-3" /> : index + 1}
+              </div>
+              <span
+                className={cn(
+                  "text-sm",
+                  isActive && "font-medium",
+                  !isActive && "text-muted-foreground"
+                )}
+              >
+                {step}
+              </span>
+            </div>
+            {index < steps.length - 1 && (
+              <ChevronRight className="text-muted-foreground h-4 w-4" />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * UploadCsvDialog component for uploading employee data via CSV.
@@ -89,9 +124,9 @@ function UploadCsvDialog({ open, onOpenChange }: UploadCsvDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Sub-stepper (visual only) */}
+        {/* Step indicator (visual only) */}
         <div className="py-2">
-          <SubStepper steps={csvUploadSteps} currentStep={0} />
+          <CsvUploadStepper currentStep={0} />
         </div>
 
         {/* Drag & Drop Zone */}

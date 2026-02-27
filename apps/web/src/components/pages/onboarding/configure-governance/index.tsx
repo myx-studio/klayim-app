@@ -44,7 +44,6 @@ const ConfigureGovernancePage = () => {
     <OrgOnboardingLayout
       title="Configure Governance"
       description="Set thresholds and rules for your organization"
-      currentStep={2}
       onBack={handleBack}
       onSkip={handleNext}
       onNext={handleNext}

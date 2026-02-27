@@ -61,7 +61,6 @@ const ConnectCalendarPage = () => {
     <OrgOnboardingLayout
       title="Connect Calendars"
       description="Sync team meeting data from your calendar"
-      currentStep={1}
       onBack={handleBack}
       onSkip={handleSkip}
       onNext={handleNext}

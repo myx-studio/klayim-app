@@ -2,7 +2,14 @@
 
 import { Spinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
-import { ONBOARDING_STEPS, getCurrentStepIndex, getStepState } from "@/lib/onboarding";
+import {
+  ONBOARDING_STEPS,
+  ORG_ONBOARDING_STEPS,
+  getCurrentStepIndex,
+  getStepState,
+  isOrgOnboardingPage,
+  getOrgStepIndex,
+} from "@/lib/onboarding";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -11,6 +18,7 @@ import { useEffect } from "react";
 interface OnboardingUser {
   onboardingCompleted?: boolean;
   defaultOrganizationId?: string;
+  activePlan?: string;
 }
 
 interface OnboardingLayoutProps {
@@ -21,7 +29,10 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
-  const currentIndex = getCurrentStepIndex(pathname);
+
+  // Check if we're on org onboarding pages
+  const isOrgOnboarding = isOrgOnboardingPage(pathname);
+  const currentIndex = isOrgOnboarding ? getOrgStepIndex(pathname) : getCurrentStepIndex(pathname);
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -34,14 +45,28 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
   const user = session?.user as OnboardingUser | undefined;
   const userOnboardingCompleted = user?.onboardingCompleted ?? false;
   const hasOrganization = !!user?.defaultOrganizationId;
+  const hasPlan = !!user?.activePlan;
 
-  const steps = ONBOARDING_STEPS.map((step, index) => ({
-    ...step,
-    state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization),
-  }));
+  // Use org onboarding steps when on those pages, otherwise main onboarding steps
+  const steps = isOrgOnboarding
+    ? ORG_ONBOARDING_STEPS.map((step, index) => ({
+        ...step,
+        state: index < currentIndex ? "completed" as const : index === currentIndex ? "active" as const : "pending" as const,
+      }))
+    : ONBOARDING_STEPS.map((step, index) => ({
+        ...step,
+        state: getStepState(index, currentIndex, userOnboardingCompleted, hasOrganization, hasPlan),
+      }));
 
-  // Show loading while checking auth
-  if (status === "loading") {
+  // Don't render if not authenticated (but allow loading state to keep children mounted)
+  if (status === "unauthenticated") {
+    return null;
+  }
+
+  // Show loading overlay on initial load only (when no session yet)
+  const isInitialLoading = status === "loading" && !session;
+
+  if (isInitialLoading) {
     return (
       <div
         className="flex min-h-screen items-center justify-center"
@@ -54,11 +79,6 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
     );
   }
 
-  // Don't render if not authenticated
-  if (!session) {
-    return null;
-  }
-
   return (
     <div
       className="min-h-screen"
@@ -68,7 +88,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
     >
       {/* Stepper - fixed at top */}
       <div className="fixed top-0 z-10 w-full px-4 py-4">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto w-full max-w-4xl">
           <Stepper
             steps={steps.map((s) => ({ id: s.id, label: s.label }))}
             currentStep={currentIndex}
@@ -79,7 +99,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ children }) => {
 
       {/* Content - centered */}
       <div className="flex min-h-screen flex-col items-center justify-start p-4 py-30">
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-4xl">{children}</div>
       </div>
     </div>
   );

@@ -186,6 +186,21 @@ export class UserRepository {
     return true;
   }
 
+  async updateStripeCustomerId(id: string, stripeCustomerId: string): Promise<boolean> {
+    const doc = await this.collection.doc(id).get();
+
+    if (!doc.exists) {
+      return false;
+    }
+
+    await this.collection.doc(id).update({
+      stripeCustomerId,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return true;
+  }
+
   private mapToUser(id: string, data: FirebaseFirestore.DocumentData): User {
     return {
       id,
@@ -198,6 +213,7 @@ export class UserRepository {
       onboardingCompleted: data.onboardingCompleted,
       lastLoginAt: data.lastLoginAt,
       defaultOrganizationId: data.defaultOrganizationId,
+      stripeCustomerId: data.stripeCustomerId,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     };

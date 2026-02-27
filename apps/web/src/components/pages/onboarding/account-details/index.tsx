@@ -114,172 +114,124 @@ const AccountDetailsPage = () => {
   const error = completeProfile.error?.message || null;
 
   return (
-    <Card className="w-full border px-2">
-      <CardHeader className="flex flex-col items-center gap-4 text-center">
-        <Link href="/" className="flex flex-col items-center justify-center gap-2">
-          <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-semibold">Add your account details</h1>
-          <p className="text-muted-foreground text-sm">Enter your details to get started</p>
-        </div>
-      </CardHeader>
+    <div className="mx-auto max-w-xl">
+      <Card className="w-full border px-2">
+        <CardHeader className="flex flex-col items-center gap-4 text-center">
+          <Link href="/" className="flex flex-col items-center justify-center gap-2">
+            <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold">Add your account details</h1>
+            <p className="text-muted-foreground text-sm">Enter your details to get started</p>
+          </div>
+        </CardHeader>
 
-      <CardContent className="flex flex-col gap-6">
-        {/* Display email (read-only per user decision) */}
-        <Field>
-          <FieldLabel>Email</FieldLabel>
-          <Input
-            type="email"
-            value={session?.user?.email || ""}
-            disabled
-            className="bg-muted h-11"
-          />
-          <p className="text-muted-foreground mt-1 text-xs">Email verified and cannot be changed</p>
-        </Field>
+        <CardContent className="flex flex-col gap-6">
+          {/* Display email (read-only per user decision) */}
+          <Field>
+            <FieldLabel>Email</FieldLabel>
+            <Input
+              type="email"
+              value={session?.user?.email || ""}
+              disabled
+              className="bg-muted h-11"
+            />
+            <p className="text-muted-foreground mt-1 text-xs">
+              Email verified and cannot be changed
+            </p>
+          </Field>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-        >
-          <FieldGroup>
-            {/* Full Name Field */}
-            <form.Field
-              name="name"
-              validators={{
-                onChange: ({ value }) => {
-                  const result = nameSchema.safeParse(value);
-                  if (!result.success) {
-                    return result.error.errors[0]?.message;
-                  }
-                  return undefined;
-                },
-              }}
-            >
-              {(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      disabled={isLoading}
-                      className="h-11"
-                      aria-invalid={isInvalid}
-                    />
-                    {isInvalid && (
-                      <FieldError
-                        errors={field.state.meta.errors.map((err) => ({
-                          message: typeof err === "string" ? err : String(err),
-                        }))}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+          >
+            <FieldGroup>
+              {/* Full Name Field */}
+              <form.Field
+                name="name"
+                validators={{
+                  onChange: ({ value }) => {
+                    const result = nameSchema.safeParse(value);
+                    if (!result.success) {
+                      return result.error.errors[0]?.message;
+                    }
+                    return undefined;
+                  },
+                }}
+              >
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Full Name</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        disabled={isLoading}
+                        className="h-11"
+                        aria-invalid={isInvalid}
                       />
-                    )}
-                  </Field>
-                );
-              }}
-            </form.Field>
+                      {isInvalid && (
+                        <FieldError
+                          errors={field.state.meta.errors.map((err) => ({
+                            message: typeof err === "string" ? err : String(err),
+                          }))}
+                        />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-            {/* Password Field with Live Checklist - wrapped in Subscribe for real-time updates */}
-            <form.Subscribe
-              selector={(state) => [state.values.password, state.values.confirmPassword]}
-            >
-              {([passwordValue, confirmPasswordValue]) => (
-                <>
-                  {/* Password Field */}
-                  <form.Field
-                    name="password"
-                    validators={{
-                      onChange: ({ value }) => {
-                        const result = onboardingPasswordSchema.safeParse(value);
-                        if (!result.success) {
-                          // Don't show error message here - use checklist instead
+              {/* Password Field with Live Checklist - wrapped in Subscribe for real-time updates */}
+              <form.Subscribe
+                selector={(state) => [state.values.password, state.values.confirmPassword]}
+              >
+                {([passwordValue, confirmPasswordValue]) => (
+                  <>
+                    {/* Password Field */}
+                    <form.Field
+                      name="password"
+                      validators={{
+                        onChange: ({ value }) => {
+                          const result = onboardingPasswordSchema.safeParse(value);
+                          if (!result.success) {
+                            // Don't show error message here - use checklist instead
+                            return undefined;
+                          }
                           return undefined;
-                        }
-                        return undefined;
-                      },
-                    }}
-                  >
-                    {(field) => (
-                      <Field>
-                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                        <InputGroup className="h-11">
-                          <InputGroupInput
-                            id={field.name}
-                            name={field.name}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Create a password"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            disabled={isLoading}
-                          />
-                          <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                              type="button"
-                              size="icon-sm"
-                              onClick={() => setShowPassword(!showPassword)}
-                              aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                              {showPassword ? (
-                                <EyeOff className="size-4" />
-                              ) : (
-                                <Eye className="size-4" />
-                              )}
-                            </InputGroupButton>
-                          </InputGroupAddon>
-                        </InputGroup>
-
-                        {/* Live Password Checklist (per user decision) */}
-                        <PasswordChecklist password={passwordValue as string} />
-                      </Field>
-                    )}
-                  </form.Field>
-
-                  {/* Confirm Password Field with Live Match Indicator */}
-                  <form.Field
-                    name="confirmPassword"
-                    validators={{
-                      onChange: ({ value }) => {
-                        if (value.length > 0 && value !== passwordValue) {
-                          return "Passwords do not match";
-                        }
-                        return undefined;
-                      },
-                    }}
-                  >
-                    {(field) => {
-                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>Confirm Password</FieldLabel>
+                        },
+                      }}
+                    >
+                      {(field) => (
+                        <Field>
+                          <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                           <InputGroup className="h-11">
                             <InputGroupInput
                               id={field.name}
                               name={field.name}
-                              type={showConfirmPassword ? "text" : "password"}
-                              placeholder="Confirm your password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Create a password"
                               value={field.state.value}
                               onChange={(e) => field.handleChange(e.target.value)}
                               onBlur={field.handleBlur}
                               disabled={isLoading}
-                              aria-invalid={isInvalid}
                             />
                             <InputGroupAddon align="inline-end">
                               <InputGroupButton
                                 type="button"
                                 size="icon-sm"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
                               >
-                                {showConfirmPassword ? (
+                                {showPassword ? (
                                   <EyeOff className="size-4" />
                                 ) : (
                                   <Eye className="size-4" />
@@ -288,37 +240,91 @@ const AccountDetailsPage = () => {
                             </InputGroupAddon>
                           </InputGroup>
 
-                          {/* Live Match Indicator (per user decision) */}
-                          <PasswordMatchIndicator
-                            password={passwordValue as string}
-                            confirmPassword={confirmPasswordValue as string}
-                          />
+                          {/* Live Password Checklist (per user decision) */}
+                          <PasswordChecklist password={passwordValue as string} />
                         </Field>
-                      );
-                    }}
-                  </form.Field>
-                </>
-              )}
-            </form.Subscribe>
+                      )}
+                    </form.Field>
 
-            {/* Error Message */}
-            {error && <p className="text-destructive text-center text-sm">{error}</p>}
+                    {/* Confirm Password Field with Live Match Indicator */}
+                    <form.Field
+                      name="confirmPassword"
+                      validators={{
+                        onChange: ({ value }) => {
+                          if (value.length > 0 && value !== passwordValue) {
+                            return "Passwords do not match";
+                          }
+                          return undefined;
+                        },
+                      }}
+                    >
+                      {(field) => {
+                        const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                        return (
+                          <Field data-invalid={isInvalid}>
+                            <FieldLabel htmlFor={field.name}>Confirm Password</FieldLabel>
+                            <InputGroup className="h-11">
+                              <InputGroupInput
+                                id={field.name}
+                                name={field.name}
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Confirm your password"
+                                value={field.state.value}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                onBlur={field.handleBlur}
+                                disabled={isLoading}
+                                aria-invalid={isInvalid}
+                              />
+                              <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                  type="button"
+                                  size="icon-sm"
+                                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                  aria-label={
+                                    showConfirmPassword ? "Hide password" : "Show password"
+                                  }
+                                >
+                                  {showConfirmPassword ? (
+                                    <EyeOff className="size-4" />
+                                  ) : (
+                                    <Eye className="size-4" />
+                                  )}
+                                </InputGroupButton>
+                              </InputGroupAddon>
+                            </InputGroup>
 
-            {/* Submit Button - Always enabled per user decision */}
-            <Button type="submit" disabled={isLoading} className="h-11 w-full">
-              {isLoading ? (
-                <>
-                  <Spinner className="mr-2 size-4" />
-                  Saving...
-                </>
-              ) : (
-                "Continue"
-              )}
-            </Button>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+                            {/* Live Match Indicator (per user decision) */}
+                            <PasswordMatchIndicator
+                              password={passwordValue as string}
+                              confirmPassword={confirmPasswordValue as string}
+                            />
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
+                  </>
+                )}
+              </form.Subscribe>
+
+              {/* Error Message */}
+              {error && <p className="text-destructive text-center text-sm">{error}</p>}
+
+              {/* Submit Button - Always enabled per user decision */}
+              <Button type="submit" disabled={isLoading} className="h-11 w-full">
+                {isLoading ? (
+                  <>
+                    <Spinner className="mr-2 size-4" />
+                    Saving...
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </Button>
+            </FieldGroup>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

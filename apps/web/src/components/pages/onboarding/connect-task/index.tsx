@@ -64,7 +64,6 @@ const ConnectTaskPage = () => {
     <OrgOnboardingLayout
       title="Connect Task Management"
       description="Sync tasks and projects to track work alongside meetings"
-      currentStep={1}
       onBack={handleBack}
       onSkip={handleSkip}
       onNext={handleNext}

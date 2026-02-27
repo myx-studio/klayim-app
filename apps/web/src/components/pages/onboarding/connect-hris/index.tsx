@@ -74,7 +74,6 @@ const ConnectHrisPage = () => {
       <OrgOnboardingLayout
         title="Connect HRIS"
         description="Import employee data and rates from your HR system"
-        currentStep={0}
         onBack={handleBack}
         onSkip={handleSkip}
         onNext={handleNext}

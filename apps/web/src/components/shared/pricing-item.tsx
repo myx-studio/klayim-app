@@ -1,26 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { PricingPlan } from "@klayim/shared";
-import { CircleCheck } from "lucide-react";
+import { Check, CircleCheck } from "lucide-react";
 import Link from "next/link";
 
 interface PricingItemProps {
   plan: PricingPlan;
+  // Optional props for selectable mode (onboarding)
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-const PricingItem = ({ plan }: PricingItemProps) => {
-  return (
-    <div className="group bg-secondary-accent hover:bg-primary-yellow flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl shadow-sm transition-all duration-300 ease-in-out hover:scale-105">
+const PricingItem = ({ plan, isSelected, onSelect }: PricingItemProps) => {
+  const isSelectable = typeof onSelect === "function";
+
+  const content = (
+    <>
       <div className="p-6 text-xl font-bold">
         <h3>{plan.name}</h3>
       </div>
+      {/* Selected indicator */}
+      {isSelected && (
+        <div className="bg-primary absolute top-3 right-3 z-10 rounded-full p-1">
+          <Check className="size-4 text-white" />
+        </div>
+      )}
       <Card
         className="relative flex-1 overflow-hidden border-0"
         style={{
           boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.10)",
         }}
       >
-        <CardHeader className="">
+        <CardHeader>
           <CardTitle className="text-base font-light">{plan.description}</CardTitle>
         </CardHeader>
 
@@ -51,16 +63,43 @@ const PricingItem = ({ plan }: PricingItemProps) => {
           </ul>
         </CardContent>
 
-        <CardFooter className="mt-auto pt-6">
-          <Button
-            asChild
-            className="group-hover:bg-primary-yellow group-hover:text-primary-yellow-foreground w-full transition-colors duration-300"
-            size="lg"
-          >
-            <Link href={plan.ctaLink}>{plan.cta}</Link>
-          </Button>
-        </CardFooter>
+        {!isSelectable && (
+          <CardFooter className="mt-auto pt-6">
+            <Button
+              asChild
+              className="group-hover:bg-primary-yellow group-hover:text-primary-yellow-foreground w-full transition-colors duration-300"
+              size="lg"
+            >
+              <Link href={plan.ctaLink}>{plan.cta}</Link>
+            </Button>
+          </CardFooter>
+        )}
       </Card>
+    </>
+  );
+
+  // Selectable mode (for onboarding)
+  if (isSelectable) {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          "group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl text-left shadow-sm transition-all duration-300 ease-in-out hover:scale-105",
+          isSelected
+            ? "bg-primary-yellow ring-primary scale-105 ring-2"
+            : "bg-secondary-accent hover:bg-primary-yellow"
+        )}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  // Link mode (for home page)
+  return (
+    <div className="group bg-secondary-accent hover:bg-primary-yellow flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl shadow-sm transition-all duration-300 ease-in-out hover:scale-105">
+      {content}
     </div>
   );
 };

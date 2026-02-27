@@ -16,6 +16,7 @@ export interface User extends Timestamps {
   onboardingCompleted?: boolean; // Track if user completed onboarding
   lastLoginAt?: string;
   defaultOrganizationId?: string;
+  stripeCustomerId?: string; // Stripe customer ID for billing
 }
 
 export interface UserProfile {

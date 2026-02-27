@@ -10,8 +10,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { SubStepper } from "@/components/ui/sub-stepper";
-import { ORG_ONBOARDING_STEPS } from "@/lib/org-onboarding";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -25,8 +23,6 @@ export interface OrgOnboardingLayoutProps {
   title: string;
   /** Page description */
   description: string;
-  /** Current step index (0, 1, or 2) */
-  currentStep: number;
   /** Optional back button handler - if provided, shows back button */
   onBack?: () => void;
   /** Skip button handler */
@@ -43,13 +39,13 @@ export interface OrgOnboardingLayoutProps {
 
 /**
  * OrgOnboardingLayout provides consistent structure for all organization onboarding pages.
- * Includes sub-stepper, back navigation, title/description, content slot, and action buttons.
+ * Includes back navigation, title/description, content slot, and action buttons.
+ * The main stepper is handled by the parent OnboardingLayout.
  */
 function OrgOnboardingLayout({
   children,
   title,
   description,
-  currentStep,
   onBack,
   onSkip,
   onNext,
@@ -57,12 +53,6 @@ function OrgOnboardingLayout({
   showSkip = true,
   className,
 }: OrgOnboardingLayoutProps) {
-  // Map steps for SubStepper (only need id and label)
-  const subSteps = ORG_ONBOARDING_STEPS.map((step) => ({
-    id: step.id,
-    label: step.label,
-  }));
-
   return (
     <div className={cn("relative mx-auto w-full max-w-2xl", className)} data-slot="org-onboarding-layout">
       {/* Back button (top-left, outside card) */}
@@ -77,11 +67,6 @@ function OrgOnboardingLayout({
           <ArrowLeft className="h-5 w-5" />
         </Button>
       )}
-
-      {/* Sub-stepper (above card) */}
-      <div className="mb-6">
-        <SubStepper steps={subSteps} currentStep={currentStep} />
-      </div>
 
       {/* Main card */}
       <Card className="w-full border px-2">

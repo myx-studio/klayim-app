@@ -1,5 +1,6 @@
 import { fetcher } from "@/lib/fetcher";
 import type {
+  ApiResponse,
   CheckoutSessionRequest,
   CheckoutSessionResponse,
   ContactSalesRequest,
@@ -11,10 +12,16 @@ import type {
 export async function createCheckoutSession(
   input: CheckoutSessionRequest & { organizationId: string }
 ): Promise<CheckoutSessionResponse> {
-  return fetcher<CheckoutSessionResponse>("/billing/checkout", {
+  const response = await fetcher<ApiResponse<CheckoutSessionResponse>>("/billing/checkout", {
     method: "POST",
     body: JSON.stringify(input),
   });
+
+  if (!response.success || !response.data) {
+    throw new Error(response.error || "Failed to create checkout session");
+  }
+
+  return response.data;
 }
 
 /**
