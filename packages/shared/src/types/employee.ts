@@ -39,3 +39,15 @@ export interface Employee {
   updatedAt: string;
   lastSyncedAt?: string; // Last HRIS sync time (for imported employees)
 }
+
+/**
+ * CSV import row type (salary conversion handled in service layer)
+ */
+export interface CsvEmployeeRow {
+  name: string;
+  email: string;
+  role?: string;
+  department?: string;
+  hourlyRate?: number; // Will be converted to cents
+  annualSalary?: number; // Alternative to hourlyRate
+}

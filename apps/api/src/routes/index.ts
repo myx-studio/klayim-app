@@ -7,3 +7,4 @@ export * from "./billing.route.js";
 export * from "./webhook.route.js";
 export * from "./webhooks/index.js";
 export * from "./oauth/index.js";
+export * from "./employees.js";

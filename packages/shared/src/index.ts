@@ -33,6 +33,8 @@ export {
   createPortalSessionSchema,
   // Newsletter schemas
   newsletterSubscribeSchema,
+  // Employee schemas
+  csvEmployeeRowSchema,
 } from "./schemas/index.js";
 
 // Config

@@ -5,7 +5,7 @@ import { onRequest, HttpsFunction, HttpsOptions } from "firebase-functions/v2/ht
 import { defineSecret } from "firebase-functions/params";
 import type { Request, Response } from "express";
 
-import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes, webhookRoutes, webhooksRoute, oauthRoutes } from "@/routes/index.js";
+import { healthRoute, userRoute, authRoutes, organizationRoutes, newsletterRoute, billingRoutes, webhookRoutes, webhooksRoute, oauthRoutes, employeeRoutes } from "@/routes/index.js";
 import { authMiddleware } from "@/middleware/index.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -48,8 +48,10 @@ app.route("/oauth", oauthRoutes);
 // Protected routes
 app.use("/users/*", authMiddleware);
 app.use("/organizations/*", authMiddleware);
+app.use("/employees/*", authMiddleware);
 app.route("/users", userRoute);
 app.route("/organizations", organizationRoutes);
+app.route("/employees", employeeRoutes);
 
 // Root route
 app.get("/", (c) => {
