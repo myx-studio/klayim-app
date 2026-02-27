@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 6 of 8 (HRIS Integration)
-Plan: 2 of 3 in current phase
-Status: In Progress
-Last activity: 2026-02-27 - Completed 06-02-PLAN.md (Finch Integration)
+Plan: 3 of 3 in current phase
+Status: Phase Complete
+Last activity: 2026-02-27 - Completed 06-03-PLAN.md (CSV Import and Frontend Wiring)
 
-Progress: [███████░░░] 78%
+Progress: [████████░░] 82%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 3.7 min
-- Total execution time: 0.87 hours
+- Total plans completed: 15
+- Average duration: 3.8 min
+- Total execution time: 0.98 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [███████░░░] 78%
 | 03-organization-onboarding-ui | 2 | 5 min | 2.5 min |
 | 04-integration-infrastructure | 3 | 9 min | 3 min |
 | 05-calendar-integration | 3 | 16 min | 5.3 min |
-| 06-hris-integration | 2 | 8 min | 4 min |
+| 06-hris-integration | 3 | 15 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (5 min), 05-02 (5 min), 05-03 (6 min), 06-01 (3 min), 06-02 (5 min)
+- Last 5 plans: 05-02 (5 min), 05-03 (6 min), 06-01 (3 min), 06-02 (5 min), 06-03 (7 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -95,6 +95,10 @@ Recent decisions affecting current work:
 - Set Finch token expiry to 10 years since Finch tokens don't expire
 - Store companyName@providerId in accountEmail for Finch integrations
 - Use POST endpoints for Finch OAuth (session + callback) since Connect uses embedded modal
+- Use sessionStorage for CSV data between upload/validate/confirm pages
+- Column aliases handle common CSV variations (full_name, email_address, etc.)
+- Calculate hourly rate client-side for preview, server-side for import
+- Use deterministic sourceId from email hash for CSV re-import idempotency
 
 ### Pending Todos
 
@@ -110,8 +114,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 06-02-PLAN.md (Finch Integration)
-Resume file: .planning/phases/06-hris-integration/06-03-PLAN.md
+Stopped at: Completed 06-03-PLAN.md (CSV Import and Frontend Wiring) - Phase 6 Complete
+Resume file: .planning/phases/07-task-integration/07-01-PLAN.md
 
 ---
 *State initialized: 2026-02-26*
