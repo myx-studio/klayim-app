@@ -110,8 +110,8 @@ Recent decisions affecting current work:
 - Use 400-item batch chunks for Firestore bulk operations (below 500 limit)
 - InfoAccordion clarifies time tracking (Asana/ClickUp) vs estimates (Linear)
 - Store meetingCostThresholdCents as integer cents to avoid floating point issues
-- Allow empty string for approvalEmail (Zod validation: email OR literal "")
 - Restrict dashboardRefreshMinutes to specific values (15, 30, 60, 120) via Zod refine
+- Removed approvalEmail field from GovernanceSettings (feature removed)
 
 ### Pending Todos
 

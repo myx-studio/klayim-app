@@ -46,7 +46,6 @@ export interface TimeGovernanceSettings {
 export interface GovernanceSettings {
   meetingCostThresholdCents: number;   // Cost threshold in cents (e.g., 50000 = $500)
   lowRoiThreshold: number;              // ROI threshold (e.g., 1.0 = 1x)
-  approvalEmail: string;                // Email for approval routing (empty string if not set)
   dashboardRefreshMinutes: number;      // Dashboard refresh interval (15, 30, 60, or 120)
   pullToRefreshEnabled: boolean;        // Enable pull-to-refresh on mobile
 }

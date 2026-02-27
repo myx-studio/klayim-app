@@ -104,7 +104,6 @@ export const completeOnboardingStepSchema = z.object({
 export const governanceSettingsSchema = z.object({
   meetingCostThresholdCents: z.number().int().min(0).max(10000000), // 0 to $100,000
   lowRoiThreshold: z.number().min(0).max(100),                       // 0 to 100x
-  approvalEmail: z.string().email().or(z.literal("")),               // Valid email or empty string
   dashboardRefreshMinutes: z.number().refine(
     (val) => [15, 30, 60, 120].includes(val),
     { message: "Dashboard refresh must be 15, 30, 60, or 120 minutes" }
