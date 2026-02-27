@@ -6,28 +6,10 @@ import { ProviderCard } from "@/components/onboarding/provider-card";
 import { UploadCsvDialog } from "@/components/onboarding/upload-csv-dialog";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-
-// Provider icon placeholder components
-const BambooHRIcon = () => (
-  <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
-    <span className="text-primary text-lg font-bold">BH</span>
-  </div>
-);
-
-const RipplingIcon = () => (
-  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-    <span className="text-lg font-bold text-blue-600">R</span>
-  </div>
-);
-
-const GustoIcon = () => (
-  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
-    <span className="text-lg font-bold text-orange-600">G</span>
-  </div>
-);
 
 const ConnectHrisPage = () => {
   const router = useRouter();
@@ -76,19 +58,19 @@ const ConnectHrisPage = () => {
         {/* Provider cards grid */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <ProviderCard
-            icon={<BambooHRIcon />}
+            icon={<Image src="/images/onboarding/hris/bamboohr.png" alt="BambooHR" width={48} height={48} />}
             name="BambooHR"
             description="Sync employee data and hourly rates using BambooHR"
             onConnect={handleConnectBambooHR}
           />
           <ProviderCard
-            icon={<RipplingIcon />}
+            icon={<Image src="/images/onboarding/hris/rippling.png" alt="Rippling" width={48} height={48} />}
             name="Rippling"
             description="Sync employee data and hourly rates using Rippling"
             onConnect={handleConnectRippling}
           />
           <ProviderCard
-            icon={<GustoIcon />}
+            icon={<Image src="/images/onboarding/hris/gusto.png" alt="Gusto" width={48} height={48} />}
             name="Gusto"
             description="Sync employee data and hourly rates using Gusto"
             onConnect={handleConnectGusto}

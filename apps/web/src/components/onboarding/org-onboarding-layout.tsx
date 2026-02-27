@@ -9,7 +9,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -50,37 +49,35 @@ function OrgOnboardingLayout({
   className,
 }: OrgOnboardingLayoutProps) {
   return (
-    <div className={cn("mx-auto w-full max-w-2xl", className)} data-slot="org-onboarding-layout">
-      {/* Main card */}
-      <Card className="w-full border px-2">
-        <CardHeader className="flex flex-col items-center gap-4 text-center">
-          {/* Klayim logo */}
-          <Link href="/" className="flex flex-col items-center justify-center gap-2">
-            <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
-          </Link>
+    <div className={cn("mx-auto flex w-full max-w-2xl flex-col gap-8", className)} data-slot="org-onboarding-layout">
+      {/* Header */}
+      <div className="flex flex-col items-center gap-4 text-center">
+        {/* Klayim logo */}
+        <Link href="/" className="flex flex-col items-center justify-center gap-2">
+          <Image src="/images/logo/symbol.svg" alt="Klayim" width={32} height={32} />
+        </Link>
 
-          {/* Title and description */}
-          <div>
-            <h1 className="text-xl font-semibold">{title}</h1>
-            <p className="text-muted-foreground text-sm">{description}</p>
-          </div>
-        </CardHeader>
+        {/* Title and description */}
+        <div>
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <p className="text-muted-foreground text-sm">{description}</p>
+        </div>
+      </div>
 
-        {/* Page-specific content */}
-        <CardContent className="flex flex-col gap-6">{children}</CardContent>
+      {/* Page-specific content */}
+      <div className="flex flex-col gap-6">{children}</div>
 
-        {/* Action buttons */}
-        <CardFooter className="flex gap-3 pt-4">
-          {showSkip && (
-            <Button variant="outline" onClick={onSkip} className="h-11 flex-1">
-              Skip for Now
-            </Button>
-          )}
-          <Button onClick={onNext} className={cn("h-11", showSkip ? "flex-1" : "w-full")}>
-            {nextLabel}
+      {/* Action buttons */}
+      <div className="flex gap-3">
+        {showSkip && (
+          <Button variant="outline" onClick={onSkip} className="h-11 flex-1">
+            Skip for Now
           </Button>
-        </CardFooter>
-      </Card>
+        )}
+        <Button onClick={onNext} className={cn("h-11", showSkip ? "flex-1" : "w-full")}>
+          {nextLabel}
+        </Button>
+      </div>
     </div>
   );
 }
