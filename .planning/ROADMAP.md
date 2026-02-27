@@ -106,12 +106,12 @@ Plans:
   4. System receives real-time updates when meetings change via webhooks
   5. System catches missed webhook events through periodic polling fallback
   6. User sees clear explanation of what will and won't be tracked before connecting
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md - OAuth flows and SDK setup: googleapis, @azure/msal-node, CalendarEvent types, Google/Microsoft OAuth endpoints
+- [ ] 05-02-PLAN.md - Calendar sync: CalendarEvent repository, SyncState tracking, full/incremental sync with syncToken/deltaLink
+- [ ] 05-03-PLAN.md - Webhooks and UI: Webhook registration, webhook handlers, polling fallback, frontend Connect button wiring
 
 ### Phase 6: HRIS Integration
 **Goal**: Users can import employee data (including hourly rates) from their HR system
@@ -195,4 +195,4 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27 - Phase 4 Complete*
+*Last updated: 2026-02-27 - Phase 5 Planned*
