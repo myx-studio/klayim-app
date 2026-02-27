@@ -1,5 +1,6 @@
 import { ConfidentialClientApplication, Configuration } from "@azure/msal-node";
-import { Client } from "@microsoft/microsoft-graph-client";
+import { Client, PageCollection, PageIterator } from "@microsoft/microsoft-graph-client";
+import type { CalendarEvent, CalendarEventStatus, EventAttendee, AttendeeResponseStatus } from "@klayim/shared/types";
 
 /**
  * OAuth state passed through the authorization flow
@@ -30,6 +31,41 @@ export interface MicrosoftExchangeResult {
 export interface MicrosoftRefreshResult {
   accessToken: string;
   expiresInMs: number;
+}
+
+/**
+ * Options for listing events
+ */
+export interface MicrosoftListEventsOptions {
+  deltaLink?: string;
+}
+
+/**
+ * Raw Microsoft Graph event type
+ */
+export interface MicrosoftGraphEvent {
+  id?: string;
+  subject?: string;
+  start?: { dateTime?: string; timeZone?: string; };
+  end?: { dateTime?: string; timeZone?: string; };
+  isAllDay?: boolean;
+  organizer?: { emailAddress?: { address?: string; }; };
+  attendees?: Array<{
+    emailAddress?: { address?: string; };
+    status?: { response?: string; };
+  }>;
+  isCancelled?: boolean;
+  showAs?: string;
+  seriesMasterId?: string;
+  "@removed"?: { reason?: string; };
+}
+
+/**
+ * Result from listing events
+ */
+export interface MicrosoftListEventsResult {
+  events: MicrosoftGraphEvent[];
+  nextDeltaLink: string;
 }
 
 /**
@@ -210,6 +246,168 @@ class MicrosoftCalendarService {
         done(null, accessToken);
       },
     });
+  }
+
+  /**
+   * List calendar events with optional deltaLink for incremental sync
+   *
+   * @param accessToken - Current access token
+   * @param options - Options including deltaLink for incremental sync
+   * @returns List of events and next delta link
+   */
+  async listEvents(
+    accessToken: string,
+    options: MicrosoftListEventsOptions = {}
+  ): Promise<MicrosoftListEventsResult> {
+    const graphClient = this.createGraphClient(accessToken);
+    const allEvents: MicrosoftGraphEvent[] = [];
+
+    let requestUrl: string;
+
+    if (options.deltaLink) {
+      // Incremental sync - use the stored delta link directly
+      requestUrl = options.deltaLink;
+    } else {
+      // Full sync - use calendarView with delta
+      // Get events from 90 days ago to 365 days in future
+      const startDateTime = new Date();
+      startDateTime.setDate(startDateTime.getDate() - 90);
+      const endDateTime = new Date();
+      endDateTime.setDate(endDateTime.getDate() + 365);
+
+      requestUrl = `/me/calendarView/delta?startDateTime=${startDateTime.toISOString()}&endDateTime=${endDateTime.toISOString()}`;
+    }
+
+    // Use PageIterator to handle pagination automatically
+    let deltaLink = "";
+
+    try {
+      // Make initial request
+      const response: PageCollection = await graphClient.api(requestUrl).get();
+
+      // Check if we got a direct deltaLink (no events to iterate)
+      if (response["@odata.deltaLink"] && !response.value?.length) {
+        return {
+          events: [],
+          nextDeltaLink: response["@odata.deltaLink"],
+        };
+      }
+
+      // Create callback for page iteration
+      const callback = (event: MicrosoftGraphEvent) => {
+        allEvents.push(event);
+        return true; // Continue iteration
+      };
+
+      // Create page iterator
+      const pageIterator = new PageIterator(graphClient, response, callback);
+
+      // Iterate through all pages
+      await pageIterator.iterate();
+
+      // Get the delta link from the last response
+      // The PageIterator doesn't directly expose deltaLink, so we check the response
+      deltaLink = response["@odata.deltaLink"] || "";
+
+      // If no delta link yet, we need to get it from the iterator state
+      // Microsoft returns deltaLink only on the last page
+      if (!deltaLink && pageIterator.getDeltaLink) {
+        deltaLink = pageIterator.getDeltaLink() || "";
+      }
+
+      return {
+        events: allEvents,
+        nextDeltaLink: deltaLink,
+      };
+    } catch (error: unknown) {
+      // Handle errors - Microsoft doesn't use 410 GONE for expired delta tokens
+      // Instead, it returns a new initial response, so we just pass through
+      throw error;
+    }
+  }
+
+  /**
+   * Map Microsoft Graph event to normalized CalendarEvent
+   *
+   * @param msEvent - Raw Microsoft Graph event
+   * @param integrationId - Integration ID for this calendar
+   * @param organizationId - Organization ID
+   * @returns Normalized CalendarEvent (without id, createdAt, updatedAt)
+   */
+  mapToCalendarEvent(
+    msEvent: MicrosoftGraphEvent,
+    integrationId: string,
+    organizationId: string
+  ): Omit<CalendarEvent, "id" | "createdAt" | "updatedAt"> {
+    const isAllDay = msEvent.isAllDay || false;
+
+    // Parse start and end times (Microsoft uses dateTime + timeZone)
+    // For simplicity, we convert to ISO strings
+    let startTime = new Date().toISOString();
+    let endTime = new Date().toISOString();
+
+    if (msEvent.start?.dateTime) {
+      // Microsoft returns datetime without timezone suffix, in the specified timezone
+      // We'll treat it as the local time and convert
+      startTime = new Date(msEvent.start.dateTime + "Z").toISOString();
+    }
+    if (msEvent.end?.dateTime) {
+      endTime = new Date(msEvent.end.dateTime + "Z").toISOString();
+    }
+
+    // Calculate duration in minutes
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const durationMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+
+    // Map attendees
+    const attendees: EventAttendee[] = (msEvent.attendees || []).map((a) => ({
+      email: a.emailAddress?.address || "",
+      responseStatus: this.mapMicrosoftResponseStatus(a.status?.response),
+    }));
+
+    // Map status
+    let status: CalendarEventStatus = "confirmed";
+    if (msEvent.isCancelled || msEvent["@removed"]) {
+      status = "cancelled";
+    } else if (msEvent.showAs === "tentative") {
+      status = "tentative";
+    }
+
+    return {
+      organizationId,
+      integrationId,
+      externalId: msEvent.id || "",
+      provider: "microsoft_calendar",
+      title: msEvent.subject || "(No title)",
+      startTime,
+      endTime,
+      durationMinutes,
+      isAllDay,
+      organizerEmail: msEvent.organizer?.emailAddress?.address || "",
+      attendees,
+      recurringEventId: msEvent.seriesMasterId,
+      status,
+    };
+  }
+
+  /**
+   * Map Microsoft response status to normalized AttendeeResponseStatus
+   */
+  private mapMicrosoftResponseStatus(
+    msStatus: string | undefined
+  ): AttendeeResponseStatus {
+    switch (msStatus?.toLowerCase()) {
+      case "accepted":
+        return "accepted";
+      case "declined":
+        return "declined";
+      case "tentativelyaccepted":
+      case "tentative":
+        return "tentative";
+      default:
+        return "needsAction";
+    }
   }
 }
 
