@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { microsoftCalendarService, type MicrosoftOAuthState } from "@/services/microsoft-calendar.service.js";
 import { integrationService } from "@/services/integration.service.js";
+import { calendarSyncService } from "@/services/calendar-sync.service.js";
 import { authMiddleware } from "@/middleware/auth.middleware.js";
 import type { ApiResponse } from "@/types/index.js";
 
@@ -128,7 +129,7 @@ microsoftOAuth.get("/callback", async (c) => {
     const result = await microsoftCalendarService.exchangeCode(code);
 
     // Store the integration with encrypted credentials
-    await integrationService.connect({
+    const integration = await integrationService.connect({
       organizationId: state.organizationId,
       provider: "microsoft_calendar",
       accountEmail: result.userInfo.email,
@@ -137,6 +138,11 @@ microsoftOAuth.get("/callback", async (c) => {
       accessToken: result.tokens.accessToken,
       refreshToken: result.tokens.refreshToken,
       expiresAt: result.tokens.expiresAt,
+    });
+
+    // Trigger initial sync async (don't await - redirect immediately)
+    calendarSyncService.triggerInitialSync(integration.id).catch((err) => {
+      console.error("[OAuth/Microsoft] Initial sync error:", err);
     });
 
     // Redirect to frontend with success

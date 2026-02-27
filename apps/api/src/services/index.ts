@@ -8,3 +8,4 @@ export * from "./integration.service.js";
 export * from "./webhook-queue.service.js";
 export * from "./google-calendar.service.js";
 export * from "./microsoft-calendar.service.js";
+export * from "./calendar-sync.service.js";
