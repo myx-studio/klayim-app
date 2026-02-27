@@ -133,12 +133,12 @@ Remember: Employees are NOT app users (OrganizationMembers). They are imported d
 - Calculating meeting costs based on hourlyRate
 See REQUIREMENTS.md "Data Model Clarification" section for the distinction.
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
-- [ ] 06-03: TBD
+- [ ] 06-01-PLAN.md - BambooHR OAuth: BambooHR service, OAuth routes, HRIS sync service for employee import
+- [ ] 06-02-PLAN.md - Finch integration: Finch SDK, Connect sessions, employee sync for Rippling/Gusto
+- [ ] 06-03-PLAN.md - CSV and frontend wiring: PapaParse parsing, employee import API, connect-hris OAuth handlers
 
 ### Phase 7: Task Management Integration
 **Goal**: Users can connect task management tools and sync task data for ROI tracking
@@ -188,11 +188,11 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 2. Plan & Billing | 3/3 | Complete | 2026-02-26 |
 | 3. Organization Onboarding UI | 2/2 | Complete | 2026-02-27 |
 | 4. Integration Infrastructure | 3/3 | Complete | 2026-02-27 |
-| 5. Calendar Integration | 2/3 | In Progress|  |
-| 6. HRIS Integration | 0/3 | Not started | - |
+| 5. Calendar Integration | 3/3 | Complete | 2026-02-27 |
+| 6. HRIS Integration | 0/3 | Planned | - |
 | 7. Task Management Integration | 0/3 | Not started | - |
 | 8. Governance Configuration | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27 - Phase 5 Planned*
+*Last updated: 2026-02-27 - Phase 6 Planned*
