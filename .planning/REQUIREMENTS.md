@@ -101,6 +101,74 @@ Deferred to future release. Tracked but not in current roadmap.
 - **GOV-V2-02**: Meeting-free day enforcement
 - **GOV-V2-03**: Focus time protection rules
 
+## Data Model Clarification: Employee vs OrganizationMember
+
+**Important distinction** between two concepts that may seem similar but serve different purposes:
+
+### Employee (Imported Data)
+
+Employees are **NOT app users**. They are data records imported from HRIS systems (BambooHR, Rippling, Gusto) or CSV uploads. Used for:
+- **Matching meeting attendees** - Email addresses match against calendar invites
+- **Calculating meeting costs** - Hourly rates determine cost per meeting
+
+**Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Auto-generated document ID |
+| organizationId | string | Multi-tenant isolation key |
+| fullName | string | Employee's full name |
+| email | string | Company email (for attendee matching) |
+| hourlyRate | number | Calculated or provided hourly rate |
+| annualSalary | number? | Optional; used to calculate hourlyRate if not provided |
+| department | string | Employee's department |
+| title | string | Job title/role |
+| employmentStatus | enum | 'active' | 'contractor' | 'terminated' |
+| source | enum | 'bamboohr' | 'rippling' | 'gusto' | 'csv' |
+| externalId | string? | ID from source system for sync |
+| createdAt | timestamp | When imported |
+| updatedAt | timestamp | Last sync update |
+
+**Key Points:**
+- Employees do NOT have login credentials
+- Employees do NOT access the Klayim app
+- Data is read-only from Klayim's perspective (synced from source)
+- Multiple employees may share a domain but are not app users
+
+### OrganizationMember (App Users)
+
+OrganizationMembers are **actual users** who log into Klayim. They:
+- View dashboards and analytics
+- Configure governance rules
+- Manage integrations
+- Invite other members
+
+**Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Auto-generated document ID |
+| organizationId | string | Multi-tenant isolation key |
+| userId | string | Reference to User document |
+| role | enum | 'owner' | 'admin' | 'manager' | 'viewer' |
+| invitedBy | string? | userId of inviter |
+| joinedAt | timestamp | When joined organization |
+
+**Key Points:**
+- OrganizationMembers have login credentials (via User)
+- OrganizationMembers can be linked to an Employee record (optional)
+- Role determines permissions within organization
+
+### Relationship
+
+```
+User (auth)
+  └── OrganizationMember (app access + role)
+        └── Employee (optional link for cost tracking)
+```
+
+A user might exist as an OrganizationMember (they use the app) and also have a corresponding Employee record (imported from HRIS). This link enables the system to calculate the cost of meetings they organize or attend.
+
+---
+
 ## Out of Scope
 
 | Feature | Reason |

@@ -81,6 +81,13 @@ Plans:
   4. Webhook signatures are verified per provider specification before processing
   5. Duplicate webhook events are handled idempotently (no duplicate data)
   6. All integration data is scoped to organization (no cross-tenant leakage)
+
+**Data Model Note:**
+Define the `Employee` collection schema here. Employees are imported data (NOT app users) used for:
+- Matching meeting attendees by email
+- Calculating meeting costs via hourlyRate
+See REQUIREMENTS.md "Data Model Clarification" section for full schema.
+
 **Plans**: TBD
 
 Plans:
@@ -118,6 +125,14 @@ Plans:
   5. System imports employee name, email, role, department, and hourly rate
   6. System calculates hourly rate from annual salary when hourly not provided
   7. User sees explanation of what employee data will be imported before connecting
+
+**Data Model Note:**
+This phase imports data into the `Employee` collection (schema defined in Phase 4).
+Remember: Employees are NOT app users (OrganizationMembers). They are imported data used for:
+- Matching meeting attendees by company email
+- Calculating meeting costs based on hourlyRate
+See REQUIREMENTS.md "Data Model Clarification" section for the distinction.
+
 **Plans**: TBD
 
 Plans:
