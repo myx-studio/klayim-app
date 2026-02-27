@@ -7,3 +7,5 @@ export * from "./newsletter.repository.js";
 export * from "./processed-event.repository.js";
 export * from "./integration.repository.js";
 export * from "./employee.repository.js";
+export * from "./webhook-queue.repository.js";
+export * from "./webhook-processed-event.repository.js";

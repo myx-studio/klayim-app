@@ -5,3 +5,4 @@ export * from "./billing.service.js";
 export * from "./webhook.service.js";
 export * from "./token-refresh.service.js";
 export * from "./integration.service.js";
+export * from "./webhook-queue.service.js";
