@@ -1,6 +1,7 @@
 import { integrationRepository, type OAuthCredentials } from "@/repositories/index.js";
 import { decrypt, encrypt, type EncryptedData } from "@/lib/encryption.js";
 import type { Integration, IntegrationProvider } from "@klayim/shared/types";
+import { googleCalendarService } from "./google-calendar.service.js";
 
 /**
  * Buffer time before token expiry to trigger refresh (5 minutes)
@@ -156,36 +157,19 @@ class TokenRefreshService {
 
   /**
    * Refresh Google OAuth token
-   * Uses googleapis OAuth2 client
-   *
-   * TODO: Install googleapis and implement actual refresh
-   * pnpm add googleapis
+   * Uses googleapis OAuth2 client via googleCalendarService
    */
   private async refreshGoogleToken(
     credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
-    // TODO: Implement when googleapis is installed (Phase 5)
-    // import { google } from 'googleapis';
-    //
-    // const oauth2Client = new google.auth.OAuth2(
-    //   process.env.GOOGLE_CLIENT_ID,
-    //   process.env.GOOGLE_CLIENT_SECRET
-    // );
-    // oauth2Client.setCredentials({
-    //   refresh_token: credentials.refreshToken
-    // });
-    //
-    // const { credentials: newCreds } = await oauth2Client.refreshAccessToken();
-    // return {
-    //   accessToken: newCreds.access_token!,
-    //   refreshToken: newCreds.refresh_token,
-    //   expiresInMs: newCreds.expiry_date! - Date.now(),
-    // };
+    const result = await googleCalendarService.refreshToken(credentials.refreshToken);
 
-    throw new Error(
-      "Google Calendar token refresh not implemented. Install googleapis package in Phase 5."
-    );
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresInMs: result.expiresInMs,
+    };
   }
 
   /**
