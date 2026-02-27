@@ -3,6 +3,7 @@ import { decrypt, encrypt, type EncryptedData } from "@/lib/encryption.js";
 import type { Integration, IntegrationProvider } from "@klayim/shared/types";
 import { googleCalendarService } from "./google-calendar.service.js";
 import { microsoftCalendarService } from "./microsoft-calendar.service.js";
+import { bambooHRService } from "./bamboohr.service.js";
 
 /**
  * Buffer time before token expiry to trigger refresh (5 minutes)
@@ -194,16 +195,19 @@ class TokenRefreshService {
 
   /**
    * Refresh BambooHR OAuth token
-   *
-   * TODO: Implement when BambooHR integration is built (Phase 6)
+   * Uses BambooHR OAuth2 refresh token flow
    */
   private async refreshBambooHRToken(
-    _credentials: OAuthCredentials,
+    credentials: OAuthCredentials,
     _integration: Integration
   ): Promise<RefreshResult> {
-    throw new Error(
-      "BambooHR token refresh not implemented. Will be added in Phase 6."
-    );
+    const result = await bambooHRService.refreshToken(credentials.refreshToken);
+
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresInMs: result.expiresInMs,
+    };
   }
 
   /**
