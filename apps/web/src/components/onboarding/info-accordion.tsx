@@ -14,6 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, HelpCircle, X } from "lucide-react";
 import * as React from "react";
@@ -45,45 +46,41 @@ function InfoAccordion({ title, items, defaultOpen = false, className }: InfoAcc
   const accordionValue = defaultOpen ? "info" : undefined;
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      defaultValue={accordionValue}
-      className={cn("w-full", className)}
-      data-slot="info-accordion"
-    >
-      <AccordionItem value="info" className="border-b-0">
-        <AccordionTrigger className="py-3 hover:no-underline">
-          <span className="flex items-center gap-3 text-sm font-semibold">
-            <span className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-              <HelpCircle className="text-muted-foreground h-4 w-4" />
+    <Card className={cn("w-full p-4", className)} data-slot="info-accordion">
+      <Accordion type="single" collapsible defaultValue={accordionValue}>
+        <AccordionItem value="info" className="border-b-0">
+          <AccordionTrigger className="py-0 hover:no-underline">
+            <span className="flex items-center gap-3 text-sm font-semibold">
+              <span className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                <HelpCircle className="text-muted-foreground h-4 w-4" />
+              </span>
+              {title}
             </span>
-            {title}
-          </span>
-        </AccordionTrigger>
-        <AccordionContent>
-          <ul className="flex flex-col gap-3 pt-2">
-            {items.map((item, index) => {
-              const isPositive = item.positive !== false;
-              return (
-                <li key={index} className="flex items-center gap-3 text-sm">
-                  {isPositive ? (
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                      <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                    </span>
-                  ) : (
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
-                      <X className="h-4 w-4 text-red-500" aria-hidden="true" />
-                    </span>
-                  )}
-                  <span>{item.text}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ul className="flex flex-col gap-3 pt-4">
+              {items.map((item, index) => {
+                const isPositive = item.positive !== false;
+                return (
+                  <li key={index} className="flex items-center gap-3 text-sm">
+                    {isPositive ? (
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                        <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                        <X className="h-4 w-4 text-red-500" aria-hidden="true" />
+                      </span>
+                    )}
+                    <span>{item.text}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Card>
   );
 }
 
