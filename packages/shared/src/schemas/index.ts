@@ -5,3 +5,4 @@ export * from "./organization.js";
 export * from "./subscription.js";
 export * from "./newsletter.js";
 export * from "./billing.js";
+export * from "./employee.schema.js";
