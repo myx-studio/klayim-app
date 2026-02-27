@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 5 of 8 (Calendar Integration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-02-27 - Completed 05-01-PLAN.md (Calendar OAuth Setup)
+Last activity: 2026-02-27 - Completed 05-02-PLAN.md (Calendar Sync Implementation)
 
-Progress: [██████░░░░] 62%
+Progress: [██████░░░░] 65%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 3.6 min
-- Total execution time: 0.57 hours
+- Total execution time: 0.65 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [██████░░░░] 62%
 | 02-plan-billing | 3 | 12 min | 4 min |
 | 03-organization-onboarding-ui | 2 | 5 min | 2.5 min |
 | 04-integration-infrastructure | 3 | 9 min | 3 min |
-| 05-calendar-integration | 1 | 5 min | 5 min |
+| 05-calendar-integration | 2 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (3 min), 04-01 (3 min), 04-02 (3 min), 04-03 (3 min), 05-01 (5 min)
+- Last 5 plans: 04-01 (3 min), 04-02 (3 min), 04-03 (3 min), 05-01 (5 min), 05-02 (5 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -77,6 +77,10 @@ Recent decisions affecting current work:
 - MSAL common authority for multi-tenant support (personal and work Microsoft accounts)
 - OAuth state carries organizationId and redirectUrl for callback context
 - Extract refresh token from MSAL cache since it's not exposed in token response
+- Upsert by externalId for idempotent sync (safe to re-run)
+- Sync state uses integrationId as document ID for 1:1 mapping
+- Initial sync runs async (non-blocking) to avoid OAuth redirect delay
+- Cancelled events are deleted from database rather than updated
 
 ### Pending Todos
 
@@ -92,8 +96,8 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 05-01-PLAN.md (Calendar OAuth Setup)
-Resume file: .planning/phases/05-calendar-integration/05-02-PLAN.md
+Stopped at: Completed 05-02-PLAN.md (Calendar Sync Implementation)
+Resume file: .planning/phases/05-calendar-integration/05-03-PLAN.md
 
 ---
 *State initialized: 2026-02-26*

@@ -188,7 +188,7 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 2. Plan & Billing | 3/3 | Complete | 2026-02-26 |
 | 3. Organization Onboarding UI | 2/2 | Complete | 2026-02-27 |
 | 4. Integration Infrastructure | 3/3 | Complete | 2026-02-27 |
-| 5. Calendar Integration | 0/3 | Not started | - |
+| 5. Calendar Integration | 2/3 | In Progress|  |
 | 6. HRIS Integration | 0/3 | Not started | - |
 | 7. Task Management Integration | 0/3 | Not started | - |
 | 8. Governance Configuration | 0/2 | Not started | - |

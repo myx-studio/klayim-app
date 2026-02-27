@@ -42,7 +42,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **CAL-01**: User can connect Google Workspace calendar via OAuth
 - [x] **CAL-02**: User can connect Microsoft 365 calendar via OAuth
-- [ ] **CAL-03**: System syncs calendar events (meetings, attendees, duration)
+- [x] **CAL-03**: System syncs calendar events (meetings, attendees, duration)
 - [ ] **CAL-04**: System receives real-time updates via webhooks
 - [ ] **CAL-05**: System falls back to polling if webhooks miss events
 - [ ] **CAL-06**: User sees "What we'll track" and "What we don't track" explanations
@@ -206,7 +206,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-06 | Phase 4 | Complete |
 | CAL-01 | Phase 5 | Complete |
 | CAL-02 | Phase 5 | Complete |
-| CAL-03 | Phase 5 | Pending |
+| CAL-03 | Phase 5 | Complete |
 | CAL-04 | Phase 5 | Pending |
 | CAL-05 | Phase 5 | Pending |
 | CAL-06 | Phase 5 | Pending |
