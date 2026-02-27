@@ -60,7 +60,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **GOV-01**: User can set meeting cost threshold (meetings > $X require approval)
 - [x] **GOV-02**: User can set low ROI threshold (meetings < X ROI flagged for review)
-- [x] **GOV-03**: User can set approval email for routing high-cost meetings
+- [ ] **GOV-03**: ~~User can set approval email for routing high-cost meetings~~ (REMOVED - feature deferred to v2)
 - [x] **GOV-04**: User can configure dashboard auto-refresh interval
 - [x] **GOV-05**: User can enable/disable pull-to-refresh
 - [x] **GOV-06**: System stores governance settings per organization
@@ -225,16 +225,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TASK-06 | Phase 7 | Complete |
 | GOV-01 | Phase 8 | Complete |
 | GOV-02 | Phase 8 | Complete |
-| GOV-03 | Phase 8 | Complete |
+| GOV-03 | Deferred to v2 | Removed |
 | GOV-04 | Phase 8 | Complete |
 | GOV-05 | Phase 8 | Complete |
 | GOV-06 | Phase 8 | Complete |
 
 **Coverage:**
-- v1 requirements: 42 total
-- Mapped to phases: 42
+- v1 requirements: 42 total (1 deferred)
+- Mapped to phases: 41
+- Completed: 41
+- Deferred to v2: 1 (GOV-03)
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-27 after Phase 4 completion*
+*Last updated: 2026-02-27 - All phases complete (GOV-03 deferred to v2)*

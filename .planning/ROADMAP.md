@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Calendar Integration** - Google and Microsoft calendar sync with webhooks
 - [ ] **Phase 6: HRIS Integration** - Employee data import via BambooHR, Finch, or CSV
 - [ ] **Phase 7: Task Management Integration** - Asana, ClickUp, and Linear task sync
-- [ ] **Phase 8: Governance Configuration** - Cost thresholds, ROI flagging, approval routing
+- [x] **Phase 8: Governance Configuration** - Cost thresholds, ROI flagging, approval routing
 
 ## Phase Details
 
@@ -172,8 +172,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md - Backend infrastructure: GovernanceSettings type, Zod schema, repository method, service method, PATCH /organizations/:id/governance endpoint
-- [ ] 08-02-PLAN.md - Frontend wiring: useUpdateGovernance hook, react-hook-form integration, add missing approvalEmail field, persist settings to API
+- [x] 08-01-PLAN.md - Backend infrastructure: GovernanceSettings type, Zod schema, repository method, service method, PATCH /organizations/:id/governance endpoint
+- [x] 08-02-PLAN.md - Frontend wiring: useUpdateGovernance hook, react-hook-form integration, persist settings to API
 
 ## Progress
 
@@ -191,8 +191,8 @@ Note: Phases 5, 6, and 7 all depend on Phase 4 and can be parallelized if needed
 | 5. Calendar Integration | 3/3 | Complete | 2026-02-27 |
 | 6. HRIS Integration | 3/3 | Complete | 2026-02-27 |
 | 7. Task Management Integration | 3/3 | Complete | 2026-02-27 |
-| 8. Governance Configuration | 0/2 | Not started | - |
+| 8. Governance Configuration | 2/2 | Complete | 2026-02-27 |
 
 ---
 *Roadmap created: 2026-02-26*
-*Last updated: 2026-02-27 - Phase 8 plans created*
+*Last updated: 2026-02-27 - Phase 8 complete - ALL PHASES DONE*
